@@ -1,10 +1,12 @@
 let macro = this.data.command;
 let match = true;
 await jQuery.get("https://raw.githubusercontent.com/xaukael/foundryvtt-macros/main/Character%20Dialog.js", function(data) {
-  match = data.slice(0, -1) === macro;
+  let match = data.slice(0, -1) === macro;
 });
-if (!match)
-  console.log(match) ;
+if (!match) {
+  await this.update({command:data.slice(0, -1)});
+  console.log(`${this.data.name} updated`);
+}
 
 function itemFilter(i){
   if( actor.data.type !== 'character' )
