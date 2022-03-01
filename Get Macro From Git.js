@@ -1,5 +1,5 @@
 if(!args[0]) return ui.notifications.error('No macro name passed in args');
-if(game.macros.getName(args[0])) return ui.notifications.error('A Macro with that name already exists');
+if(game.macros.getName(args[0])) return ui.notifications.error(`A macro named ${args[0]} already exists`);
 let gitData = "";
 try{
 await jQuery.get(`https://raw.githubusercontent.com/xaukael/foundryvtt-macros/main/${encodeURI(args[0])}.js`, async function(data) {
