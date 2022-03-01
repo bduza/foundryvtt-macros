@@ -1,4 +1,4 @@
-await jQuery.get("https://raw.githubusercontent.com/xaukael/foundryvtt-macros/master/Character%20Dialog.js", function(data) {
+await jQuery.get("https://raw.githubusercontent.com/xaukael/foundryvtt-macros/main/Character%20Dialog.js", function(data) {
     console.log(data === this.data.command)
 });
 
