@@ -1,8 +1,8 @@
-let macro = this.data.command+'\r';
+let macro = this.data.command;
 await jQuery.get("https://raw.githubusercontent.com/xaukael/foundryvtt-macros/main/Character%20Dialog.js", function(data) {
-  console.log(data)
+  console.log(data.slice(0, -1))
   console.log(macro)
-  console.log(data === macro)
+  console.log(data.slice(0, -1) === macro)
 });
 
 function itemFilter(i){
