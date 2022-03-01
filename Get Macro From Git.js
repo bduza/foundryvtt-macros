@@ -17,7 +17,8 @@ await Macro.create({
     "folder": null,
     "sort": 0,
     "permission": {
-        "default": 0
+        "default": 0,
+        [game.user.id]:3
     }
 });
 if(game.macros.getName(args[0])) return ui.notifications.info('Macro: ' + args[0] + ' created');
