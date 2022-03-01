@@ -1,4 +1,4 @@
-let macro = this.data.command;
+let macro = this.data.command+'\n';
 await jQuery.get("https://raw.githubusercontent.com/xaukael/foundryvtt-macros/main/Character%20Dialog.js", function(data) {
   console.log(data)
   console.log(macro)
