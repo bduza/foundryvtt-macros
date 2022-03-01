@@ -1,14 +1,17 @@
 let command = this.data.command;
 let match = true;
-let gitData;
+let gitData = this.data.command;
 await jQuery.get(`https://raw.githubusercontent.com/xaukael/foundryvtt-macros/main/${encodeURI(this.name)}.js`, function(data) {
-  match = data.slice(0, -1) === command;
-  gitData = data.slice(0, -1);
+  if (data) {
+    match = data.slice(0, -1) === command;
+    gitData = data.slice(0, -1);
+  }
 });
 if (!match) {
   console.log(`${this.name} updating from git`);
   await this.update({command:gitData});
   console.log(`${this.name} updated from git`);
+  return this.execute();
 }
 
 function itemFilter(i){
