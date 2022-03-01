@@ -1,6 +1,6 @@
 let command = this.data.command;
 let match = true;
-let gitData
+let gitData;
 await jQuery.get("https://raw.githubusercontent.com/xaukael/foundryvtt-macros/main/Character%20Dialog.js", function(data) {
   match = data.slice(0, -1) === command;
   gitData = data.slice(0, -1);
