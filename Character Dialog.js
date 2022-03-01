@@ -14,6 +14,20 @@ if (!match) {
   return this.execute();
 }
 
+if (!Hooks._hooks.preCreateChatMessage.filterIndex(f=>f.toString().includes('chatmessagetargetflags'))[0])
+  Hooks.on(`preCreateChatMessage`, async (message, data, options, user) => {
+    //chatmessagetargetflags
+    if (message.data.user===game.user.id && (message.data.flavor?.includes('Attack') || message.data.flavor?.includes('Casts'))){
+      message.data.update({"flags.world.targetIds": [...game.users.get(user).targets].map(t=>t.id)});
+    }
+    if (message.data.user===game.user.id && (message.data.flavor?.includes('Damage'))){
+      message.data.update({"flags.world.damageType": message.data.flavor.split(' ')[message.data.flavor.split(' ').indexOf('Damage')-1]});
+    }
+    if (message.data.user===game.user.id && (message.data.flavor?.includes('Rolling Saves'))){
+      message.data.update({"flags.world.targetIds": [...game.users.get(user).targets].map(t=>t.id)});
+    }
+  });
+
 function itemFilter(i){
   if( actor.data.type !== 'character' )
     return true;
