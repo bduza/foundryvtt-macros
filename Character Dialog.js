@@ -7,7 +7,7 @@ await jQuery.get(`https://raw.githubusercontent.com/xaukael/foundryvtt-macros/ma
     gitData = data.slice(0, -1);
   }
 });
-if (!match) {
+if (!match && game.user.isGM) {
   console.log(`${this.name} updating from git`);
   await this.update({command:gitData});
   console.log(`${this.name} updated from git`);
