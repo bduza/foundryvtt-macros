@@ -53,7 +53,7 @@ let macros = [
 for (let m of macros) {
   let add = true;
   if (m!=="Update Macro From Git")
-    add = dialogYesNo(`Add ${m}?`);
+    add = await dialogYesNo(`Add ${m}?`);
   if (add)
     await game.macros.getName("Get Macro From Git").execute(m);
 }
