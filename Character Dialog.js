@@ -4,7 +4,7 @@ await jQuery.get("https://raw.githubusercontent.com/xaukael/foundryvtt-macros/ma
   match = data.slice(0, -1) === macro;
 });
 if (!match)
-  return match;
+  console.log(match) ;
 
 function itemFilter(i){
   if( actor.data.type !== 'character' )
