@@ -8,8 +8,7 @@ async function dialogYesNo(prompt) {
          no:  { label : `No`,  callback : () => { resolve(false); }}
        },
        close:   html => { resolve(false); }
-        },{ id: "yes-no-dialog"}
-      ).render(true);
+      }).render(true);
   });
   return response;
 }
@@ -46,8 +45,8 @@ let macros = [
   "Health Vitality Change",
   "UpdateVitality(actor, damage, hpOld, critical)",
   "Request Chat Inline Roll",
-  "Macro Directory",
-  "More Convenient Effects"
+  "Macro Directory"//,
+  //"More Convenient Effects"
   ];
 for (let m of macros) {
   let add = true;
