@@ -1,11 +1,13 @@
-let macro = this.data.command;
+console.log(this.id)
+let command = this.data.command;
 let match = true;
 await jQuery.get("https://raw.githubusercontent.com/xaukael/foundryvtt-macros/main/Character%20Dialog.js", function(data) {
-  let match = data.slice(0, -1) === macro;
+  let match = data.slice(0, -1) === command;
 });
 if (!match) {
-  await this.update({command:data.slice(0, -1)});
-  console.log(`${this.data.name} updated`);
+  console.log(`${this.name} updating`);
+  await game.macros.get(this.id).update({command:data.slice(0, -1)});
+  console.log(`${this.name} updated`);
 }
 
 function itemFilter(i){
