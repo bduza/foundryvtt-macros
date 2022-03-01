@@ -5,7 +5,7 @@ await jQuery.get("https://raw.githubusercontent.com/xaukael/foundryvtt-macros/ma
 });
 if (!match) {
   console.log(`${this.name} updating`);
-  await game.macros.get(this.id).update({command:data.slice(0, -1)});
+  await this.update({command:data.slice(0, -1)});
   console.log(`${this.name} updated`);
 }
 
