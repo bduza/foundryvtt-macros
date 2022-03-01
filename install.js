@@ -1,3 +1,20 @@
+async function dialogYesNo(prompt) {
+  if (!args[0]) return false;
+  let response = await new Promise((resolve)=>{
+      new Dialog({
+       title: prompt,
+       content:  '',
+       buttons: {
+         yes: { label : `Yes`, callback : () => { resolve(true); }},
+         no:  { label : `No`,  callback : () => { resolve(false); }}
+       },
+       close:   html => { resolve(false); }
+        },{ id: "yes-no-dialog"}
+      ).render(true);
+  });
+  return response;
+}
+
 if(!game.macros.getName('Get Macro From Git')) {
 let gitData = "";
 try{
@@ -34,6 +51,10 @@ let macros = [
   "More Convenient Effects"
   ];
 for (let m of macros) {
-  await game.macros.getName("Get Macro From Git").execute(m);
+  let add = true;
+  if (m!=="Update Macro From Git")
+    add = dialogYesNo(`Add ${m}?`);
+  if (add)
+    await game.macros.getName("Get Macro From Git").execute(m);
 }
 ui.notifications.info('Setup Complete');
