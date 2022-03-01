@@ -1,5 +1,4 @@
 async function dialogYesNo(prompt) {
-  if (!args[0]) return false;
   let response = await new Promise((resolve)=>{
       new Dialog({
        title: prompt,
