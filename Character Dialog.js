@@ -1,4 +1,3 @@
-/*
 let command = this.data.command;
 let match = true;
 let gitData = this.data.command;
@@ -14,7 +13,7 @@ if (!match) {
   console.log(`${this.name} updated from git`);
   return this.execute();
 }
-*/
+
 function itemFilter(i){
   if( actor.data.type !== 'character' )
     return true;
