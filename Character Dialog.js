@@ -1,6 +1,3 @@
-let update = await game.macros.getName("Update Macro From Git").execute(this.name);
-if (!update.match) return this.execute();
-
 if (!Hooks._hooks.preCreateChatMessage.filterIndex(f=>f.toString().includes('chatmessagetargetflags'))[0])
   Hooks.on(`preCreateChatMessage`, async (message, data, options, user) => {
     //chatmessagetargetflags
