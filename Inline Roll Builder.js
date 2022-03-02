@@ -1,6 +1,3 @@
-let update = await game.macros.getName("Update Macro From Git").execute(this.name);
-if (!update.match) return this.execute();
-
 if (!actor) actor = game.user.character;
 //if (!actor) actor = _token?.actor;
 //if (!actor) ui.notifications.warn('No Token!');
