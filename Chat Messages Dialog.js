@@ -1,6 +1,3 @@
-let update = await game.macros.getName("Update Macro From Git").execute(this.name);
-if (!update.match) return this.execute();
-
 async function toggleEffect(effect) {
   for (let t of canvas.tokens.controlled) {
   let actorUuid = t.actor.uuid;
