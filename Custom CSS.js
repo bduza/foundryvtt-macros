@@ -1,7 +1,7 @@
 let d = new Dialog({
   title: 'Custom-CSS',
   content:  `<style>
-  --dialog-background: rgba(30, 30, 30 ,0) !important;
+--dialog-background: rgba(30, 30, 30 ,0) !important;
 
 #context-menu {
 	z-index: 1000;
@@ -15,8 +15,7 @@ img {
 }
 
 #chat-controls .roll-type-select {
-	margin-top: 3.5px;
-	margin-left: 0px;
+	margin: 3.5px 1px 0px 1px;
 	height: 20px;
 }
 #chat-form > textarea {
@@ -27,7 +26,10 @@ img {
 	flex-basis: 50px;
 }
 #chat-message textarea {
-min-height: 20px; !important;	
+	min-height: 20px; !important;	
+}
+#chat-controls > div > a.export-log {
+	margin-left: 3.5px;
 }
 
 .jlnk__entity-link {
