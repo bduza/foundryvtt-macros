@@ -1,6 +1,3 @@
-let update = await game.macros.getName("Update Macro From Git").execute(this.name);
-if (!update.match) return this.execute();
-
 let inputValue='';
 let inputCritical=false;
 let useTargets=true;
