@@ -32,7 +32,8 @@ let macros = [
   "Macro Directory",
   "More Convenient Effects",
   "Actor Effects List",
-  "Custom CSS"
+  "Custom CSS",
+  "Character Dialog On Turn Hook"
   ];
 if(!game.macros.getName('Update Macro From Git')) {
   await game.macros.getName('Get Macro From Git').execute('Update Macro From Git');
