@@ -5,4 +5,4 @@
 <p>I found that I disliked the constant treadmell of keeping up with automating the dnd5e system. </p>
 <p>These macros aim to simplify play by keeping the system as much of a dice game as it can be while still using Foundry's powerful UI.</p>
 
-<p>Requires Advanced Macros and Dfreds Convenient Effects</p>
+<p><b>Requires Advanced Macros and Dfreds Convenient Effects</b></p>
