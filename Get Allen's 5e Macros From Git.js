@@ -30,7 +30,8 @@ let macros = [
   "UpdateVitality(actor, damage, hpOld, critical)",
   "Request Chat Inline Roll",
   "Macro Directory",
-  "More Convenient Effects"
+  "More Convenient Effects",
+  "Actor Effects List"
   ];
 if(!game.macros.getName('Update Macro From Git')) {
   await game.macros.getName('Get Macro From Git').execute('Update Macro From Git');
