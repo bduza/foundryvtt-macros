@@ -31,7 +31,8 @@ let macros = [
   "Request Chat Inline Roll",
   "Macro Directory",
   "More Convenient Effects",
-  "Actor Effects List"
+  "Actor Effects List",
+  "Custom CSS"
   ];
 if(!game.macros.getName('Update Macro From Git')) {
   await game.macros.getName('Get Macro From Git').execute('Update Macro From Git');
