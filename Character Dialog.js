@@ -103,7 +103,7 @@ let left = window.innerWidth-610;
 let height = window.innerheight-50;
 let width = 300;
 
-let position = Object.values(ui.windows).filter(w=> w.id === `items-dialog-${t}` && w.constructor.name === "Dialog")[0]?.position || 
+let position = Object.values(ui.windows).filter(w=> w.id === `items-dialog-${t}`)[0]?.position || 
   { height: height, width: width ,  top: top, left: left,  id:`items-dialog-${t}`};
 position["id"] = `items-dialog-${t}`;
 
@@ -140,11 +140,12 @@ let header = `
 //<a style="float:left;margin-left:0;" onclick="game.actors.get('${actor.id}').sheet.render(true)" title="Sheet"><img src="${actor.data.token.img}" height="20" style="border:unset;vertical-align:middle;"/></a>
 
 content+=`
-<div style="display: grid; grid-template-columns: auto auto auto auto; border-bottom:1px solid black;border-top:1px solid black;margin-bottom:.5em">
+<div style="display: grid; grid-template-columns: repeat(5,auto); border-bottom:1px solid black;border-top:1px solid black;margin-bottom:.5em">
 <div style="font-size:1.1em"><a style="" class="roll-dialog-button-${t}" name="${t}-abilities-test">Abilities</a></div>
 <div style="font-size:1.1em;"><a style="" class="roll-dialog-button-${t}" name="${t}-abilities-save">Saves</a></div>
 <div style="font-size:1.1em;"><a style="" class="roll-dialog-button-${t}" name="${t}-skills-check">Skills</a> </div>
 <div style="font-size:1.1em;"><a style="" onclick="_token.toggleCombat(game.combats.active);"><img src="icons/svg/combat.svg" width="14" height="14" title="Toggle Combat State"></a>&nbsp;<a style="" onclick="_token.actor.rollInitiative()">Initiative</a></div>
+<div style="font-size:1.1em;"><a onclick="game.macros.getName('Actor Effects List').execute('${t}');"><i class="fas fa-bolt"></i></a></div>
 </div>`;
 let items = {};
 for (const x of actor.items.filter(x => itemFilter(x))) {
@@ -288,7 +289,7 @@ let d = new Dialog({
   title: `${actor.name} Dialog`,
   content:  content,
   buttons: {},
-  render: (content) => {
+  render: (app) => {
       
       $('.iah, .ith, .ilh ').contextmenu(async function(e){
         $(this).next().toggle();
@@ -494,8 +495,34 @@ let d = new Dialog({
               title : `${actor.name} - ${x.data.name}`, 
               content : TextEditor.enrichHTML(text),
               buttons : {},
-              render: (content) => {
-                
+              render: (app) => {
+                app.find('.jlnk__entity-link').each(function(){
+                  if ($(this)[0].outerText.trim().capitalize()==='condition') {
+                  
+                    let $link = $(`<a class=""><i class="fas fa-bolt" style="margin-left:.25em"></i></a>`);
+                    $link.click(async ()=>{
+                      let targets = [...game.user.targets].map(t=> t.actor.uuid);
+                      console.log(targets);
+                      await game.dfreds.effectInterface.toggleEffect($(this)[0].outerText.trim().capitalize(), {uuids:targets});
+                    });
+                    $(this).after($link);
+                    //$(this).css('display','none');
+                  }
+                });
+                app.find('a').each(async function(){
+                  let foundEffects = game.dfreds.effects.all.filter(e => $(this)[0].outerText.trim().toUpperCase().includes(e.name.toUpperCase()));
+                  if (foundEffects.length > 0) {
+                    let $link = $(`<a class=""><i class="fas fa-bolt" style="margin-left:.25em"></i></a>`);
+                    $link.click(async ()=>{
+                      let targets = [...game.user.targets].map(t=> t.actor.uuid);
+                      console.log(targets);
+                      let effect = $(this)[0].outerText.trim().split(' ').map(e=>e.capitalize()).join(' ');
+                      await game.dfreds.effectInterface.toggleEffect(effect, {uuids:targets});
+                    });
+                    $(this).after($link);
+                    //$(this).css('display','none');
+                  }
+                });
                 let header = `${x.data.name}`;//header-button 
                 /*
                 if (game.macros.getName("Targets"))
