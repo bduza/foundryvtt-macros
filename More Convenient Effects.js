@@ -19,6 +19,10 @@ let d = new Dialog({
             let effect = $(this).attr('name');
             //for (let t of canvas.tokens.controlled) {
             await game.dfreds.effectInterface.toggleEffect(effect, {uuids:canvas.tokens.controlled.map(t=>t.document.uuid)});
+            for (let t of canvas.tokens.controlled) 
+              if ([...Object.values(ui.windows)].map(w=>w.id).includes(t.actor.uuid.replace('.','_') + "-effects"))
+                game.macros.getName('Actor Effects List').execute(t.actor.uuid.replace('.','_'));
+            
             //}
         });
         $("a[id^=apply-effect-]").contextmenu(async function(){
@@ -57,4 +61,4 @@ let d = new Dialog({
       return}
 },{ height:400, width:250 , id: "df-effects-directory"}
 );
-d.render(true);
+d.render(true)
