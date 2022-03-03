@@ -2,7 +2,7 @@
 for (let p of [...game.playlists].filter(p=>p.data.playing)) for (let s of [...p.data.sounds].filter(p=>p.data.playing)) await s.update({playing:false})
 if (!game.combats.viewed)
     await Combat.create({scene: canvas.scene.id, active: true});
-let combatants = canvas.tokens.controlled.filter(t=>t.data.disposition!==0).map( token => {
+let combatants = canvas.tokens.controlled.map( token => {
     if (token.actor.type === "character" || token.actor?.hasPlayerOwner) {
         return {tokenId: token.id, hidden: token.data.hidden};
     } else {
