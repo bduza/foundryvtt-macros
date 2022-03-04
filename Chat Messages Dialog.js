@@ -19,7 +19,7 @@ let position = Object.values(ui.windows).filter(w=> w.data?.title === title && w
 position["id"] = windowId;
 let header = `<h4><a onclick="game.macros.getName('${this.name}').execute()" style="margin: 0 0 0 0;">${title}</a></h4>`
 
-if (Hooks._hooks.renderChatMessage.findIndex(f=>f.toString().includes('renderchatmessagesdialog'))<0)
+if (!Hooks._hooks.renderChatMessage || Hooks._hooks.renderChatMessage.findIndex(f=>f.toString().includes('renderchatmessagesdialog'))<0)
   Hooks.on(`renderChatMessage`, (message, html, data) => { 
     //renderchatmessagesdialog
     if (Object.values(ui.windows).filter(w=> w.data?.title === title 
@@ -38,7 +38,6 @@ let content=`
 }
 </style>
 <script>
-
 function openSection(section) {
   var i;
   var x = document.getElementsByClassName('user-message-section');
@@ -148,22 +147,22 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
       if (m.data.flavor?.toUpperCase().includes('CRITICAL'))
         usersDamageCritical[user] = true;
       
-      message += `<p title="${title}"> ${roll.formula} = <a onclick="game.macros.getName('Health/Vitality Change').execute(${roll.total},${usersDamageCritical[user]}, true)" oncontextmenu="game.macros.getName('Health/Vitality Change').execute(${roll.total},${usersDamageCritical[user]}, false)">${roll.total}</a> </p> `;
+      message += `<p title="${title}"> ${roll.formula} = <a onclick="game.macros.getName('Health Vitality Change').execute(${roll.total},${usersDamageCritical[user]}, true)" oncontextmenu="game.macros.getName('Health Vitality Change').execute(${roll.total},${usersDamageCritical[user]}, false)">${roll.total}</a> </p> `;
     }
     else
     {
-      message += `<p title="${title}"> ${roll.formula} = <a onclick="game.macros.getName('Health/Vitality Change').execute(${roll.total},${usersDamageCritical[user]}, true)" oncontextmenu="game.macros.getName('Health/Vitality Change').execute(${roll.total},${usersDamageCritical[user]}, false)" > ${roll.total}</a> </p>`;
+      message += `<p title="${title}"> ${roll.formula} = <a onclick="game.macros.getName('Health Vitality Change').execute(${roll.total},${usersDamageCritical[user]}, true)" oncontextmenu="game.macros.getName('Health Vitality Change').execute(${roll.total},${usersDamageCritical[user]}, false)" > ${roll.total}</a> </p>`;
     }
     if (m.data.flavor?.toUpperCase().includes('ATTACK') && Object.keys(usersDamageTotal[user]).length !== 0){
       let attackName = m.data.flavor.split(' - ')[0];
       
       let totalTotal = 0;
       for (let [key, value] of Object.entries(usersDamageTotal[user])) {
-        message += `<p title="${title}"><b><a onclick="game.macros.getName('Health/Vitality Change').execute(${value},${usersAttackCritical[user]}, true)" oncontextmenu="game.macros.getName('Health/Vitality Change').execute(${value},${usersAttackCritical[user]}, false)">Total ${key} Damage: ${value}</a></b></p>`;
+        message += `<p title="${title}"><b><a onclick="game.macros.getName('Health Vitality Change').execute(${value},${usersAttackCritical[user]}, true)" oncontextmenu="game.macros.getName('Health/Vitality Change').execute(${value},${usersAttackCritical[user]}, false)">Total ${key} Damage: ${value}</a></b></p>`;
         totalTotal += value;
       }
       if (Object.keys(usersDamageTotal[user]).length !== 1)
-        message += `<p title="${title}"><u><b>Total Damage: <a onclick="game.macros.getName('Health/Vitality Change').execute(${totalTotal},${usersAttackCritical[user]}, true)" oncontextmenu="game.macros.getName('Health/Vitality Change').execute(${totalTotal},${usersAttackCritical[user]}, false)">${totalTotal}</a></b></u></p>`;
+        message += `<p title="${title}"><u><b>Total Damage: <a onclick="game.macros.getName('Health Vitality Change').execute(${totalTotal},${usersAttackCritical[user]}, true)" oncontextmenu="game.macros.getName('Health Vitality Change').execute(${totalTotal},${usersAttackCritical[user]}, false)">${totalTotal}</a></b></u></p>`;
       usersDamageTotal[user] = {};
     }
     //if (m.data.roll)
@@ -172,11 +171,11 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
     if (m.data.flavor?.toUpperCase().includes('ROLLING SAVES FOR')){
       let totalTotal = 0;
       for (let [key, value] of Object.entries(usersDamageTotal[user])) {
-        message += `<p><b><a onclick="game.macros.getName('Health/Vitality Change').execute(${value},${usersAttackCritical[user]}, true)" oncontextmenu="game.macros.getName('Health/Vitality Change').execute(${value},${usersAttackCritical[user]}, false)">Total ${key} Damage:  ${value}</a></b></p>`;
+        message += `<p><b><a onclick="game.macros.getName('Health Vitality Change').execute(${value},${usersAttackCritical[user]}, true)" oncontextmenu="game.macros.getName('Health/Vitality Change').execute(${value},${usersAttackCritical[user]}, false)">Total ${key} Damage:  ${value}</a></b></p>`;
           totalTotal += value;
       }
       if (Object.keys(usersDamageTotal[user]).length > 1)
-        message += `<p><u><b><a onclick="game.macros.getName('Health/Vitality Change').execute(${totalTotal},${usersAttackCritical[user]}, true)" oncontextmenu="game.macros.getName('Health/Vitality Change').execute(${totalTotal},${usersAttackCritical[user]}, false)">Total Damage:  ${totalTotal}</a></b></u></p>`;
+        message += `<p><u><b><a onclick="game.macros.getName('Health Vitality Change').execute(${totalTotal},${usersAttackCritical[user]}, true)" oncontextmenu="game.macros.getName('Health Vitality Change').execute(${totalTotal},${usersAttackCritical[user]}, false)">Total Damage:  ${totalTotal}</a></b></u></p>`;
       usersDamageTotal[user] = {};
       
     }
@@ -360,7 +359,7 @@ let d = new Dialog({
   
   },
   close:   html => {
-    while (Hooks._hooks.renderChatMessage.findIndex(f=>f.toString().includes('renderchatmessagesdialog'))>-1)
+    while (Hooks._hooks.renderChatMessage?.findIndex(f=>f.toString().includes('renderchatmessagesdialog'))>-1)
       Hooks._hooks.renderChatMessage.splice( Hooks._hooks.renderChatMessage.findIndex(f=>f.toString().includes('renderchatmessagesdialog')), 1)
   return}
 },position
