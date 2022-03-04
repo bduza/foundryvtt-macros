@@ -1,7 +1,7 @@
 let d = new Dialog({
   title: 'Custom-CSS',
   content:  `<style>
-${game.macros.getName('Custom CSS').command}
+${game.macros.getName('Custom CSS').data.command}
 </style
   `,
   render: (app)=>{
