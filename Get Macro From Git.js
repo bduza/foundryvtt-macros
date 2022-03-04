@@ -3,7 +3,7 @@ if(game.macros.getName(args[0])) return ui.notifications.error(`A macro named ${
 let gitData = "";
 try{
 await jQuery.get(`https://raw.githubusercontent.com/xaukael/foundryvtt-macros/main/${encodeURI(args[0])}.js`, async function(data) {
-  gitData = data.slice(0, -1);
+  gitData = data;
 });
 }catch(error){return ui.notifications.error('Macro not found: '+error.responseText)}
 if (gitData)
