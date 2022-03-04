@@ -8,8 +8,8 @@ let gitData = command;
 try {
 await jQuery.get(`https://raw.githubusercontent.com/xaukael/foundryvtt-macros/main/${encodeURI(macro.name)}.js`, function(data) {
   if (data) {
-    match = data.slice(0, -1) === command;
-    gitData = data.slice(0, -1);
+    match = data=== command;
+    gitData = data;
   }
 });
 }catch (error){console.log(error)}
