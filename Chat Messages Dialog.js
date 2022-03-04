@@ -162,7 +162,7 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
         totalTotal += value;
       }
       if (Object.keys(usersDamageTotal[user]).length !== 1)
-        message += `<p title="${title}"><u><b>Total Damage: <a onclick="game.macros.getName('Health Vitality Change').execute(${totalTotal},${usersAttackCritical[user]}, true)" oncontextmenu="game.macros.getName('Health Vitality Change').execute(${totalTotal},${usersAttackCritical[user]}, false)">${totalTotal}</a></b></u></p>`;
+        message += `<p title="${title}"><u><b><a onclick="game.macros.getName('Health Vitality Change').execute(${totalTotal},${usersAttackCritical[user]}, true)" oncontextmenu="game.macros.getName('Health Vitality Change').execute(${totalTotal},${usersAttackCritical[user]}, false)">Total Damage: ${totalTotal}</a></b></u></p>`;
       usersDamageTotal[user] = {};
     }
     //if (m.data.roll)
