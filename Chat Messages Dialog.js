@@ -19,7 +19,7 @@ let position = Object.values(ui.windows).filter(w=> w.data?.title === title && w
 position["id"] = windowId;
 let header = `<h4><a onclick="game.macros.getName('${this.name}').execute()" style="margin: 0 0 0 0;">${title}</a></h4>`
 
-if (!Hooks._hooks.renderChatMessage.filterIndex(f=>f.toString().includes('renderchatmessagesdialog'))[0])
+if (Hooks._hooks.renderChatMessage.findIndex(f=>f.toString().includes('renderchatmessagesdialog'))<0)
   Hooks.on(`renderChatMessage`, (message, html, data) => { 
     //renderchatmessagesdialog
     if (Object.values(ui.windows).filter(w=> w.data?.title === title 
@@ -360,8 +360,8 @@ let d = new Dialog({
   
   },
   close:   html => {
-    if (Hooks._hooks.renderChatMessage.filterIndex(f=>f.toString().includes('renderchatmessagesdialog'))[0])
-      Hooks._hooks.renderChatMessage.splice( Hooks._hooks.renderChatMessage.filterIndex(f=>f.toString().includes('renderchatmessagesdialog'))[0], 1)
+    while (Hooks._hooks.renderChatMessage.findIndex(f=>f.toString().includes('renderchatmessagesdialog'))>-1)
+      Hooks._hooks.renderChatMessage.splice( Hooks._hooks.renderChatMessage.findIndex(f=>f.toString().includes('renderchatmessagesdialog')), 1)
   return}
 },position
 );
