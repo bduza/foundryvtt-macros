@@ -1,8 +1,3 @@
-let d = new Dialog({
-  title: 'Custom-CSS',
-  content:  `<style>
---dialog-background: rgba(30, 30, 30 ,0) !important;
-
 #context-menu {
 	z-index: 1000;
 }
@@ -165,16 +160,3 @@ section > * > input {
     box-shadow: 0 0 0px #444 inset;
     border-radius: 3px;
 }
-</style
-  `,
-  render: (app)=>{
-    console.log(app);
-    $("#Custom-CSS").hide();
-  },
-  buttons: {},
-  close:   html => {return}
-},
-{
-     width: 250, id: "Custom-CSS"
-});
-d.render(true);
