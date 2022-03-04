@@ -33,7 +33,7 @@ if (!Hooks._hooks.renderChatMessage || Hooks._hooks.renderChatMessage.findIndex(
 let content=`
 <style>
 .thl {
-  border-bottom: 1px solid darkred; 
+  border-bottom: 1px solid var(--color-border-highlight);; 
   width: 100%;
 }
 </style>
