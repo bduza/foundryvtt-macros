@@ -1,4 +1,4 @@
-if (Hooks._hooks.updateCombat.findIndex(f=>f.toString().includes('CharacterDialogOnTurnHook'))<0) {
+if (!Hooks._hooks.updateCombat || Hooks._hooks.updateCombat.findIndex(f=>f.toString().includes('CharacterDialogOnTurnHook'))<0) {
   Hooks.on(`updateCombat`, async (combat, changed, options, userId) => {
     //console.log(combat);
     // CharacterDialogOnTurnHook
@@ -17,7 +17,7 @@ if (Hooks._hooks.updateCombat.findIndex(f=>f.toString().includes('CharacterDialo
   });
   ui.notifications.info('Character Dialog On Turn Hook Added');
 } else {
-  while (!Hooks._hooks.updateCombat.findIndex(f=>f.toString().includes('CharacterDialogOnTurnHook'))>-1)
+  while (Hooks._hooks.updateCombat.findIndex(f=>f.toString().includes('CharacterDialogOnTurnHook'))>-1)
     Hooks._hooks.updateCombat.splice(Hooks._hooks.updateCombat.findIndex(f=>f.toString().includes('CharacterDialogOnTurnHook')), 1)
   ui.notifications.info('Character Dialog On Turn Hook Removed');
 }
