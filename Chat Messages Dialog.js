@@ -15,7 +15,7 @@ let selectedAlias = $(`select#alias-select`).val();
 //console.log(selectedAlias);
 let title = "Roll Messages";
 let windowId = "roll-messages-dialog"
-let position = Object.values(ui.windows).filter(w=> w.data?.title === title && w.constructor.name === "Dialog")[0]?.position || { height: 721, width :450 , id: windowId};
+let position = Object.values(ui.windows).find(w=> w.id === windowId)?.position || { height: 721, width :450 , id: windowId};
 position["id"] = windowId;
 let header = `<h4><a onclick="game.macros.getName('${this.name}').execute()" style="margin: 0 0 0 0;">${title}</a></h4>`
 if (!(Hooks._hooks.renderChatMessage?.findIndex(f=>f.toString().includes('renderchatmessagesdialog'))!==-1))
