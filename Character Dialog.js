@@ -140,7 +140,7 @@ content+=`
 <div style="font-size:1.1em"><a style="" class="roll-dialog-button-${t}" name="${t}-abilities-test">Abilities</a></div>
 <div style="font-size:1.1em;"><a style="" class="roll-dialog-button-${t}" name="${t}-abilities-save">Saves</a></div>
 <div style="font-size:1.1em;"><a style="" class="roll-dialog-button-${t}" name="${t}-skills-check">Skills</a> </div>
-<div style="font-size:1.1em;"><a style="padding-top:5px" onclick="_token.toggleCombat(game.combats.active);"><img src="icons/svg/combat.svg" width="14" height="14" title="Toggle Combat State" ></a>&nbsp;<a  onclick="_token.actor.rollInitiative()">Initiative</a></div>
+<div style="font-size:1.1em;"><a style="margin-right:5px" onclick="_token.toggleCombat(game.combats.active);"><i class="fas fa-fist-raised"></i></a><a  onclick="_token.actor.rollInitiative()">Initiative</a></div>
 <div style="font-size:1.1em;"><a onclick="game.macros.getName('Actor Effects List').execute('${t}');"><i class="fas fa-bolt"></i></a></div>
 </div>`;
 let items = {};
