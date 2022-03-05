@@ -5,7 +5,7 @@ let list=`
 <div id="myUL" style="" >
 `;//height:520px;overflow-y:scroll;
 
-for (const effect of [...token.actor.effects]){
+for (const effect of [...token.actor.effects].filter(e=>e.isTemporary)){
         list += `<p id="${effect.id}">
                 <img src="${effect.data.icon}" height="14" style="background: url(../ui/denim075.png) repeat;"/><span><a id="effect-name-${effect.id}" name="${effect.id}"> ${effect.data.label}</a> </span>
                 <a id="effect-delete-${effect.id}" name="${effect.id}" style="float:right;"><i class="fa fa-times"></i></a>
