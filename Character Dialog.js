@@ -1,4 +1,4 @@
-if (!Hooks._hooks.preCreateChatMessage || Hooks._hooks.preCreateChatMessage.findIndex(f=>f.toString().includes('chatmessagetargetflags'))<0)
+if (!(Hooks._hooks.preCreateChatMessage?.findIndex(f=>f.toString().includes('chatmessagetargetflags'))!==-1))
   Hooks.on(`preCreateChatMessage`, async (message, data, options, user) => {
     //chatmessagetargetflags
     if (message.data.user===game.user.id && (message.data.flavor?.includes('Attack') || message.data.flavor?.includes('Casts'))){
@@ -6,6 +6,9 @@ if (!Hooks._hooks.preCreateChatMessage || Hooks._hooks.preCreateChatMessage.find
     }
     if (message.data.user===game.user.id && (message.data.flavor?.includes('Damage'))){
       message.data.update({"flags.world.damageType": message.data.flavor.split(' ')[message.data.flavor.split(' ').indexOf('Damage')-1]});
+    }
+    if (message.data.user===game.user.id && (message.data.flavor?.includes('Healing'))){
+      message.data.update({"flags.world.damageType": Healing});
     }
     if (message.data.user===game.user.id && (message.data.flavor?.includes('Rolling Saves'))){
       message.data.update({"flags.world.targetIds": [...game.users.get(user).targets].map(t=>t.id)});
@@ -15,15 +18,10 @@ if (!Hooks._hooks.preCreateChatMessage || Hooks._hooks.preCreateChatMessage.find
 function itemFilter(i){
   if( actor.data.type !== 'character' )
     return true;
-  // Commented this out to make NPCs easier.   
-  
-  // Ignore items without type 
   if( !i.data.type )
     return false;
   if( i.data.type === undefined )
     return false;
-  
-  // Ignore items without activation
   if( !i.data.data.activation )
     return false;
   if( i.data.data.activation.type === '' || 
@@ -31,15 +29,11 @@ function itemFilter(i){
     i.data.data.activation.type === 'none' ){
     return false;
   }
-
-  // Look for Equipped weapons
   if( i.data.type === "weapon"){
     if( i.data.data.equipped )
       return true;
     return true; //Unequipped Items
   }
-
-  // Look for Prepared spells
   if( i.data.type === "spell"){
     if( i.data.data.preparation ){
       if( i.data.data.preparation.prepared )
@@ -47,7 +41,7 @@ function itemFilter(i){
       if( i.labels.level === "Cantrip")
         return true;
     }
-    return false ; //unprepared spells
+    return false ;
   }
 
   // Consumables with an action that aren't ammunition
@@ -68,35 +62,33 @@ function itemFilter(i){
   return false ;
 }
 
-//if (!token) return ui.notifications.warn("No Token");
 let t = '';
 
-if (!token) 
-  token = _token;
-
-if (!token)
-  actor = game.user.character;
-else
-  actor = token.actor
-  
+if (!token) token = _token;
+if (!token) actor = game.user.character;
+else actor = token?.actor;
+if (!actor) return ui.notifications.error("No Actor");;
 token = null;
-
 t = actor.uuid.replaceAll('.','_');
-console.log('t: ', t)
+console.log('t: ', t, actor)
 
-let spells = JSON.parse(JSON.stringify(actor.data.data.spells));
-for (const [key, value] of Object.entries(spells)){
-  if (value.max > 0) {
-    for (let level = parseInt(key.substr(-1)); level > 0; level--) {
-      if ('spell'+level === key ){
-        spells['spell'+level].slotsAvailable = false;
+
+let spells = {};
+if (actor.data?.data?.spells) {
+  JSON.parse(JSON.stringify(actor.data.data.spells));
+  for (const [key, value] of Object.entries(spells)){
+    if (value.max > 0) {
+      for (let level = parseInt(key.substr(-1)); level > 0; level--) {
+        if ('spell'+level === key ){
+          spells['spell'+level].slotsAvailable = false;
+        }
+        if (value.value > 0)
+          spells['spell'+level].slotsAvailable = true;
       }
-      if (value.value > 0)
-        spells['spell'+level].slotsAvailable = true;
     }
   }
+  await actor.update({'data.spells': spells});
 }
-await actor.update({'data.spells': spells});
 
 let top = 3;
 let left = window.innerWidth-610;
@@ -496,7 +488,7 @@ let d = new Dialog({
               content : TextEditor.enrichHTML(text),
               buttons : {},
               render: (app) => {
-                app.find('.jlnk__entity-link').each(function(){
+                /*app.find('.jlnk__entity-link').each(function(){
                   if ($(this)[0].outerText.trim().capitalize()==='condition') {
                   
                     let $link = $(`<a class=""><i class="fas fa-bolt" style="margin-left:.25em"></i></a>`);
@@ -508,15 +500,15 @@ let d = new Dialog({
                     $(this).after($link);
                     //$(this).css('display','none');
                   }
-                });
+                });*/
                 app.find('a').each(async function(){
-                  let foundEffects = game.dfreds.effects.all.filter(e => $(this)[0].outerText.trim().toUpperCase().includes(e.name.toUpperCase()));
+                  let foundEffects = game.dfreds.effects.all.filter(e => $(this)[0].outerText.trim().toUpperCase() === (e.name.toUpperCase()));
                   if (foundEffects.length > 0) {
                     let $link = $(`<a class=""><i class="fas fa-bolt" style="margin-left:.25em"></i></a>`);
                     $link.click(async ()=>{
                       let targets = [...game.user.targets].map(t=> t.actor.uuid);
                       console.log(targets);
-                      let effect = $(this)[0].outerText.trim().split(' ').map(e=>e.capitalize()).join(' ');
+                      let effect = this.outerText.trim().split(' ').map(e=>e.capitalize()).join(' ');
                       await game.dfreds.effectInterface.toggleEffect(effect, {uuids:targets});
                     });
                     $(this).after($link);
@@ -555,8 +547,8 @@ let d = new Dialog({
                 });
                 
                 $(`a[id^=${x.id}-chat-description]`).click(async function(e){
-                  ChatMessage.create({speaker:ChatMessage.getSpeaker({actor: x.parent}), flavor: `<h3>${x.data.name}</h3>`, content: $(this).next().html()})
-                });
+                  ChatMessage.create({flavor: `${x.data.name}`, speaker:ChatMessage.getSpeaker({actor: x.parent}),  content:  $(this).next().html()})
+                });//flavor: `${x.data.name}`,`@ActorEmbeddedItem[${x.parent.id}][${x.id}]{${x.data.name}}<br>` +
                 
                 $(`a[id^=${x.id}-inline-targeting]`).click(async function(e){
                   let item = x;// = actor.items.get(this.name);
