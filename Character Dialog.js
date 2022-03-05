@@ -1,3 +1,12 @@
+let t = '';
+if (!token) token = _token;
+if (!token) actor = game.user.character;
+else actor = token?.actor;
+if (!actor) return ui.notifications.error("No Actor");;
+token = null;
+t = actor.uuid.replaceAll('.','_');
+console.log('t: ', t)
+
 if (!game.user.isGM) ui.nav._element.hide();
 
 if (!(Hooks._hooks.preCreateChatMessage?.findIndex(f=>f.toString().includes('chatmessagetargetflags'))!==-1))
@@ -59,17 +68,6 @@ function itemFilter(i){
 
   return false ;
 }
-
-let t = '';
-
-if (!token) token = _token;
-if (!token) actor = game.user.character;
-else actor = token?.actor;
-if (!actor) return ui.notifications.error("No Actor");;
-token = null;
-t = actor.uuid.replaceAll('.','_');
-console.log('t: ', t)
-
 
 let spells = {};
 if (actor.data?.data?.spells) {
