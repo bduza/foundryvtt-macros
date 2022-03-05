@@ -351,7 +351,7 @@ let d = new Dialog({
     
     $('a.effect-button').click(async function(e){
       let effect = $(this).attr('name');
-      await game.dfreds.effectInterface.toggleEffect(effect, {uuids: canvas.tokens.controlled.map(t=>t.actor.uuid)});
+      await game.dfreds.effectInterface.toggleEffect(effect, {uuids: [...game.user.targets].map(t=>t.actor.uuid)});
     });
   
   },
