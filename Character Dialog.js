@@ -106,8 +106,8 @@ if (combatPopout) {
 $(`div[id*=${t}]`).show();
 
 let otherActions = false;
-if($(`[id^=item-rolls-dialog-${t}]`).length) 
-  $(`[id^=item-rolls-dialog-${t}]`).each(function(){ui.windows[$(this).attr('data-appid')].close()});
+//if($(`[id^=item-rolls-dialog-${t}]`).length) 
+//  $(`[id^=item-rolls-dialog-${t}]`).each(function(){ui.windows[$(this).attr('data-appid')].close()});
 
 let unavailable = 'rgba(120,120,120,0.5) !important';
 
@@ -769,10 +769,11 @@ let d = new Dialog({
                 $("a[id*=-spell-level-]").click(async function(e){
                   let item = x;// = actor.items.get($(this).attr('data'));
                   //ui.chat.processMessage(`<h2>${item.data.name}</h2><h3>Save ${x.labels.save}</h3>`);
-                  console.log(x.labels.save);
                   let spellLevel = this.name;
+                  console.log(item.data.data.level, spellLevel, spellLevel-parseInt(item.data.data.level));
+                  let upcast = spellLevel-parseInt(item.data.data.level);
                   if (spellLevel==="0" && actor.type==='character') 
-                    return ChatMessage.create({speaker:ChatMessage.getSpeaker({actor: item.parent}),flavor:`Casts ${item.name} ${(x.labels.save===undefined?'':'<br>Save '+x.labels.save)}`});
+                    return ChatMessage.create({speaker:ChatMessage.getSpeaker({actor: item.parent}),flavor:`Casts ${item.name} ${upcast>0?'<br>Upcast ' + upcast:''} ${(x.labels.save===undefined?'':'<br>Save '+x.labels.save)}`});
                   if (spellLevel==="0" && actor.type==='npc') 
                     return ChatMessage.create({speaker:ChatMessage.getSpeaker({actor: item.parent}),flavor:`Casts ${item.name} ${(x.labels.save===undefined?'':'<br>Save '+x.labels.save)}`, whisper: ChatMessage.getWhisperRecipients("GM")});
                   let spells = JSON.parse(JSON.stringify(actor.data.data.spells));
@@ -802,9 +803,9 @@ let d = new Dialog({
                     await actor.update({'data.spells': spells});
                     $(this).html(spells['spell'+spellLevel].value+'/'+spells['spell'+spellLevel].max);
                     if (actor.type==='character')
-                      ChatMessage.create({speaker:ChatMessage.getSpeaker({actor: item.parent}),flavor:`Casts ${item.name} with a level ${spellLevel} slot ${(x.labels.save===undefined?'':'<br>Save '+x.labels.save)}`});
+                      ChatMessage.create({speaker:ChatMessage.getSpeaker({actor: item.parent}),flavor:`Casts ${item.name} with a level ${spellLevel} slot  ${upcast>0?'<br>Upcast ' + upcast:''} ${(x.labels.save===undefined?'':'<br>Save '+x.labels.save)}`});
                     else
-                      ChatMessage.create({speaker:ChatMessage.getSpeaker({actor: item.parent}),flavor:`Casts ${item.name} with a level ${spellLevel} slot ${(x.labels.save===undefined?'':'<br>Save '+x.labels.save)}`, whisper: ChatMessage.getWhisperRecipients("GM")});
+                      ChatMessage.create({speaker:ChatMessage.getSpeaker({actor: item.parent}),flavor:`Casts ${item.name} with a level ${spellLevel} slot  ${upcast>0?'<br>Upcast ' + upcast:''} ${(x.labels.save===undefined?'':'<br>Save '+x.labels.save)}`, whisper: ChatMessage.getWhisperRecipients("GM")});
                     if (actor.hasPlayerOwner)
                       ui.chat.processMessage(`/w GM ${actor.data.name} Level ${spellLevel} Slots: (${ spells['spell'+spellLevel].value}/${spells['spell'+spellLevel].max})`);
                   }
