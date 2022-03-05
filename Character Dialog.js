@@ -550,26 +550,6 @@ let d = new Dialog({
                     //console.log(roll.total)
                   }
                 });
-                /*
-                $(`a[id^=${x.id}-inline-dc]`).contextmenu(async function(e){
-                  return;
-                  let item = x;// = actor.items.get(this.name);
-                  //ui.chat.processMessage(`<h2>${item.data.name}</h2><h3>Save ${x.labels.save}</h3>`);
-                  let dcArray = x.labels.save.split(' ');
-                  let ability = dcArray[dcArray.length-1]
-                  let abil = Object.keys(CONFIG.DND5E.abilities).find(key => CONFIG.DND5E.abilities[key] === ability);
-                  for (let target of game.user.targets) {
-                    let roll = await new Roll(`1d20 + ${target.actor.data.data.abilities[abil].dc-8}`).roll({ async: true });
-                    let result ;
-                    if (roll.total >= target.actor.data.data.abilities[abil].save+14)
-                      result = 'Failed';
-                    else
-                      result = 'Succeeded';
-                    console.log(target.id);
-                    roll.toMessage({speaker:ChatMessage.getSpeaker({token: target}),flavor:`${ability} roll vs ${ability} defense of ${target.actor.data.data.abilities[abil].save+14}<br><b>${result}`,"flags.world.save":result},{rollMode: 'gmroll'});
-                  }
-                });
-                */
                 $(`a[id^=${x.id}-inline-recharge]`).click(async function(e){
                   let item = x;// = actor.items.get(this.name);
                   
