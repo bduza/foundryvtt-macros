@@ -1,3 +1,5 @@
+if (!game.user.isGM) ui.nav._element.hide();
+
 if (!(Hooks._hooks.preCreateChatMessage?.findIndex(f=>f.toString().includes('chatmessagetargetflags'))!==-1))
   Hooks.on(`preCreateChatMessage`, async (message, data, options, user) => {
     //chatmessagetargetflags
@@ -43,8 +45,6 @@ function itemFilter(i){
     }
     return false ;
   }
-
-  // Consumables with an action that aren't ammunition
   if( i.data.type === "consumable" ){
     if( i.data.data.consumableType !== "ammo")
       return true;
@@ -52,12 +52,10 @@ function itemFilter(i){
   }
   
   if( i.data.type === "loot" ) return true;
-  // Features that are also Actions
   if( i.data.type === "feat" )
     return true;
   if( i.data.type === "equipment" )
     return true;
-  //console.log(i);
 
   return false ;
 }
@@ -70,7 +68,7 @@ else actor = token?.actor;
 if (!actor) return ui.notifications.error("No Actor");;
 token = null;
 t = actor.uuid.replaceAll('.','_');
-console.log('t: ', t, actor)
+console.log('t: ', t)
 
 
 let spells = {};
@@ -91,20 +89,21 @@ if (actor.data?.data?.spells) {
 }
 
 let top = 3;
-let left = window.innerWidth-610;
+//let left = window.innerWidth-610;
+if (game.user.isGM) top = 80;
+let left = 110;
 let height = window.innerheight-50;
 let width = 300;
 
-let combatPopout = Object.values(ui.windows).find(w=> w.id === `combat-popout`);
-console.log(combatPopout);
-if (combatPopout) {
-  top = combatPopout.position.top;
-  left = combatPopout.position.left + 305;
-}
-  
 let position = Object.values(ui.windows).find(w=> w.id === `items-dialog-${t}`)?.position || 
   { height: height, width: width ,  top: top, left: left,  id:`items-dialog-${t}`};
 position["id"] = `items-dialog-${t}`;
+
+let combatPopout = Object.values(ui.windows).find(w=> w.id === `combat-popout`);
+if (combatPopout) {
+  position.top = combatPopout.position.top;
+  position.left = combatPopout.position.left + 305;
+}
 
 $(`div[id*=${t}]`).show();
 
@@ -139,11 +138,11 @@ let header = `
 //<a style="float:left;margin-left:0;" onclick="game.actors.get('${actor.id}').sheet.render(true)" title="Sheet"><img src="${actor.data.token.img}" height="20" style="border:unset;vertical-align:middle;"/></a>
 
 content+=`
-<div style="display: grid; grid-template-columns: repeat(5,auto); border-bottom:1px solid black;border-top:1px solid black;margin-bottom:.5em">
+<div style="display: grid; grid-template-columns: repeat(5,auto); border-bottom:0px solid black;border-top:0px solid black;margin-bottom:.5em">
 <div style="font-size:1.1em"><a style="" class="roll-dialog-button-${t}" name="${t}-abilities-test">Abilities</a></div>
 <div style="font-size:1.1em;"><a style="" class="roll-dialog-button-${t}" name="${t}-abilities-save">Saves</a></div>
 <div style="font-size:1.1em;"><a style="" class="roll-dialog-button-${t}" name="${t}-skills-check">Skills</a> </div>
-<div style="font-size:1.1em;"><a style="" onclick="_token.toggleCombat(game.combats.active);"><img src="icons/svg/combat.svg" width="14" height="14" title="Toggle Combat State"></a>&nbsp;<a style="" onclick="_token.actor.rollInitiative()">Initiative</a></div>
+<div style="font-size:1.1em;"><a style="padding-top:5px" onclick="_token.toggleCombat(game.combats.active);"><img src="icons/svg/combat.svg" width="14" height="14" title="Toggle Combat State" ></a>&nbsp;<a  onclick="_token.actor.rollInitiative()">Initiative</a></div>
 <div style="font-size:1.1em;"><a onclick="game.macros.getName('Actor Effects List').execute('${t}');"><i class="fas fa-bolt"></i></a></div>
 </div>`;
 let items = {};
@@ -495,19 +494,6 @@ let d = new Dialog({
               content : TextEditor.enrichHTML(text),
               buttons : {},
               render: (app) => {
-                /*app.find('.jlnk__entity-link').each(function(){
-                  if ($(this)[0].outerText.trim().capitalize()==='condition') {
-                  
-                    let $link = $(`<a class=""><i class="fas fa-bolt" style="margin-left:.25em"></i></a>`);
-                    $link.click(async ()=>{
-                      let targets = [...game.user.targets].map(t=> t.actor.uuid);
-                      console.log(targets);
-                      await game.dfreds.effectInterface.toggleEffect($(this)[0].outerText.trim().capitalize(), {uuids:targets});
-                    });
-                    $(this).after($link);
-                    //$(this).css('display','none');
-                  }
-                });*/
                 app.find('a').each(async function(){
                   let foundEffects = game.dfreds.effects.all.filter(e => $(this)[0].outerText.trim().toUpperCase() === (e.name.toUpperCase()));
                   if (foundEffects.length > 0) {
@@ -519,27 +505,9 @@ let d = new Dialog({
                       await game.dfreds.effectInterface.toggleEffect(effect, {uuids:targets});
                     });
                     $(this).after($link);
-                    //$(this).css('display','none');
                   }
                 });
-                let header = `${x.data.name}`;//header-button 
-                /*
-                if (game.macros.getName("Targets"))
-                  header += `<a class="targets-header-button" title="Targets to Chat" style="float:right" onclick="game.macros.getName('Chat Targets').execute()" oncontextmenu="game.macros.getName('Targets').execute()"><i class="fas fa-bullseye"></i>Declare Targets</a>`;
-                if (actor.items.get(x.id))
-                  header += `<a  title="Roll" class="header-button" id="${x.id}-header-roll" style="float:right" ><i class="fas fa-angle-double-right" ></i>Roll</a>`;
-                */
-                /*<i class="fas fa-angle-double-right" >&nbsp;${x.data.name}</i></a>`;
-                if (x.data.flags.itemacro?.macro?.data.command)
-                  header += `<a class="header-button" title="Macro" style="float: right" onclick="canvas.scene.tokens.get('${t}').actor.items.get('${x.id}').sheet.render(true)">
-                  <i class="fas fa-terminal" >&nbsp;Macro</i></a>`;
-                if (x.hasDamage)  
-                  header += `<a class="header-button" title="Damage" style="float: right;" onclick="canvas.scene.tokens.get('${t}').actor.items.get('${x.id}').rollDamage()">
-                  <i class="fas fa-dice-d6" ></i>&nbsp;Damage</a>`;
-                if (x.hasAttack)  
-                  header += `<a class="header-button" title="Attack" style="float: right" onclick="canvas.scene.tokens.get('${t}').actor.items.get('${x.id}').rollAttack()">
-                  <i class="fas fa-dice-d20" >&nbsp;Attack</i></a>`; 
-                  */
+                let header = `${x.data.name}`;
                 
                 $(`#item-rolls-dialog-${t}-${x._id} > header > h4`).html(header);
                 
@@ -702,29 +670,6 @@ let d = new Dialog({
                   targetElement.attr('data-flavor', targetElement.attr('data-flavor').replace(' Critical',''));
                   targetElement.html(`<i class="fas fa-dice-d20"></i> ${oldFormula}`);
                 });
-                /*
-                $(`a[id^=${x.id}-inline-crit]`).contextmenu(async function(e){
-                  let targetElement = $(this).parent().children(':first-child');
-                  let formulaArray = targetElement.attr('data-formula').split(' ');
-                  let formulaArrayLength = formulaArray.length;
-                  for (let i = 0; i < formulaArrayLength; i++) {
-                    if (formulaArray[i].includes('d')) {
-                      let dieRollArray = formulaArray[i].split('d');
-                      let numD20 = Math.ceil(parseInt(dieRollArray[0])/2);
-                      dieRollArray.shift();
-                      dieRollArray.unshift(numD20);
-                      let dieRoll = dieRollArray.join('d');
-                      formulaArray.splice(i, 1, dieRoll);
-                    }
-                  }
-                  let formula = formulaArray.join(' ');
-                  targetElement.attr('data-formula', formula);
-                  targetElement.attr('data-flavor', targetElement.attr('data-flavor') + ' Critical');
-                  targetElement.css('box-shadow','unset');
-                  $(this).css('box-shadow','unset');
-                  targetElement.html(`<i class="fas fa-dice-d20"></i> ${formula}`);
-                });
-                */
                 $(`a[id^=${x.id}-inline-scaling]`).click(async function(e){
                   let targetElement = $(this).parent().children(':first-child');
                   let item = actor.items.get($(this).attr('name'));
@@ -965,6 +910,7 @@ let d = new Dialog({
   close:   html => {
     if($(`[id^=item-rolls-dialog-${t}]`).length) 
       $(`[id^=item-rolls-dialog-${t}]`).each(function(){ui.windows[$(this).attr('data-appid')].close()});
+    ui.nav._element.show();
     return;}
   },position
 );
@@ -1088,7 +1034,8 @@ let d = new Dialog({
                 });
         },
         buttons : {},
-        close:   html => {
-        return}
+        close:   html => { 
+          return;
+        }
     },{width:330, top: top-5 , left: left-5 ,  id:`${d_Id}-roll-dialog` }).render(true);
 }
