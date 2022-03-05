@@ -35,7 +35,9 @@ let macros = [
   "Character Dialog On Turn Hook",
   "Update Encumbered Status",
   "Custom CSS",
-  "Custom CSS Dialog"
+  "Custom CSS Dialog",
+  "Get Macro From Git",
+  "Update Macro From Git"
   ];
 if(!game.macros.getName('Update Macro From Git')) {
   await game.macros.getName('Get Macro From Git').execute('Update Macro From Git');
