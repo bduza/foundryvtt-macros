@@ -95,7 +95,14 @@ let left = window.innerWidth-610;
 let height = window.innerheight-50;
 let width = 300;
 
-let position = Object.values(ui.windows).filter(w=> w.id === `items-dialog-${t}`)[0]?.position || 
+let combatPopout = Object.values(ui.windows).find(w=> w.id === `combat-popout`);
+console.log(combatPopout);
+if (combatPopout) {
+  top = combatPopout.position.top;
+  left = combatPopout.position.left + 305;
+}
+  
+let position = Object.values(ui.windows).find(w=> w.id === `items-dialog-${t}`)?.position || 
   { height: height, width: width ,  top: top, left: left,  id:`items-dialog-${t}`};
 position["id"] = `items-dialog-${t}`;
 
