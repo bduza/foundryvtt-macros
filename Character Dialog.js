@@ -12,18 +12,18 @@ if (!game.user.isGM) ui.nav._element.hide();
 if (!(Hooks._hooks.preCreateChatMessage?.findIndex(f=>f.toString().includes('chatmessagetargetflags'))!==-1))
   Hooks.on(`preCreateChatMessage`, async (message, data, options, user) => {
     //chatmessagetargetflags
-    if (message.data.user===game.user.id && (message.data.flavor?.includes('Attack') || message.data.flavor?.includes('Casts'))){
-      message.data.update({"flags.world.targetIds": [...game.users.get(user).targets].map(t=>t.id)});
-    }
-    if (message.data.user===game.user.id && (message.data.flavor?.includes('Damage'))){
+    if (message.data.flavor?.toUpperCase().includes('ATTACK') || message.data.flavor?.includes('Casts'))
+      message.data.update({"flags.world.targetIds": [...game.user.targets].map(t=>t.id)});
+    
+    if (message.data.flavor?.toUpperCase().includes('DAMAGE'))
       message.data.update({"flags.world.damageType": message.data.flavor.split(' ')[message.data.flavor.split(' ').indexOf('Damage')-1]});
-    }
-    if (message.data.user===game.user.id && (message.data.flavor?.includes('Healing'))){
-      message.data.update({"flags.world.damageType": Healing});
-    }
-    if (message.data.user===game.user.id && (message.data.flavor?.includes('Rolling Saves'))){
-      message.data.update({"flags.world.targetIds": [...game.users.get(user).targets].map(t=>t.id)});
-    }
+    
+    if (message.data.flavor?.toUpperCase().includes('HEALING'))
+      message.data.update({"flags.world.targetIds": [...game.user.targets].map(t=>t.id)});
+    
+    if (message.data.flavor?.toUpperCase().includes('ROLLING SAVES'))
+      message.data.update({"flags.world.targetIds": [...game.user.targets].map(t=>t.id)});
+    
   });
 
 function itemFilter(i){
@@ -89,7 +89,7 @@ if (actor.data?.data?.spells) {
 let top = 3;
 //let left = window.innerWidth-610;
 if (game.user.isGM) top = 80;
-let left = 110;
+let left = 350;
 let height = window.innerheight-50;
 let width = 300;
 

@@ -15,9 +15,9 @@ let selectedAlias = $(`select#alias-select`).val();
 //console.log(selectedAlias);
 let title = "Roll Messages";
 let windowId = "roll-messages-dialog"
-let position = Object.values(ui.windows).find(w=> w.id === windowId)?.position || { height: 721, width :450 , id: windowId};
+let position = Object.values(ui.windows).find(w=> w.id === windowId)?.position || { height: 721, width : 450 , id: windowId};
 position["id"] = windowId;
-let header = `<h4><a onclick="game.macros.getName('${this.name}').execute()" style="margin: 0 0 0 0;">${title}</a></h4>`
+let header = `<h4><a onclick="game.macros.getName('${this.name}').execute()" oncontextmenu="game.macros.getName('${this.name}').sheet.render(true)" style="margin: 0 0 0 0;">${title}</a></h4>`
 if (!(Hooks._hooks.renderChatMessage?.findIndex(f=>f.toString().includes('renderchatmessagesdialog'))!==-1))
   Hooks.on(`renderChatMessage`, (message, html, data) => { 
     //renderchatmessagesdialog
@@ -78,8 +78,8 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
   if (m.data.speaker.alias);
     user = m.data.speaker.alias;//game.users.get(m.data?.user)?.data.name;
   if (user === undefined && m.data.flavor?.includes('Round')) {
-  //header = m.data.flavor + ' Messages';
-    messages.push(`<h2 style="border-top: 1px solid var(--color-underline-header);">${m.data.flavor}</h2>`)
+  //header = m.data.flavor + ' Messages';margin-top:.5em;
+    messages.push(`<div><hr><h2 style="border-top: 1px solid var(--color-underline-header); margin-top:.6em;">${m.data.flavor}</h2></div>`)
     //rounds[m.data.flavor] = users;
     //users = {};
     continue;
@@ -100,9 +100,9 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
   
   message += `<div style="" class="cm" name="${user}"><hr>
   <span style="float:right; clear:both; margin-right: 5px;">
-  <a onclick="canvas.tokens.placeables.filter(t=>t.id==='${m.data.speaker?.token}')[0].control({releaseOthers:true});game.macros.getName('Character Dialog').execute();">${user}</a>
+  <a class="speaker" data-token="${m.data.speaker.token}">${user}</a>
   </span>
-  <p>`;
+  <p>`;//game.macros.getName('Character Dialog').execute();
   if (m.data.flavor) 
     message += `${m.data.flavor}`;
     
@@ -112,9 +112,6 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
       message += `&ensp;<a class="effect-button" name="${foundEffects[0].name}" style="margin-right: .3em"><i class="fas fa-bolt"></i></a>`; 
     }
   }
-  if (m.data.flags.world?.targetIds && m.data.flags.world?.targetIds?.length > 0) 
-    message += `&ensp;<a class="target-button" name="${m.data.flags.world?.targetIds.join('-')}" style="margin-right: .3em"><i class="fas fa-crosshairs"></i></a>`;  
-        
   message += `</p>`;
   if (m.data.roll) {
     let roll = JSON.parse(m.data.roll);//Roll.fromJSON(m.data.roll);//
@@ -143,23 +140,22 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
       //message = message.replace('<hr>','');
       if (m.data.flavor?.toUpperCase().includes('CRITICAL'))
         usersDamageCritical[user] = true;
-      
-      message += `<p title="${title}"> ${roll.formula} = <a onclick="game.macros.getName('Health Vitality Change').execute(${roll.total},${usersDamageCritical[user]}, true)" oncontextmenu="game.macros.getName('Health Vitality Change').execute(${roll.total},${usersDamageCritical[user]}, false)">${roll.total}</a> </p> `;
     }
+    if (m.data.flavor?.toUpperCase().includes('ATTACK'))
+      message += `<p title="${title}">${roll.formula} =  ${roll.total}</p>`;
     else
-    {
-      message += `<p title="${title}"> ${roll.formula} = <a onclick="game.macros.getName('Health Vitality Change').execute(${roll.total},${usersDamageCritical[user]}, true)" oncontextmenu="game.macros.getName('Health Vitality Change').execute(${roll.total},${usersDamageCritical[user]}, false)" > ${roll.total}</a> </p>`;
-    }
+      message += `<p title="${title}"><a class="HVM" data-val="${roll.total}" data-crit="${usersAttackCritical[user]}">${roll.formula} =  ${roll.total}</a> </p>`;
+    
     if (m.data.flavor?.toUpperCase().includes('ATTACK') && Object.keys(usersDamageTotal[user]).length !== 0){
       let attackName = m.data.flavor.split(' - ')[0];
       
       let totalTotal = 0;
       for (let [key, value] of Object.entries(usersDamageTotal[user])) {
-        message += `<p title="${title}"><b><a onclick="game.macros.getName('Health Vitality Change').execute(${value},${usersAttackCritical[user]}, true)" oncontextmenu="game.macros.getName('Health/Vitality Change').execute(${value},${usersAttackCritical[user]}, false)">Total ${key} Damage: ${value}</a></b></p>`;
+        message += `<p title="${title}"><b><a class="HVM" data-val="${value}" data-crit="${usersAttackCritical[user]}">Total ${key} Damage: ${value}</a></b></p>`;
         totalTotal += value;
       }
       if (Object.keys(usersDamageTotal[user]).length !== 1)
-        message += `<p title="${title}"><u><b><a onclick="game.macros.getName('Health Vitality Change').execute(${totalTotal},${usersAttackCritical[user]}, true)" oncontextmenu="game.macros.getName('Health Vitality Change').execute(${totalTotal},${usersAttackCritical[user]}, false)">Total Damage: ${totalTotal}</a></b></u></p>`;
+        message += `<p title="${title}"><u><b><<a class="HVM" data-val="${value}" data-crit="${usersAttackCritical[user]}">Total Damage: ${totalTotal}</a></b></u></p>`;
       usersDamageTotal[user] = {};
     }
     //if (m.data.roll)
@@ -168,11 +164,11 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
     if (m.data.flavor?.toUpperCase().includes('ROLLING SAVES FOR')){
       let totalTotal = 0;
       for (let [key, value] of Object.entries(usersDamageTotal[user])) {
-        message += `<p><b><a onclick="game.macros.getName('Health Vitality Change').execute(${value},${usersAttackCritical[user]}, true)" oncontextmenu="game.macros.getName('Health/Vitality Change').execute(${value},${usersAttackCritical[user]}, false)">Total ${key} Damage:  ${value}</a></b></p>`;
+        message += `<p><b><a class="HVM" data-val="${value}" data-crit="${usersAttackCritical[user]}">Total ${key} Damage:  ${value}</a></b></p>`;
           totalTotal += value;
       }
       if (Object.keys(usersDamageTotal[user]).length > 1)
-        message += `<p><u><b><a onclick="game.macros.getName('Health Vitality Change').execute(${totalTotal},${usersAttackCritical[user]}, true)" oncontextmenu="game.macros.getName('Health Vitality Change').execute(${totalTotal},${usersAttackCritical[user]}, false)">Total Damage:  ${totalTotal}</a></b></u></p>`;
+        message += `<p><u><b><a class="HVM" data-val="${totalTotal}" data-crit="${usersAttackCritical[user]}">Total Damage:  ${totalTotal}</a></b></u></p>`;
       usersDamageTotal[user] = {};
       
     }
@@ -182,13 +178,16 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
     //console.log(Object.keys(m.data.flags.world.save), Object.values(m.data.flags.world.save));
     saves[user][Object.keys(m.data.flags.world.save)[0]] = Object.values(m.data.flags.world.save)[0];
   }
+  
+  if (m.data.flags.world?.targetIds && m.data.flags.world?.targetIds?.length > 0) 
+    message += `<b><a class="target-button" name="${m.data.flags.world?.targetIds.join('-')}" style="margin-right: .3em"><i class="fas fa-crosshairs"></i> Targets</a></b>`;  
   //console.log(saves);
   
   if (m.data.flags?.world?.targetIds) {
     let hits = [];
     let saved = [];
     let failed = [];
-    let targets = '<div class="thl"></div>';
+    let targets = '';
     for (let t_id of m.data.flags.world?.targetIds){
       let t = canvas.tokens.get(t_id);
       if (!t) continue;
@@ -210,18 +209,22 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
         
       
       
-      targets += `<div style="margin: 5px 0 0 0;"><a class="target-img" data-id="${t_id}"><img src="${t.data.img}" height="36" style="border:unset; float: left; clear:both; margin-right: 5px;">${t.actor.data.name} ${traits}` ;
+      targets += `<div style="margin: 5px 0 0 0;"><a onclick="canvas.animatePan({x:${t.data.x}, y:${t.data.y}})" ><img src="${t.data.img}" height="36" style="border:unset; float: left; clear:both; margin-right: 5px;"></a><a class="target-img" data-id="${t_id}">${t.actor.data.name} ${traits}` ;
       if (m.data.flavor?.toUpperCase().includes('ATTACK'))
         targets += `<br>AC: ${t.actor.data.data.attributes.ac.value} (${usersLastAttack[user] >=t.actor.data.data.attributes.ac.value?'hits':'misses'})`
-      if (m.data.flavor?.toUpperCase().includes('ROLLING SAVES FOR')){
+      if (m.data.flavor?.toUpperCase().includes('ROLLING SAVES FOR'))
         targets += `<br><b>${saves[user][t.id]}</b> Save`;
-      }
+      if (m.data.flavor?.toUpperCase().includes('CASTS'))
+        targets += `<br><b>&nbsp;</b>`;
+      if (m.data.flavor?.toUpperCase().includes('HEALING'))
+        targets += `<br><b>&nbsp;</b>`;
+      
       targets += `</a><a class="x-target" data-tid="${t_id}" data-mid="${m.id}"><i class="fas fa-times" style="float:right; font-size: 1.25em; margin-right: 1em;"></i></a></div>`;
       
     }
     if (m.data.flavor?.toUpperCase().includes('ROLLING SAVES FOR'))
       saves[user] = {};
-    console.log(m, hits, saved, failed);
+    //console.log(m, hits, saved, failed);
     
     if (hits.length > 1 || saved.length > 0 || failed.length > 0)
       message += '<b style="margin-right: .5em">Targets:</b>';
@@ -250,7 +253,7 @@ for (const m of messages) {
 }
 content += '</div>';
 //console.log(users);
-let aliasSelect = `<center style="border-bottom: 1px solid white;"><select id="alias-select" style="margin-bottom:.5em;  width: 100%;"><option value="" ${selectedAlias?'selected':''}></option>`;
+let aliasSelect = `<center style="border-bottom: 0px solid white;"><select id="alias-select" style="margin-bottom:.5em;  width: 100%;"><option value="" ${selectedAlias?'selected':''}></option>`;
 for (const alias of Object.keys(users).sort()) {
   aliasSelect +=  `<option value="${alias}" ${selectedAlias===alias?'selected':''}>${alias}</option>`;
 }
@@ -285,6 +288,25 @@ let d = new Dialog({
     
     $('#alias-select').contextmenu(async function(e){
       $(this).val('').change();
+    });
+    
+    $('.HVM').click(async function(e){
+      console.log($(this).attr('data-crit'),)
+      game.macros.getName('Health Vitality Change').execute($(this).attr('data-val'), $(this).attr('data-crit').toLowerCase()==='true', false);
+    });
+    
+    $('.HVM').contextmenu(async function(e){
+      game.macros.getName('Health Vitality Change').execute($(this).attr('data-val'), $(this).attr('data-crit'), true);
+    });
+    
+    $('.speaker').contextmenu(async function(e){
+      canvas.tokens.get($(this).attr('data-token')).control({releaseOthers:true});canvas.animatePan({x:_token.data.x, y:_token.data.y});
+    });
+    
+    $('.speaker').click(async function(e){
+      return game.user.updateTokenTargets([$(this).attr('data-token')]);
+      if ([...game.user.targets].length>0) game.user.updateTokenTargets([]);
+      else game.user.updateTokenTargets($(this).attr('name').split('-'));
     });
     
     $('a.x-target').click(async function(e){
@@ -324,12 +346,12 @@ let d = new Dialog({
       //else targets.splice([...game.user.targets].indexOf(t_Id),1);
       game.user.updateTokenTargets(targets);
     });
-    
+    /*
     $("a.target-img > img").hover((e) => {
             let panTarget = canvas.tokens.get($(e.originalEvent.srcElement).parent().attr('data-id'));
             canvas.animatePan({x: panTarget.data.x, y: panTarget.data.y});
         },() => {});
-    
+    */
     $('a.target-button').contextmenu(async function(e){
       return game.user.updateTokenTargets([]);
       let t_Ids = $(this).attr('name').split('-');
