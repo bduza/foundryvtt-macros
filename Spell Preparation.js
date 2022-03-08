@@ -1,15 +1,16 @@
 if (args[0]) token = canvas.tokens.placeables.filter(t=>t.actor?.uuid===args[0].replaceAll('_','.'))[0];
+if (!token) return;
 token.control({releaseOthers:true});
 let w_id = token.actor.uuid.replace('.','_') + "-spells";
 let spells = token.actor.itemTypes.spell.sort((a, b)=> (a.data.data.level > b.data.data.level) ? 1 : (a.data.data.level === b.data.data.level) ? ((a.data.name > b.data.name) ? 1 : -1) : -1  );
 let level = -1;
-let list = ``;//<div  style="display:grid; grid-template-columns: repeat(4, 200px)" >`;
+let list = `<div>`;//<div  style="display:grid; grid-template-columns: repeat(4, 200px)" >`;
 let unprepared = 'rgba(150,150,150,1) !important';
 for (const spell of spells){
   if (spell.data.data.level !== level){
     level ++;
     if (level>=0) list +=`</div>`;
-    list +=`<h2 style="margin-top: .2em">${level===0?'Cantrip':'Level '+level}</h2><div  style="display:grid; grid-template-columns: repeat(4, 220px)" >`;
+    list +=`<h2 style="margin-top: .2em">${level===0?'Cantrip':'Level '+level}</h2><div  style="display:grid; grid-template-columns: repeat(5, 180px)" >`;
   }
   let style = 'color: #fff !important';
   if (spell.data.data.preparation?.mode === 'prepared' && !spell.data.data.preparation.prepared) style = `color: ${unprepared}`;
@@ -18,13 +19,13 @@ for (const spell of spells){
   if (spell.data.data.preparation?.mode === 'pact') style = 'color: #fd3 !important';
   if (spell.data.data.preparation?.mode === 'always') style = 'color: #afa !important';
   list += `
-  <div id="${spell.id}">
+  <div id="${spell.id}" style="white-space: nowrap; overflow: hidden;  text-overflow: ellipsis;">
   <img src="${spell.data.img}" height="14" style="background: url(../ui/denim075.png) repeat;"/>
   <span><a id="spell-name-${spell.id}" style="${style}" name="${spell.id}"> ${spell.data.name}</a> 
   </span></div>`;
 }//<a id="spell-delete-${spell.id}" name="${spell.id}" style="float:right;"><i class="fa fa-times"></i></a>
-list += `</div>`;
-let d = new Dialog({
+list += `</div></div>`;
+let d = await new Dialog({
   title: `${token.actor.name} Spells Prepared: `,
   content:  list,
   render: ()=>{
@@ -32,9 +33,8 @@ let d = new Dialog({
     ${token.actor.itemTypes.spell.filter(spell=>spell.data.data.preparation.mode === 'prepared' && spell.data.data.preparation?.prepared).length}`;
     $(`#${w_id} > header > h4`).html(header);
     
-    console.log($(`#${w_id}`).css('height', (parseInt($(`#${w_id}`).css('height').split('p')[0])+5))+"px")
-    
     $("input#myspellInput").focus();
+    
     $("a[id^=spell-name]").contextmenu(async function(e){
         let spell = token.actor.items.get(this.name);
         console.log(spell);
@@ -83,6 +83,6 @@ let d = new Dialog({
   buttons: {},
   close:   html => {
       return}
-},{width: 900, id: w_id}
+},{width: 930 , height: '100%', id: w_id}
 );
-d.render(true);
+await d.render(true);
