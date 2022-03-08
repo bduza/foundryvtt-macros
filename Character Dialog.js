@@ -1,11 +1,3 @@
-if (args[0]) {
-  let uuidParts = args[0].split('.');
-  console.log(uuidParts);
-  if (uuidParts[0]==='Token') token = canvas.tokens.get(uuidParts[1]);
-  else {
-    actor = game.actors.get(uuidParts[1]);
-  }
-}
 let sortByActionType = false;
 
 let t = '';
@@ -15,9 +7,15 @@ else actor = token?.actor;
 if (!actor) return ui.notifications.error("No Actor");;
 token = null;
 t = actor.uuid.replaceAll('.','_');
+
+
+if (args[0]) {
+  let uuidParts = args[0].split('.');
+  console.log(uuidParts);
+  if (uuidParts[2]==='Token') actor = canvas.tokens.get(uuidParts[3]).actor;
+  else  actor = game.actors.get(uuidParts[1]);
+}
 console.log('t: ', t);
-
-
 let top = 3;
 //let left = window.innerWidth-610;
 if (game.user.isGM) top = 80;
@@ -118,8 +116,6 @@ if (actor.data?.data?.spells) {
   await actor.update({'data.spells': spells});
 }
 
-
-
 $(`div[id*=${t}]`).show();
 
 let otherActions = false;
@@ -160,7 +156,7 @@ content+=`
 <div style="font-size:1.1em;"><a onclick="game.macros.getName('Actor Effects List').execute('${t}');"><i class="fas fa-bolt"></i></a></div>
 </div>`;
 
-let doNotFilter = ["feat","tool", "loot", "equipment"];
+let doNotFilter = ["feat", "tool", "loot", "equipment"];
 
 let actorItems;
 if (args[1]) {
@@ -444,8 +440,11 @@ let d = new Dialog({
         
         if (x.data.data.damage)
         for (let dp of x.data.data.damage.parts) {
+          let damageRoll = new Roll(dp[0], x.getRollData());
+          for (let t of damageRoll.terms.filter(t=> t.constructor.name === 'Die' || t.constructor.name === 'MathTerm'))
+            t.options.flavor = dp[1];
           let dr = '<tr><th align="left">' + (dp[1] ? dp[1].capitalize(): '') + 
-             `</th><td>[[/r ` + Roll.replaceFormulaData(dp[0], x.getRollData()) +  ` # ${x.data.name} - ` +  (dp[1]?dp[1].capitalize():'') + (dp[1] === 'healing'?``:` Damage`)+ `]] `;
+             `</th><td>[[/r ` + Roll.fromTerms(damageRoll.terms)._formula +  ` # ${x.data.name} - ` +  (dp[1]?dp[1].capitalize():'') + (dp[1] === 'healing'?``:` Damage`)+ `]] `;
           
           if (x.data.data.scaling?.formula)  
             dr += `<a id="${x.id}-inline-scaling"  class="my-inline-roll" name="${x.id}"> + ${x.data.data.scaling?.formula}</a> `;

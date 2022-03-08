@@ -24,7 +24,7 @@ for (let type of types){
   list += 
   `<a id="open-category-${type}-${t}" name="${type.toLowerCase()}" data-t="${t}" class="type-link">
     <p style="font-size: 1.2em; font-weight: semibold; margin: 3px" >
-      ${type==='Feat'?'Feature':type} 
+      ${type==='Feat'?'Features':((['Equipment', 'Loot'].includes(type))?type:type+'s')} 
     </p>
   </a>`;
   if (type==='Spell') list += `
@@ -34,13 +34,13 @@ for (let type of types){
 }
 
 list += `
-<a style="" class="roll-dialog-button-${t}" name="${t}-abilities-test">
+<a style="" class="menu-roll-dialog-button-${t}" name="${t}-abilities-test">
   <p style="font-size: 1.2em; font-weight: semibold; margin: 3px" >Abilities</p>
 </a>
-<a style="" class="roll-dialog-button-${t}" name="${t}-abilities-save">
+<a style="" class="menu-roll-dialog-button-${t}" name="${t}-abilities-save">
   <p style="font-size: 1.2em; font-weight: semibold; margin: 3px" >Saves</p>
 </a>
-<a style="" class="roll-dialog-button-${t}" name="${t}-skills-check">
+<a style="" class="menu-roll-dialog-button-${t}" name="${t}-skills-check">
   <p style="font-size: 1.2em; font-weight: semibold; margin: 3px" >Skills</p>
 </a>
 <a  onclick="_token.actor.rollInitiative()">
@@ -66,10 +66,10 @@ new Dialog({
       });
     
     $('.type-link').click(function (e) {
-      game.macros.getName('Character Dialog').execute($(this).attr('data-t').replaceAll('.','_'), $(this).attr('name'), {left : e.clientX-5 , top: e.clientY+15 });
+      game.macros.getName('Character Dialog').execute($(this).attr('data-t').replaceAll('_','.'), $(this).attr('name'), {left : e.clientX-5 , top: e.clientY+15 });
     });
     
-   $(`.roll-dialog-button-${t}`).each(function() {
+   $(`.menu-roll-dialog-button-${t}`).each(function() {
         $(this).click(async function(e){
           let vars = this.name.split('-');
           game.macros.getName('Roll Dialog').execute(vars[0],vars[1],vars[2], {left: e.clientX -5, top: e.clientY + 15});
@@ -77,7 +77,7 @@ new Dialog({
       });
     
     $(`#menu-${t}`).find(`section.window-content`).click(async function(e){
-        console.log(this);
+        
         let placeables = canvas.tokens.placeables.filter(tp => tp.actor?.uuid === t.replaceAll('_','.'))
         if (placeables.length > 0)
           placeables[0].control({releaseOthers:true});
