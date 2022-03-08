@@ -9,7 +9,7 @@ for (const spell of spells){
   if (spell.data.data.level !== level){
     level ++;
     if (level>=0) list +=`</div>`;
-    list +=`<h2>${level===0?'Cantrip':'Level '+level}</h2><div  style="display:grid; grid-template-columns: repeat(4, 220px)" >`;
+    list +=`<h2 style="margin-top: .2em">${level===0?'Cantrip':'Level '+level}</h2><div  style="display:grid; grid-template-columns: repeat(4, 220px)" >`;
   }
   let style = 'color: #fff !important';
   if (spell.data.data.preparation?.mode === 'prepared' && !spell.data.data.preparation.prepared) style = `color: ${unprepared}`;
@@ -18,7 +18,7 @@ for (const spell of spells){
   if (spell.data.data.preparation?.mode === 'pact') style = 'color: #fd3 !important';
   if (spell.data.data.preparation?.mode === 'always') style = 'color: #afa !important';
   list += `
-  <div id="${spell.id}" >
+  <div id="${spell.id}">
   <img src="${spell.data.img}" height="14" style="background: url(../ui/denim075.png) repeat;"/>
   <span><a id="spell-name-${spell.id}" style="${style}" name="${spell.id}"> ${spell.data.name}</a> 
   </span></div>`;
