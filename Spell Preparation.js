@@ -15,7 +15,8 @@ for (const spell of spells){
   if (spell.data.data.preparation?.mode === 'prepared' && !spell.data.data.preparation.prepared) style = `color: ${unprepared}`;
   if (spell.data.data.level === 0) style = 'color: #fff !important';
   if (spell.data.data.preparation?.mode === 'innate') style = 'color: #8ff !important';//level = 'Innate';
-  if (spell.data.data.preparation?.mode === 'pact') style = 'color: #fD3 !important';
+  if (spell.data.data.preparation?.mode === 'pact') style = 'color: #fd3 !important';
+  if (spell.data.data.preparation?.mode === 'always') style = 'color: #afa !important';
   list += `
   <div id="${spell.id}" >
   <img src="${spell.data.img}" height="14" style="background: url(../ui/denim075.png) repeat;"/>

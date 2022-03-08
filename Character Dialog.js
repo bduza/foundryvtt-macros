@@ -1,11 +1,41 @@
+if (args[0]) {
+  let uuidParts = args[0].split('.');
+  console.log(uuidParts);
+  if (uuidParts[0]==='Token') token = canvas.tokens.get(uuidParts[1]);
+  else {
+    actor = game.actors.get(uuidParts[1]);
+  }
+}
+let sortByActionType = false;
+
 let t = '';
 if (!token) token = _token;
-if (!token) actor = game.user.character;
+if (!token && !actor) actor = game.user.character;
 else actor = token?.actor;
 if (!actor) return ui.notifications.error("No Actor");;
 token = null;
 t = actor.uuid.replaceAll('.','_');
-console.log('t: ', t)
+console.log('t: ', t);
+
+
+let top = 3;
+//let left = window.innerWidth-610;
+if (game.user.isGM) top = 80;
+let left = 350;
+let height = window.innerheight-50;
+let width = 300;
+let w_id = `items-dialog-${t}`;
+if (args[1]) w_id += `-${args[1]}`;
+let position = Object.values(ui.windows).find(w=> w.id===`items-dialog-${t}`)?.position || 
+  { height: height, width: width ,  top: top, left: left };
+position["id"] = w_id;
+if (args[2]) position = {...position, ...args[2]};
+
+let combatPopout = Object.values(ui.windows).find(w=> w.id === `combat-popout`);
+if (combatPopout) {
+  position.top = combatPopout.position.top;
+  position.left = combatPopout.position.left + 305;
+}
 
 if (!game.user.isGM) ui.nav._element.hide();
 
@@ -88,22 +118,7 @@ if (actor.data?.data?.spells) {
   await actor.update({'data.spells': spells});
 }
 
-let top = 3;
-//let left = window.innerWidth-610;
-if (game.user.isGM) top = 80;
-let left = 350;
-let height = window.innerheight-50;
-let width = 300;
 
-let position = Object.values(ui.windows).find(w=> w.id === `items-dialog-${t}`)?.position || 
-  { height: height, width: width ,  top: top, left: left,  id:`items-dialog-${t}`};
-position["id"] = `items-dialog-${t}`;
-
-let combatPopout = Object.values(ui.windows).find(w=> w.id === `combat-popout`);
-if (combatPopout) {
-  position.top = combatPopout.position.top;
-  position.left = combatPopout.position.left + 305;
-}
 
 $(`div[id*=${t}]`).show();
 
@@ -132,11 +147,10 @@ let content=`
 
 let header = `
 <img src="${actor.data.token.img}" height="23" style="border:unset;vertical-align:middle;margin:0 3px 1px 0;"/>
-<a style="margin: 0 0 0 0" id="${t}-header-title" name="${t}">${actor.data.name}</a>
-
-`;
+<a style="margin: 0 0 0 0" id="${t}-header-title" name="${t}">${actor.data.name}</a>`;
+if (args[1]) header = `${actor.data.name} - ${args[1].capitalize()} Items`
 //<a style="float:left;margin-left:0;" onclick="game.actors.get('${actor.id}').sheet.render(true)" title="Sheet"><img src="${actor.data.token.img}" height="20" style="border:unset;vertical-align:middle;"/></a>
-
+if (!args[0])
 content+=`
 <div style="display: grid; grid-template-columns: repeat(5,auto); border-bottom:0px solid black;border-top:0px solid black;margin-bottom:.5em">
 <div style="font-size:1.1em"><a style="" class="roll-dialog-button-${t}" name="${t}-abilities-test">Abilities</a></div>
@@ -145,8 +159,18 @@ content+=`
 <div style="font-size:1.1em;"><a style="margin-right:5px" onclick="_token.toggleCombat(game.combats.active);"><i class="fas fa-fist-raised"></i></a><a  onclick="_token.actor.rollInitiative()">Initiative</a></div>
 <div style="font-size:1.1em;"><a onclick="game.macros.getName('Actor Effects List').execute('${t}');"><i class="fas fa-bolt"></i></a></div>
 </div>`;
-let items = {};
-for (const x of actor.items.filter(x => itemFilter(x))) {
+
+let doNotFilter = ["feat","tool", "loot", "equipment"];
+
+let actorItems;
+if (args[1]) {
+  if (doNotFilter.includes(args[1])) actorItems = actor.itemTypes[args[1]]
+  else  actorItems = actor.itemTypes[args[1]].filter(x => itemFilter(x));;
+}
+else actorItems = actor.items.filter(x => itemFilter(x));
+
+let items = {};//.filter(x => itemFilter(x))
+for (const x of actorItems) {
     
   let available = true;
   if (x.data.data.uses?.value === 0 && x.data.data.uses?.max !== 0 ) available = false;
@@ -193,9 +217,9 @@ for (const x of actor.items.filter(x => itemFilter(x))) {
     */
   let text = `<div id="${x.id}" > <img  src="${x.img}"  class="item-img" height="20" name="${x.id}" title="Roll"><span style="vertical-align:bottom;"> 
         <a id="roll-${x.id}" name="${x.id}" title="${title}" 
-        class=" ${(x.type === 'spell' && x.data.data.level !== 0 && !(x.data.data.uses?.max !== 0 && x.data.data.uses?.max !== '' && x.data.data.uses?.max !== null))?t+'-spell'+x.data.data.level:''}" 
+        class=" ${(x.type === 'spell' && x.data.data.level !== 0 && !(x.data.data.uses?.max !== undefined  && x.data.data.uses?.max !== 0 && x.data.data.uses?.max !== '' && x.data.data.uses?.max !== null))?t+'-spell'+x.data.data.level:''}" 
         style="${x.data.data.equipped?'text-decoration:underline;':''} ${available?'':'color: '+ unavailable}">${x.data.name} ${x.data.data.quantity>1?'('+x.data.data.quantity+')':''} 
-      ${x.data.data.uses?.max !== 0 && x.data.data.uses?.max !== '' && x.data.data.uses?.max !== null ? '('+ x.data.data.uses?.value +'/'+x.data.data.uses?.max+')':''} </span></a>${equipped}${ammoSelect}</div> `;
+      ${x.data.data.uses?.max && x.data.data.uses?.max !== 0 && x.data.data.uses?.max !== '' && x.data.data.uses?.max !== null ? '('+ x.data.data.uses?.value +'/'+x.data.data.uses?.max+')':''} </span></a>${equipped}${ammoSelect}</div> `;
     
 
   let level = "none";
@@ -210,16 +234,19 @@ for (const x of actor.items.filter(x => itemFilter(x))) {
   let itemType = x.type;
   
   //if (x.type === 'spell' && x.data.data?.preparation?.mode === 'innate') itemType = 'feat';
-    
+  let activation = x.labels.activation
+  if (!sortByActionType) activation = 'All'
+  
+  
   if (!items[itemType])
-     items[itemType] = {};
-  if (!items[itemType][x.labels.activation])
-     items[itemType][x.labels.activation] = {};
-  if (!items[itemType][x.labels.activation][level])
-     items[itemType][x.labels.activation][level] = {};
-  if (!items[itemType][x.labels.activation][level][x.data.name])
-     items[itemType][x.labels.activation][level][x.data.name] = [];
-     items[itemType][x.labels.activation][level][x.data.name].push(text);
+    items[itemType] = {};
+  if (!items[itemType][activation])
+    items[itemType][activation] = {};
+  if (!items[itemType][activation][level])
+    items[itemType][activation][level] = {};
+  if (!items[itemType][activation][level][x.data.name])
+    items[itemType][activation][level][x.data.name] = [];
+    items[itemType][activation][level][x.data.name].push(text);
   
 }
 let sections = '';//'<div style="width: 298px; height: 658px; overflow: scroll;">';
@@ -227,10 +254,11 @@ for (const type of Object.keys(items).sort().reverse()) {
   let h = type.capitalize();
   if (h === 'Feat') h = 'Feature';
   if (h !== 'Equipment') h = h+'s';
-  sections += `<h2 class="iah">${h}</h2>`;
+  if (!args[0]) sections += `<h2 class="iah">${h}</h2>`;
   sections += `<div  style="" class="section" id="act-${type.capitalize()}"> `;
   for (const activation of Object.keys(items[type]).sort()) {
-  sections += `<h3 class="ith" style="">${activation.capitalize().replace('1 ', '')}</h3><div style="margin-bottom:.5em">`;
+  if (sortByActionType)
+    sections += `<h3 class="ith" style="">${activation.capitalize().replace('1 ', '')}</h3><div style="margin-bottom:.5em">`;
   
   for (const level of Object.keys(items[type][activation]).sort()) {
     
@@ -268,13 +296,15 @@ content += '</div>';
 
 let other = [];
 //for ( let x of actor.items.filter(i=> i.type !== 'feat' && i.type !== 'class' && ( i.data.data.activation?.type === '' || i.data.data.activation?.type === undefined ||  i.data.data.activation?.type === 'none')))
-for (let x of actor.items.filter(i => !itemFilter(i) && i.type !== 'feat' && i.type !== 'spell' && i.type !== 'class' )) {
-  other.push(`<a id="roll-${x.id}" name="${x.id}">${x.name}${x.data.data.quantity>1?' ('+x.data.data.quantity+')':''} </a>`);
+if (!args[0]) {
+  for (let x of actor.items.filter(i => !itemFilter(i) && i.type !== 'feat' && i.type !== 'spell' && i.type !== 'class' )) {
+    other.push(`<a id="roll-${x.id}" name="${x.id}">${x.name}${x.data.data.quantity>1?' ('+x.data.data.quantity+')':''} </a>`);
+  }
+  if (other.length > 0)
+    content += `<h2 class="iah">Other Equipment</h2><div style="margin-bottom:.5em">` + other.join(', ') + `</div>`;
 }
-if (other.length > 0)
-  content += `<h2 class="iah">Other Equipment</h2><div style="margin-bottom:.5em">` + other.join(', ') + `</div>`;
 //----------------currency-----------------//
-if (actor.data.type === 'character') {
+if (actor.data.type === 'character' && !args[0]) {
   content += `<h2>Currency</h2><div style="display: grid; grid-template-columns:repeat(${Object.keys(actor.data.data.currency).length}, 1fr);">`
   for (let [key, value] of Object.entries(actor.data.data.currency))
     content += `<div>
@@ -338,7 +368,7 @@ let d = new Dialog({
       $(`.roll-dialog-button-${t}`).each(function() {
         $(this).click(async function(e){
           let vars = this.name.split('-');
-          RollDialog(vars[0].toString(),vars[1],vars[2], e.clientX, e.clientY );
+          game.macros.getName('Roll Dialog').execute(vars[0],vars[1],vars[2], {left: e.clientX, top: e.clientY});
         });
       });
       
@@ -412,6 +442,7 @@ let d = new Dialog({
         //-----------DAMAGE---------------//
         let damageRolls = [];  
         
+        if (x.data.data.damage)
         for (let dp of x.data.data.damage.parts) {
           let dr = '<tr><th align="left">' + (dp[1] ? dp[1].capitalize(): '') + 
              `</th><td>[[/r ` + Roll.replaceFormulaData(dp[0], x.getRollData()) +  ` # ${x.data.name} - ` +  (dp[1]?dp[1].capitalize():'') + (dp[1] === 'healing'?``:` Damage`)+ `]] `;
@@ -1019,5 +1050,5 @@ let d = new Dialog({
         close:   html => { 
           return;
         }
-    },{width:330, top: top-5 , left: left-5 ,  id:`${d_Id}-roll-dialog` }).render(true);
+    },{ top: 80 , left: 110 ,  id:`${d_Id}-roll-dialog` }).render(true);
 }
