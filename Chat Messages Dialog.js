@@ -11,6 +11,7 @@ async function controlUserTargets(section) {
   }
 }
 
+
 let selectedAlias = $(`select#alias-select`).val();
 //console.log(selectedAlias);
 let title = "Roll Messages";
@@ -65,6 +66,7 @@ let usersAttackCritical = {};
 let usersDamageCritical = {}
 let messages = [];
 let saves = {};
+let damageTaken = {};
 //for (const m of game.messages.contents){
 //let damageTotal = 0;
 //let lastAttack = 0;
@@ -75,6 +77,7 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
   let total = 0;
   let message = ``;
   let user = '';
+  let damage = '';
   if (m.data.speaker.alias);
     user = m.data.speaker.alias;//game.users.get(m.data?.user)?.data.name;
   if (user === undefined && m.data.flavor?.includes('Round')) {
@@ -133,7 +136,7 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
     if (m.data.flavor?.toUpperCase().includes('ATTACK'))
       usersLastAttack[user] = roll.total;
     
-    if (m.data.flavor?.toUpperCase().includes('DAMAGE')){
+    if (m.data.flavor?.toUpperCase().includes('DAMAGE') || m.data.flavor?.toUpperCase().includes('HEALING')){
       let dt = m.data.flags?.world?.damageType;
       if (dt && !usersDamageTotal[user][dt]) usersDamageTotal[user][dt] = 0;
       usersDamageTotal[user][dt] += roll.total;
@@ -145,33 +148,31 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
       message += `<p title="${title}">${roll.formula} =  ${roll.total}</p>`;
     else
       message += `<p title="${title}"><a class="HVM" data-val="${roll.total}" data-crit="${usersAttackCritical[user]}">${roll.formula} =  ${roll.total}</a> </p>`;
-    
+    /*
     if (m.data.flavor?.toUpperCase().includes('ATTACK') && Object.keys(usersDamageTotal[user]).length !== 0){
-      let attackName = m.data.flavor.split(' - ')[0];
-      
       let totalTotal = 0;
       for (let [key, value] of Object.entries(usersDamageTotal[user])) {
-        message += `<p title="${title}"><b><a class="HVM" data-val="${value}" data-crit="${usersAttackCritical[user]}">Total ${key} Damage: ${value}</a></b></p>`;
+        message += `<p title="${title}"><b><a class="HVM" data-val="${value}" data-crit="${usersAttackCritical[user]}">${key} Damage: ${value}</a></b></p>`;
         totalTotal += value;
       }
       if (Object.keys(usersDamageTotal[user]).length !== 1)
         message += `<p title="${title}"><u><b><<a class="HVM" data-val="${value}" data-crit="${usersAttackCritical[user]}">Total Damage: ${totalTotal}</a></b></u></p>`;
-      usersDamageTotal[user] = {};
-    }
+      //usersDamageTotal[user] = {};
+    }*/
     //if (m.data.roll)
       //message += `<span class="dice-tooltip" style="color:#000 !important"> ${$(await m.roll.getTooltip()).find(".dice-rolls")[0].outerHTML}</span>`;
   }
-    if (m.data.flavor?.toUpperCase().includes('ROLLING SAVES FOR')){
-      let totalTotal = 0;
-      for (let [key, value] of Object.entries(usersDamageTotal[user])) {
-        message += `<p><b><a class="HVM" data-val="${value}" data-crit="${usersAttackCritical[user]}">Total ${key} Damage:  ${value}</a></b></p>`;
-          totalTotal += value;
-      }
-      if (Object.keys(usersDamageTotal[user]).length > 1)
-        message += `<p><u><b><a class="HVM" data-val="${totalTotal}" data-crit="${usersAttackCritical[user]}">Total Damage:  ${totalTotal}</a></b></u></p>`;
-      usersDamageTotal[user] = {};
-      
+  if (m.data.flavor?.toUpperCase().includes('ROLLING SAVES FOR')||m.data.flavor?.toUpperCase().includes('ATTACK') && Object.keys(usersDamageTotal[user]).length !== 0){
+    let totalTotal = 0;
+    for (let [key, value] of Object.entries(usersDamageTotal[user]).reverse()) {
+      message += `<p><b><a class="HVM" data-val="${value}" data-crit="${usersAttackCritical[user]}">${key} Damage:  ${value}</a></b></p>`;
+        totalTotal += value;
     }
+    if (Object.keys(usersDamageTotal[user]).length > 1)
+      message += `<p><u><b><a class="HVM" data-val="${totalTotal}" data-crit="${usersAttackCritical[user]}">Total Damage:  ${totalTotal}</a></b></u></p>`;
+    //usersDamageTotal[user] = {};
+    
+  }
     
   
   if (m.data.flags?.world?.save !== undefined && m.data.speaker.token) {
@@ -192,9 +193,9 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
       let t = canvas.tokens.get(t_id);
       if (!t) continue;
       let traits = '';
+      //&& t.actor.data.data.traits[key]?.value?.length
       for (const [key, value] of Object.entries(t.actor.data.data.traits)) {
-        if (key !== 'languages' && key !== 'size' && key !== 'weaponProf' && key !== 'armorProf' && key !== 'toolProf' &&
-          t.actor.data.data.traits[key]?.value?.length) {
+        if ((key == 'di' || key == 'dr' || key == 'dv') && t.actor.data.data.traits[key]?.value?.length) {
           traits += `\n${key.toUpperCase()}: ${value.value.join(', ')}`;
         }
       }
@@ -209,15 +210,30 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
         
       
       
-      targets += `<div style="margin: 5px 0 0 0;"><a onclick="canvas.animatePan({x:${t.data.x}, y:${t.data.y}})" ><img src="${t.data.img}" height="36" style="border:unset; float: left; clear:both; margin-right: 5px;"></a><a class="target-img" data-id="${t_id}">${t.actor.data.name} ${traits}` ;
-      if (m.data.flavor?.toUpperCase().includes('ATTACK'))
-        targets += `<br>AC: ${t.actor.data.data.attributes.ac.value} (${usersLastAttack[user] >=t.actor.data.data.attributes.ac.value?'hits':'misses'})`
-      if (m.data.flavor?.toUpperCase().includes('ROLLING SAVES FOR'))
-        targets += `<br><b>${saves[user][t.id]}</b> Save`;
-      if (m.data.flavor?.toUpperCase().includes('CASTS'))
-        targets += `<br><b>&nbsp;</b>`;
-      if (m.data.flavor?.toUpperCase().includes('HEALING'))
-        targets += `<br><b>&nbsp;</b>`;
+      targets += `<div style="margin: 5px 0 0 0;"><a onclick="canvas.animatePan({x:${t.data.x}, y:${t.data.y}})" ><img src="${t.data.img}" height="36" style="border:unset; float: left; clear:both; margin-right: 5px;"></a><a class="target-img" data-id="${t_id}">${t.actor.data.name} ${traits}<br>` ;
+      
+      if (m.data.flavor?.toUpperCase().includes('ATTACK')) 
+        targets += `AC: ${t.actor.data.data.attributes.ac.value} (${usersLastAttack[user]>=t.actor.data.data.attributes.ac.value?'hits':'misses'})&nbsp;`;
+        
+      if (m.data.flavor?.toUpperCase().includes('ROLLING SAVES FOR')) 
+        targets += `<b>${saves[user][t.id]}</b> Save &nbsp;`;
+        
+      if (m.data.flavor?.toUpperCase().includes('CAST'))
+        targets += ``;
+        
+      if (m.data.flavor?.toUpperCase().includes('HEALING')) 
+        targets += ``;
+        
+      for (let [key, value] of Object.entries(usersDamageTotal[user]).reverse()) {
+        if (t.actor.data.data?.traits?.dv?.value?.includes(key.toLowerCase())) value *= 2;
+        if (t.actor.data.data?.traits?.di?.value?.includes(key.toLowerCase())) value = 0;
+        if (t.actor.data.data?.traits?.dr?.value?.includes(key.toLowerCase())) value = Math.floor(value/2);
+        
+        if (hits.includes(t_id) || failed.includes(t_id))
+          targets += `<a class="applyDamage" data-val="${key.toUpperCase().includes('HEALING')?value*-1:value}" data-crit="${usersAttackCritical[user]}" data-token="${t_id}"> ${value} ${key}</a>&nbsp;`;
+        if (saved.includes(t_id))
+          targets += `<a class="applyDamage" data-val="${key.toUpperCase().includes('HEALING')?value*-1:value}" data-crit="${usersAttackCritical[user]}" data-token="${t_id}"> ${Math.floor(value/2)} ${key}</a>&nbsp;`;
+      }
       
       targets += `</a><a class="x-target" data-tid="${t_id}" data-mid="${m.id}"><i class="fas fa-times" style="float:right; font-size: 1.25em; margin-right: 1em;"></i></a></div>`;
       
@@ -225,6 +241,11 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
     if (m.data.flavor?.toUpperCase().includes('ROLLING SAVES FOR'))
       saves[user] = {};
     //console.log(m, hits, saved, failed);
+    for (let t_id of hits) {
+      if (!damageTaken[t_id]) damageTaken[t_id] = [];
+      damageTaken[t_id].unshift(usersDamageTotal[user]);
+    }
+    
     
     if (hits.length > 1 || saved.length > 0 || failed.length > 0)
       message += '<b style="margin-right: .5em">Targets:</b>';
@@ -237,17 +258,20 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
     hits = [];
     saved = [];
     failed = [];
+    
+    
     message += targets;
   }
   usersDamageCritical[user] = false;
   usersAttackCritical[user] = false;
+  if (m.data.flavor?.toUpperCase().includes('ATTACK') || m.data.flavor?.toUpperCase().includes('HEALING') || m.data.flavor?.toUpperCase().includes('ROLLING SAVES FOR')) usersDamageTotal[user] = {};
   message += `</div>`
   //users[user].push(message);  
   messages.push(message);
   //m = game.messages.contents[game.messages.contents.length - i];
 }
 
-
+console.log(damageTaken);
 for (const m of messages) {
         content += m; 
 }
@@ -291,12 +315,36 @@ let d = new Dialog({
     });
     
     $('.HVM').click(async function(e){
-      console.log($(this).attr('data-crit'),)
+      console.log($(this).attr('data-crit'))
       game.macros.getName('Health Vitality Change').execute($(this).attr('data-val'), $(this).attr('data-crit').toLowerCase()==='true', false);
     });
     
     $('.HVM').contextmenu(async function(e){
       game.macros.getName('Health Vitality Change').execute($(this).attr('data-val'), $(this).attr('data-crit'), true);
+    });
+    
+    $('.applyDamage').click(async function(e){
+      let t_id = $(this).attr('data-token');
+      game.user.updateTokenTargets([t_id]);
+      let target = canvas.tokens.get(t_id);
+      if (e.ctrlKey) 
+        target.actor.applyDamage($(this).attr('data-val'),.5);
+      else if (e.shiftKey) 
+        target.actor.applyDamage($(this).attr('data-val'), 2);
+      else
+        target.actor.applyDamage($(this).attr('data-val'));
+    });
+    
+    $('.applyDamage').contextmenu(async function(e){
+      let t_id = $(this).attr('data-token');
+      game.user.updateTokenTargets([t_id]);
+      let target = canvas.tokens.get(t_id);
+      if (e.ctrlKey) 
+        target.actor.applyDamage($(this).attr('data-val')*-1,.5);
+      else if (e.shiftKey) 
+        target.actor.applyDamage($(this).attr('data-val')*-1, 2);
+      else
+        target.actor.applyDamage($(this).attr('data-val')*-1);
     });
     
     $('.speaker').contextmenu(async function(e){
@@ -324,7 +372,7 @@ let d = new Dialog({
     });
     
     $('a.target-img').contextmenu(async function(e){
-      //let t_Id = $(this).attr('class').replace('-target-img','');
+      //return game.user.updateTokenTargets([]);
       let t_Id = $(this).attr('data-id');
       console.log(t_Id);
       //let t = canvas.tokens.get(t_Id);
@@ -341,6 +389,7 @@ let d = new Dialog({
     
     $('a.target-img').click(async function(e){
       let t_Id = $(this).attr('data-id');
+      //return game.user.updateTokenTargets([t_Id]);
       let targets = [...game.user.targets].map(t => t.id);
       if (!targets.map(t => t.id).includes(t_Id)) targets.push(t_Id);
       //else targets.splice([...game.user.targets].indexOf(t_Id),1);

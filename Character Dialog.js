@@ -12,14 +12,16 @@ if (!game.user.isGM) ui.nav._element.hide();
 if (!(Hooks._hooks.preCreateChatMessage?.findIndex(f=>f.toString().includes('chatmessagetargetflags'))!==-1))
   Hooks.on(`preCreateChatMessage`, async (message, data, options, user) => {
     //chatmessagetargetflags
-    if (message.data.flavor?.toUpperCase().includes('ATTACK') || message.data.flavor?.includes('Casts'))
+    if (message.data.flavor?.toUpperCase().includes('ATTACK') || message.data.flavor?.toUpperCase().includes('CAST'))
       message.data.update({"flags.world.targetIds": [...game.user.targets].map(t=>t.id)});
     
     if (message.data.flavor?.toUpperCase().includes('DAMAGE'))
       message.data.update({"flags.world.damageType": message.data.flavor.split(' ')[message.data.flavor.split(' ').indexOf('Damage')-1]});
     
-    if (message.data.flavor?.toUpperCase().includes('HEALING'))
+    if (message.data.flavor?.toUpperCase().includes('HEALING')) {
       message.data.update({"flags.world.targetIds": [...game.user.targets].map(t=>t.id)});
+      message.data.update({"flags.world.damageType": 'Healing'});
+    }
     
     if (message.data.flavor?.toUpperCase().includes('ROLLING SAVES'))
       message.data.update({"flags.world.targetIds": [...game.user.targets].map(t=>t.id)});
@@ -267,7 +269,7 @@ content += '</div>';
 let other = [];
 //for ( let x of actor.items.filter(i=> i.type !== 'feat' && i.type !== 'class' && ( i.data.data.activation?.type === '' || i.data.data.activation?.type === undefined ||  i.data.data.activation?.type === 'none')))
 for (let x of actor.items.filter(i => !itemFilter(i) && i.type !== 'feat' && i.type !== 'spell' && i.type !== 'class' )) {
-  other.push( `<a id="roll-${x.id}" name="${x.id}">${x.name}${x.data.data.quantity>1?' ('+x.data.data.quantity+')':''} </a>`);
+  other.push(`<a id="roll-${x.id}" name="${x.id}">${x.name}${x.data.data.quantity>1?' ('+x.data.data.quantity+')':''} </a>`);
 }
 if (other.length > 0)
   content += `<h2 class="iah">Other Equipment</h2><div style="margin-bottom:.5em">` + other.join(', ') + `</div>`;
@@ -475,13 +477,14 @@ let d = new Dialog({
             spellTableHeaders += `<th style="text-decoration: underline"'>Cantrip</th>`
             spellTableColumns += `<td  style="text-align:center"><a id="${x.id}-spell-level-0" name="0" 
                class="my-inline-roll spell-level-0" data="${x.id}"><i class="fas fa-infinity"></i></a></td>`;
-          }
+          } else {
           for (const [key, value] of Object.entries(actor.data.data.spells)){
              if (value.max > 0 && x.data.data.level <= parseInt(key.substr(-1))) {
                spellTableHeaders += `<th ${((x.data.data.level === parseInt(key.substr(-1)))?'style="text-decoration: underline"':'style=""')}>${key.substr(-1)}</th>` ;
                spellTableColumns += `<td  style="text-align:center"><a id="${x.id}-spell-level-${key.substr(-1)}" name="${key.substr(-1)}" 
                class="my-inline-roll spell-level-${key.substr(-1)}" style="" data="${x.id}">${value.value}/${value.max}</a></td>`;
              }
+          }
           }
           spellTable += spellTableHeaders + `<tr>` + spellTableColumns + `<tr>` + `</table>`;
           text += spellTable;
@@ -544,7 +547,7 @@ let d = new Dialog({
                     else
                       result = 'Succeeded';
                       
-                    roll.toMessage({speaker:ChatMessage.getSpeaker({actor: x.parent}),flavor:`<b>${result}</b> ${ability} Save for ${x.name}`,"flags.world.save":{[target.id]:result}},{rollMode: 'blindroll'});
+                    roll.toMessage({speaker:ChatMessage.getSpeaker({actor: x.parent}),flavor:`${target.name}<br><b>${result}</b> ${ability} Save for ${x.name}`,"flags.world.save":{[target.id]:result}},{rollMode: 'blindroll'});
                     //console.log(roll.total)
                   }
                 });
