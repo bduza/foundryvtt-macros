@@ -144,7 +144,8 @@ let content=`
 let header = `
 <img src="${actor.data.token.img}" height="23" style="border:unset;vertical-align:middle;margin:0 3px 1px 0;"/>
 <a style="margin: 0 0 0 0" id="${t}-header-title" name="${t}">${actor.data.name}</a>`;
-if (args[1]) header = `${actor.data.name} - ${args[1].capitalize()} Items`
+console.log(args[1])
+if (args[1]) header = `${actor.data.name} - ${args[1].capitalize()} Items`;
 //<a style="float:left;margin-left:0;" onclick="game.actors.get('${actor.id}').sheet.render(true)" title="Sheet"><img src="${actor.data.token.img}" height="20" style="border:unset;vertical-align:middle;"/></a>
 if (!args[0])
 content+=`
@@ -320,6 +321,8 @@ let d = new Dialog({
       });
       
       $(`#items-dialog-${t} > header > h4`).html(header);
+      
+      if (args[1]) $(`#items-dialog-${t}-${args[1]} > header > h4`).html(header);
       
       $(`#${t}-header-title`).click(async function(e){
         game.macros.getName('Character Dialog').execute();
