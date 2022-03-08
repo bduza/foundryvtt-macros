@@ -9,7 +9,7 @@ for (const spell of spells){
   if (spell.data.data.level !== level){
     level ++;
     if (level>=0) list +=`</div>`;
-    list +=`<h2>Level ${level}</h2><div  style="display:grid; grid-template-columns: repeat(4, 220px)" >`;
+    list +=`<h2>${level===0?'Cantrip':'Level '+level}</h2><div  style="display:grid; grid-template-columns: repeat(4, 220px)" >`;
   }
   let style = 'color: #fff !important';
   if (spell.data.data.preparation?.mode === 'prepared' && !spell.data.data.preparation.prepared) style = `color: ${unprepared}`;
