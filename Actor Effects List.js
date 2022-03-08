@@ -1,11 +1,13 @@
 if (args[0]) token = canvas.tokens.placeables.filter(t=>t.actor?.uuid===args[0].replaceAll('_','.'))[0];
 token.control({releaseOthers:true});
+let w_id = token.actor.uuid.replace('.','_') + "-effects"
 let list=`
-<div><input type="text" id="myeffectInput"  placeholder="Search for names.." style="margin-bottom:.5em;width:200px"><a onclick="game.macros.getName('More Convenient Effects').execute()" style="float: right; margin: .45em"><i class="fa fa-plus"></i></a></div>
-<div id="myUL" style="" >
-`;//height:520px;overflow-y:scroll;
 
-for (const effect of [...token.actor.effects].filter(e=>e.isTemporary)){
+<div id="effectsUL" style="" >
+`;//height:520px;overflow-y:scroll;
+//<div><input type="text" id="myeffectInput"  placeholder="Search for names.." style="margin-bottom:.5em;width:200px"></div>
+
+for (const effect of [...token.actor.effects]){
         list += `<p id="${effect.id}">
                 <img src="${effect.data.icon}" height="14" style="background: url(../ui/denim075.png) repeat;"/><span><a id="effect-name-${effect.id}" name="${effect.id}"> ${effect.data.label}</a> </span>
                 <a id="effect-delete-${effect.id}" name="${effect.id}" style="float:right;"><i class="fa fa-times"></i></a>
@@ -17,6 +19,9 @@ let d = new Dialog({
   title: `${token.actor.name} Active Effects`,
   content:  list,
   render: ()=>{
+    let header = `${token.actor.name} Active Effects <a onclick="game.macros.getName('More Convenient Effects').execute()" style="float: right; ><i class="fa fa-plus"></i> Add</a>`;
+    $(`#${ token.actor.uuid.replace('.','_')}-effects > header > h4`).html(header);
+    
     $("input#myeffectInput").focus();
     $("a[id^=effect-name]").click(async function(e){
         let effect = token.actor.effects.get(this.name);
@@ -42,7 +47,7 @@ let d = new Dialog({
         var input, filter, ul, li, a, i, txtValue;
         input = document.getElementById('myeffectInput');
         filter = input.value.toUpperCase();
-        ul = document.getElementById("myUL");
+        ul = document.getElementById("effectsUL");
         li = ul.getElementsByTagName('p'); 
         
         for (i = 0; i < li.length; i++) {
@@ -59,6 +64,6 @@ let d = new Dialog({
   buttons: {},
   close:   html => {
       return}
-},{width: 250, id: token.actor.uuid.replace('.','_') + "-effects"}
+},{width: 350, id: w_id}
 );
 d.render(true);
