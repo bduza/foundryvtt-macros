@@ -25,6 +25,7 @@ else return console.log(ui.notifications.error('Macro: Get Macro From Git not cr
 }
 let macros = [
   "Character Dialog",
+  "Roll Dialog",
   "Actor Menu",
   "Spell Preparation",
   "Chat Messages Dialog",
