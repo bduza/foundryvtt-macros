@@ -166,7 +166,11 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
   if (m.data.flavor?.toUpperCase().includes('ROLLING SAVES FOR')||m.data.flavor?.toUpperCase().includes('ATTACK') && Object.keys(usersDamageTotal[user]).length !== 0){
     let totalTotal = 0;
     for (let [key, value] of Object.entries(usersDamageTotal[user]).reverse()) {
-      message += `<p><b><a class="applyDamage" data-val="${value}" data-crit="${usersAttackCritical[user]}">${key} Damage:  ${value}</a></b></p>`;
+      message += `<p><b><a class="applyDamage" data-val="${value}" data-crit="${usersAttackCritical[user]}">${key} Damage:  ${value}</a>`;
+      if (game.modules.get("mmm").active && usersAttackCritical[user])
+        message += `&ensp;<a onclick="ui.chat.processMessage('/mmmm ${key}')">MMMM</a>`;
+      message += `</b></p>`;
+        
         totalTotal += value;
     }
     if (Object.keys(usersDamageTotal[user]).length > 1)
