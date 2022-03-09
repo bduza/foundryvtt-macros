@@ -11,7 +11,6 @@ async function controlUserTargets(section) {
   }
 }
 
-
 let selectedAlias = $(`select#alias-select`).val();
 //console.log(selectedAlias);
 let title = "Roll Messages";
@@ -106,16 +105,16 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
   <a class="speaker" data-token="${m.data.speaker.token}">${user}</a>
   </span>
   <p>`;//game.macros.getName('Character Dialog').execute();
+  let flavor = ``;
   if (m.data.flavor) 
-    message += `${m.data.flavor}`;
+    flavor += `${m.data.flavor}`;
     
   if (m.data.flavor) {
-    let foundEffects = game.dfreds.effects.all.filter(e => m.data.flavor?.toUpperCase().includes(e.name.toUpperCase()));
-    if (foundEffects.length > 0) { 
-      message += `&ensp;<a class="effect-button" name="${foundEffects[0].name}" style="margin-right: .3em"><i class="fas fa-bolt"></i></a>`; 
-    }
+    let foundEffects = game.dfreds.effects.all.filter(e => flavor.includes(e.name));
+    if (foundEffects.length > 0) 
+      flavor = flavor.replace(foundEffects[0].name, `<a class="effect-button" name="${foundEffects[0].name}">${foundEffects[0].name}</a>`); 
   }
-  message += `</p>`;
+  message += flavor + `</p>`;
   if (m.data.roll) {
     let roll = JSON.parse(m.data.roll);//Roll.fromJSON(m.data.roll);//
     //let roll = m.roll;
