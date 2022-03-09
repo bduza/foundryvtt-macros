@@ -7,14 +7,13 @@ Actor Menu
 
 Spell Preparation
   spell prep sets saved and retrieved from a object set in an actor flag
-    spellSet {
+  spellSets = spellSets ...  
+    actor.itemTypes.spells.filter(s=>s.data.data.preparation.mode === prepared && s.data.data.preparation.prepared).map(s=>return {_id:s.id, "data.preparation.prepared":s.data.data.preparation.prepared})
+    spellSets {
       set1Name: [spell1.id, spell2.id, spell3.id],
       set2Name: [spell4.id, spell5.id, spell6.id]
     }
-  let prep = actor.itemTypes.spells.filter(s=>s.data.data.preparation.mode === prepared).map(s=>return {_id:s.id, "data.preparation.prepared":false})
-  for (let id of spellSet[set1Name])
-    for (let s of prep.filter(s=>s._id===id))
-      s["data.preparation.prepared"]=true;
+  let prep = actor.itemTypes.spells.filter(s=>s.data.data.preparation.mode === prepared).map(s=>return {_id:s.id, "data.preparation.prepared":spellSet[set1Name].includes(s.id)});
   actor.updateEmbeddedDocuments("Items", prep);
 
 git download 
