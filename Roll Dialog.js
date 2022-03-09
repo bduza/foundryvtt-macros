@@ -4,21 +4,17 @@ let uuid = args[0];
 let rollType = args[1];
 let abilType = args[2];
 console.log(args);
-if (uuid) {
-  let uuidParts = uuid.split('.');
-  console.log(uuidParts);
-  if (uuidParts[0]==='Token') token = canvas.tokens.get(uuidParts[1]);
-  else {
-    actor = game.actors.get(uuidParts[1]);
-  }
-}
 
 let t = '';
 if (!token) token = _token;
 if (!token && !actor) actor = game.user.character;
 else actor = token?.actor;
 if (!actor) return ui.notifications.error("No Actor");;
-token = null;
+token = null
+
+if (args[0]) {
+  actor = canvas.tokens.placeables.find(t=>t.actor.uuid===args[0]).actor;
+}
 t = actor.uuid.replaceAll('.','_');
 console.log('t: ', t);
     
@@ -48,6 +44,9 @@ let position = Object.values(ui.windows).find(w=> w.id===w_id)?.position ||
   {  width: width ,  top: top, left: left };
 position["id"] = w_id;
 if (args[3]) position = {...position, ...args[3]};
+
+let closeOnMouseLeave = args[4];
+console.log('closeOnMouseLeave', closeOnMouseLeave)
 
 console.log(roll)
 let wTargets = [];
@@ -96,6 +95,11 @@ let d = new Dialog({
     title : `${actor.data.name} ${rollType.capitalize()} ${abilType?abilType.capitalize():''}`, 
     content : content,
     render : (content) => {
+      if (closeOnMouseLeave)
+        $(`#${w_id}`).mouseleave(async function(e){
+          Object.values(ui.windows).filter(w=> w.id===w_id)[0].close();
+        });
+      
       $(`[id$=${w_id}-straight-section-tab]`).css('textShadow' , "0 0 8px red");
       $(`#${w_id}-rollmodeselect-roll`).css('textShadow' , "0 0 8px red");
       $(`[id^=${w_id}-rollmodeselect]`).click(async function(e){

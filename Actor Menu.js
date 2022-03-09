@@ -1,5 +1,7 @@
-//let display = 'column';
-let display = 'row';
+let display = 
+//'row';
+'column';
+
 let t = '';
 if (!token) token = _token;
 if (!token) actor = game.user.character;
@@ -17,7 +19,7 @@ for (let [type, array] of Object.entries(actor.itemTypes) ) {
   if (array.length>0)
     types.push(type.capitalize());
 }
-let length = types.length + 5;
+let length = types.length + 7;
 if (types.includes('Spells')) length ++;
 let list=`<div style="display:grid; grid-template-${display}s: repeat(${length}, auto); grid-${display}-gap: .6em;">`;
 for (let type of types){
@@ -48,7 +50,11 @@ list += `
 </a>
 <a onclick="game.macros.getName('Actor Effects List').execute('${t}');">
   <p style="font-size: 1.2em; font-weight: semibold; margin: 3px" >Effects</p>
-</a>`;
+</a>
+<span style="font-size: 1.2em; font-weight: semibold; margin: 3px">
+  <label for="${t}-closeOnMouseLeave">Auto-Close</label><input type="checkbox" id="${t}-closeOnMouseLeave" style="float:right; margin-top:0px;">
+</span>
+`;
 
 new Dialog({
   title: `${actor.name}`,
@@ -66,15 +72,15 @@ new Dialog({
       });
     
     $('.type-link').click(function (e) {
-      let closeOnMouseLeave = true;
-      game.macros.getName('Character Dialog').execute($(this).attr('data-t').replaceAll('_','.'), $(this).attr('name'), {left : e.clientX-5 , top: e.clientY+15 }, closeOnMouseLeave);
+      let closeOnMouseLeave = $(`#${t}-closeOnMouseLeave`).is(":checked");
+      game.macros.getName('Character Dialog').execute($(this).attr('data-t').replaceAll('_','.'), $(this).attr('name'), {left : e.clientX- 15 , top: e.clientY+15 }, closeOnMouseLeave);
     });
     
    $(`.menu-roll-dialog-button-${t}`).each(function() {
         $(this).click(async function(e){
-          let closeOnMouseLeave = true;
+          let closeOnMouseLeave = $(`#${t}-closeOnMouseLeave`).is(":checked");
           let vars = this.name.split('-');
-          game.macros.getName('Roll Dialog').execute(vars[0],vars[1],vars[2], {left: e.clientX -5, top: e.clientY + 15}, closeOnMouseLeave);
+          game.macros.getName('Roll Dialog').execute(vars[0].replaceAll('_','.'),vars[1],vars[2], {left: e.clientX - 15, top: e.clientY + 15}, closeOnMouseLeave);
         });
       });
     

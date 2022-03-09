@@ -11,10 +11,12 @@ t = actor.uuid.replaceAll('.','_');
 
 
 if (args[0]) {
+  /*
   let uuidParts = args[0].split('.');
   console.log(uuidParts);
   if (uuidParts[2]==='Token') actor = canvas.tokens.get(uuidParts[3]).actor;
-  else  actor = game.actors.get(uuidParts[1]);
+  else  actor = game.actors.get(uuidParts[1]);*/
+  actor = canvas.tokens.placeables.find(t=>t.actor.uuid===args[0]).actor;
 }
 console.log('t: ', t);
 let top = 3;
@@ -319,7 +321,7 @@ let d = new Dialog({
     
       if (closeOnMouseLeave)
         $(`#${w_id}`).mouseleave(async function(e){
-          Object.values(ui.windows).filter(w=> w.id===w_id)[0].close();
+          Object.values(ui.windows).find(w=> w.id===w_id).close();
         });
       
       $('.iah, .ith, .ilh ').contextmenu(async function(e){
@@ -539,9 +541,10 @@ let d = new Dialog({
                   if (foundEffects.length > 0) {
                     let $link = $(`<a class=""><i class="fas fa-bolt" style="margin-left:.25em"></i></a>`);
                     $link.click(async ()=>{
-                      let targets = [...game.user.targets].map(t=> t.actor.uuid);
-                      console.log(targets);
                       let effect = this.outerText.trim().split(' ').map(e=>e.capitalize()).join(' ');
+                      let targets = [...game.user.targets].map(t=> t.actor.uuid);
+                      if (targets.length===0)
+                        targets = canvas.tokens.controlled.map(t=> t.actor.uuid);
                       await game.dfreds.effectInterface.toggleEffect(effect, {uuids:targets});
                     });
                     $(this).after($link);
@@ -549,6 +552,11 @@ let d = new Dialog({
                 });
                 let header = `${x.data.name}`;
                 
+                if (closeOnMouseLeave)
+                  $(`#item-rolls-dialog-${t}-${x.id}`).mouseleave(async function(e){
+                    Object.values(ui.windows).filter(w=> w.id===`item-rolls-dialog-${t}-${x.id}`)[0].close();
+                  });
+                  
                 $(`#item-rolls-dialog-${t}-${x._id} > header > h4`).html(header);
                 
                 $(`a[id^=${x.id}-header-roll]`).click(async function(e){
@@ -929,7 +937,8 @@ let d = new Dialog({
       });
   },
   close:   html => {
-    if($(`[id^=item-rolls-dialog-${t}]`).length && ! closeOnMouseLeave) 
+    console.log($(`[id^=item-rolls-dialog-${t}]`).length ,closeOnMouseLeave )
+    if ($(`[id^=item-rolls-dialog-${t}]`).length && !closeOnMouseLeave) 
       $(`[id^=item-rolls-dialog-${t}]`).each(function(){ui.windows[$(this).attr('data-appid')].close()});
     ui.nav._element.show();
     return;}
