@@ -76,7 +76,14 @@ new Dialog({
       game.macros.getName('Character Dialog').execute($(this).attr('data-t').replaceAll('_','.'), $(this).attr('name'), {left : e.clientX- 15 , top: e.clientY+15 }, closeOnMouseLeave);
     });
     
-   $(`.menu-roll-dialog-button-${t}`).each(function() {
+    $(`#${t}-closeOnMouseLeave`).prop('checked', game.user.data.flags.world.ActorMenuAutoClose);
+
+    $(`#${t}-closeOnMouseLeave`).change(async function() {
+        await game.user.setFlag('world', 'ActorMenuAutoClose', $(this).is(":checked"));       
+    });
+    
+    
+    $(`.menu-roll-dialog-button-${t}`).each(function() {
         $(this).click(async function(e){
           let closeOnMouseLeave = $(`#${t}-closeOnMouseLeave`).is(":checked");
           let vars = this.name.split('-');
