@@ -5,7 +5,17 @@ add images folder for screenshots of macros
 Actor Menu
   header button for Actor Menu to toggle horizontal and vertical layout and set user flag for preference
 
-
+Spell Preparation
+  spell prep sets saved and retrieved from a object set in an actor flag
+    spellSet {
+      set1Name: [spell1.id, spell2.id, spell3.id],
+      set2Name: [spell4.id, spell5.id, spell6.id]
+    }
+  let prep = actor.itemTypes.spells.filter(s=>s.data.data.preparation.mode === prepared).map(s=>return {_id:s.id, "data.preparation.prepared":false})
+  for (let id of spellSet[set1Name])
+    for (let s of prep.filter(s=>s._id===id))
+      s["data.preparation.prepared"]=true;
+  actor.updateEmbeddedDocuments("Items", prep);
 
 git download 
   put into folder
@@ -25,4 +35,6 @@ taskbar macro or just make a module
   users in the notification area
   copy calendar tool code from control bar
   taskbar color based on pause state?
+  
+
 */
