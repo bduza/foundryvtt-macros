@@ -11,6 +11,8 @@ async function controlUserTargets(section) {
   }
 }
 
+let ce = game.modules.get("dfreds-convenient-effects").active;
+
 let selectedAlias = $(`select#alias-select`).val();
 //console.log(selectedAlias);
 let title = "Roll Messages";
@@ -109,7 +111,7 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
   if (m.data.flavor) 
     flavor += `${m.data.flavor}`;
     
-  if (m.data.flavor) {
+  if (m.data.flavor && ce) {
     let foundEffects = game.dfreds.effects.all.filter(e => flavor.includes(e.name));
     if (foundEffects.length > 0) 
       flavor = flavor.replace(foundEffects[0].name, `<a class="effect-button" name="${foundEffects[0].name}">${foundEffects[0].name}</a>`); 
@@ -426,6 +428,7 @@ let d = new Dialog({
       else game.user.updateTokenTargets($(this).attr('name').split('-'));
     });
     
+    if (ce)
     $('a.effect-button').click(async function(e){
       let effect = $(this).attr('name');
       await game.dfreds.effectInterface.toggleEffect(effect, {uuids: [...game.user.targets].map(t=>t.actor.uuid)});

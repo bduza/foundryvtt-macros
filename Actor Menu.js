@@ -66,13 +66,15 @@ new Dialog({
       });
     
     $('.type-link').click(function (e) {
-      game.macros.getName('Character Dialog').execute($(this).attr('data-t').replaceAll('_','.'), $(this).attr('name'), {left : e.clientX-5 , top: e.clientY+15 });
+      let closeOnMouseLeave = true;
+      game.macros.getName('Character Dialog').execute($(this).attr('data-t').replaceAll('_','.'), $(this).attr('name'), {left : e.clientX-5 , top: e.clientY+15 }, closeOnMouseLeave);
     });
     
    $(`.menu-roll-dialog-button-${t}`).each(function() {
         $(this).click(async function(e){
+          let closeOnMouseLeave = true;
           let vars = this.name.split('-');
-          game.macros.getName('Roll Dialog').execute(vars[0],vars[1],vars[2], {left: e.clientX -5, top: e.clientY + 15});
+          game.macros.getName('Roll Dialog').execute(vars[0],vars[1],vars[2], {left: e.clientX -5, top: e.clientY + 15}, closeOnMouseLeave);
         });
       });
     

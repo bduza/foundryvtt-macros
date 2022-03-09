@@ -1,5 +1,6 @@
 let sortByActionType = false;
-
+let closeOnMouseLeave = args[3];
+console.log('closeOnMouseLeave', closeOnMouseLeave);
 let t = '';
 if (!token) token = _token;
 if (!token && !actor) actor = game.user.character;
@@ -315,6 +316,11 @@ let d = new Dialog({
   content:  content,
   buttons: {},
   render: (app) => {
+    
+      if (closeOnMouseLeave)
+        $(`#${w_id}`).mouseleave(async function(e){
+          Object.values(ui.windows).filter(w=> w.id===w_id)[0].close();
+        });
       
       $('.iah, .ith, .ilh ').contextmenu(async function(e){
         $(this).next().toggle();
@@ -923,14 +929,14 @@ let d = new Dialog({
       });
   },
   close:   html => {
-    if($(`[id^=item-rolls-dialog-${t}]`).length) 
+    if($(`[id^=item-rolls-dialog-${t}]`).length && ! closeOnMouseLeave) 
       $(`[id^=item-rolls-dialog-${t}]`).each(function(){ui.windows[$(this).attr('data-appid')].close()});
     ui.nav._element.show();
     return;}
   },position
 );
 d.render(true);
-
+/*
 function RollDialog(id, rollType, abilType, left, top ){
 
 let bonus = '';
@@ -1053,4 +1059,4 @@ let d = new Dialog({
           return;
         }
     },{ top: 80 , left: 110 ,  id:`${d_Id}-roll-dialog` }).render(true);
-}
+}*/
