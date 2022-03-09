@@ -8,7 +8,7 @@
 <p><b>Requires Advanced Macros and Dfreds Convenient Effects</b></p>
 
 
-# todo
+# To Do
 Actor Menu
   header button for Actor Menu to toggle horizontal and vertical layout and set user flag for preference
 
