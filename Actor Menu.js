@@ -30,7 +30,7 @@ for (let type of types){
     </p>
   </a>`;
   if (type==='Spell') list += `
-  <a onclick="game.macros.getName('Spell Preparation').execute();">
+  <a onclick="game.macros.find(m=>m.data.flags.world?.name==='Spell Preparation').execute();">
     <p style="font-size: 1.2em; font-weight: semibold; margin: 3px" >Prepare</p>
   </a>`;
 }
@@ -48,7 +48,7 @@ list += `
 <a  onclick="_token.actor.rollInitiative()">
   <p style="font-size: 1.2em; font-weight: semibold; margin: 3px">Initiative</p>
 </a>
-<a onclick="game.macros.getName('Actor Effects List').execute('${t}');">
+<a id="${t}-ce" data-t="${t}" >
   <p style="font-size: 1.2em; font-weight: semibold; margin: 3px" >Effects</p>
 </a>
 <span style="font-size: 1.2em; font-weight: semibold; margin: 3px">
@@ -73,7 +73,12 @@ new Dialog({
     
     $('.type-link').click(function (e) {
       let closeOnMouseLeave = $(`#${t}-closeOnMouseLeave`).is(":checked");
-      game.macros.getName('Character Dialog').execute($(this).attr('data-t').replaceAll('_','.'), $(this).attr('name'), {left : e.clientX- 15 , top: e.clientY+15 }, closeOnMouseLeave);
+      game.macros.find(m=>m.data.flags.world?.name==='Character Dialog').execute($(this).attr('data-t').replaceAll('_','.'), $(this).attr('name'), {left : e.clientX- 15 , top: e.clientY+15 }, closeOnMouseLeave);
+    });
+    
+    $(`#${t}-ce`).click(function (e) {
+      let closeOnMouseLeave = $(`#${t}-closeOnMouseLeave`).is(":checked");
+       game.macros.find(m=>m.data.flags.world?.name==='Actor Effects List').execute($(this).attr('data-t').replaceAll('_','.'), {left : e.clientX- 15 , top: e.clientY+15 }, closeOnMouseLeave)
     });
     
     $(`#${t}-closeOnMouseLeave`).prop('checked', game.user.data.flags.world.ActorMenuAutoClose);
@@ -87,9 +92,10 @@ new Dialog({
         $(this).click(async function(e){
           let closeOnMouseLeave = $(`#${t}-closeOnMouseLeave`).is(":checked");
           let vars = this.name.split('-');
-          game.macros.getName('Roll Dialog').execute(vars[0].replaceAll('_','.'),vars[1],vars[2], {left: e.clientX - 15, top: e.clientY + 15}, closeOnMouseLeave);
+          game.macros.find(m=>m.data.flags.world?.name==='Roll Dialog').execute(vars[0].replaceAll('_','.'),vars[1],vars[2], {left: e.clientX - 15, top: e.clientY + 15}, closeOnMouseLeave);
         });
-      });
+    });
+     
     
     $(`#menu-${t}`).find(`section.window-content`).click(async function(e){
         

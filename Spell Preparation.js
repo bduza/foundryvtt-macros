@@ -1,7 +1,9 @@
 if (args[0]) token = canvas.tokens.placeables.filter(t=>t.actor?.uuid===args[0].replaceAll('_','.'))[0];
 if (!token) return;
 token.control({releaseOthers:true});
-let w_id = token.actor.uuid.replace('.','_') + "-spells";
+let w_id = "spell-preparation";
+let position = Object.values(ui.windows).find(w=> w.id === w_id)?.position || {width: 930 , height: '100%'};
+position["id"] = w_id;
 let spells = token.actor.itemTypes.spell.sort((a, b)=> (a.data.data.level > b.data.data.level) ? 1 : (a.data.data.level === b.data.data.level) ? ((a.data.name > b.data.name) ? 1 : -1) : -1  );
 let level = -1;
 let list = `<div>`;//<div  style="display:grid; grid-template-columns: repeat(4, 200px)" >`;
@@ -31,7 +33,15 @@ let d = await new Dialog({
   render: ()=>{
     let header = `${token.actor.name} Spells Prepared: 
     ${token.actor.itemTypes.spell.filter(spell=>spell.data.data.preparation.mode === 'prepared' && spell.data.data.preparation?.prepared).length}`;
+    header += `<a title="Spell Sets" style="float: right" id="spell-sets-macro-button"><i class="fas fa-list"></i>&nbsp;Spell Sets</i></a>`;
+    
     $(`#${w_id} > header > h4`).html(header);
+    
+    $(`#spell-sets-macro-button`).click(()=>{
+      let w = Object.values(ui.windows).find(w=> w.id === `spell-sets`);
+      if (w?.appId) w.bringToTop();
+      else game.macros.find(m=>m.data.flags.world?.name==='Spell Preparation Sets').execute();
+    });
     
     $("input#myspellInput").focus();
     
@@ -48,12 +58,13 @@ let d = await new Dialog({
         console.log(spell.data.data.preparation.prepared, spell.data.data.preparation.mode) ;
         console.log($(this))
         if (spell.data.data.preparation.prepared) 
-          $(this).attr('style', ``);
+          $(this).attr('style', `color : ${'rgba(255,255,255,1) !important'}`);
         else 
           $(this).attr('style', `color : ${unprepared}`);
         
         let header = `${token.actor.name} Spells Prepared: 
         ${token.actor.itemTypes.spell.filter(spell=>spell.data.data.preparation.mode === 'prepared' && spell.data.data.preparation?.prepared).length}`;
+        header += `<a title="Spell Sets" style="float: right" id="spell-sets-macro-button"><i class="fas fa-list"></i>&nbsp;Spell Sets</i></a>`;
         $(`#${w_id} > header > h4`).html(header);
         
     });
@@ -61,28 +72,14 @@ let d = await new Dialog({
         let spell = token.actor.spells.get(this.name);
         await spell.delete();
         $(this).parent().remove();
-    });
-    $("input#myspellInput").keyup(function(){
-        var input, filter, ul, li, a, i, txtValue;
-        input = document.getElementById('myspellInput');
-        filter = input.value.toUpperCase();
-        ul = document.getElementById("spellsUL");
-        li = ul.getElementsByTagName('p'); 
-        
-        for (i = 0; i < li.length; i++) {
-            a = li[i].getElementsByTagName("span")[0];
-            txtValue = a.textContent || a.innerText;
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                li[i].style.display = "";
-            } else {
-                li[i].style.display = "none";
-            }
-        }
-    });  
+    }); 
+    
   },
   buttons: {},
   close:   html => {
-      return}
-},{width: 930 , height: '100%', id: w_id}
+    let w = Object.values(ui.windows).find(w=> w.id === `spell-sets`);
+      if (w?.appId) w.close();
+      return;}
+},position
 );
 await d.render(true);

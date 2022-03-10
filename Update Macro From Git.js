@@ -1,6 +1,6 @@
 let updated = false;
 if(!args[0]) return ui.notifications.error('No macro name passed in args');
-let macro = game.macros.getName(args[0]);
+let macro = game.macros.find(m=>m.data.flags.world?.name===args[0]);
 if(!macro) return ui.notifications.error('A macro with that name does not exist');
 let command = macro.data.command;
 let match = true;

@@ -19,12 +19,12 @@ let title = "Roll Messages";
 let windowId = "roll-messages-dialog"
 let position = Object.values(ui.windows).find(w=> w.id === windowId)?.position || { height: 721, width : 450 , id: windowId};
 position["id"] = windowId;
-let header = `<h4><a onclick="game.macros.getName('${this.name}').execute()" oncontextmenu="game.macros.getName('${this.name}').sheet.render(true)" style="margin: 0 0 0 0;">${title}</a></h4>`
+let header = `<h4><a onclick="game.macros.find(m=>m.data.flags.world?.name==='${this.name}').execute()" oncontextmenu="game.macros.find(m=>m.data.flags.world?.name==='${this.name}').sheet.render(true)" style="margin: 0 0 0 0;">${title}</a></h4>`
 if (!(Hooks._hooks.renderChatMessage?.findIndex(f=>f.toString().includes('renderchatmessagesdialog'))!==-1))
   Hooks.on(`renderChatMessage`, (message, html, data) => { 
     //renderchatmessagesdialog
     if (Object.values(ui.windows).filter(w=> w.id === "roll-messages-dialog" && (message.data.flavor || message.data._roll))){
-      game.macros.getName('Chat Messages Dialog').execute();
+      game.macros.find(m=>m.data.flags.world?.name==='Chat Messages Dialog').execute();
       //console.log('new message:', message);
     }
   });
@@ -106,7 +106,7 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
   <span style="float:right; clear:both; margin-right: 5px;">
   <a class="speaker" data-token="${m.data.speaker.token}">${user}</a>
   </span>
-  <p>`;//game.macros.getName('Character Dialog').execute();
+  <p>`;//game.macros.find(m=>m.data.flags.world?.name==='Character Dialog').execute();
   let flavor = ``;
   if (m.data.flavor) 
     flavor += `${m.data.flavor}`;
@@ -321,11 +321,11 @@ let d = new Dialog({
     
     $('.HVM').click(async function(e){
       console.log($(this).attr('data-crit'))
-      game.macros.getName('Health Vitality Change').execute($(this).attr('data-val'), $(this).attr('data-crit').toLowerCase()==='true', false);
+      game.macros.find(m=>m.data.flags.world?.name==='Health Vitality Change').execute($(this).attr('data-val'), $(this).attr('data-crit').toLowerCase()==='true', false);
     });
     
     $('.HVM').contextmenu(async function(e){
-      game.macros.getName('Health Vitality Change').execute($(this).attr('data-val'), $(this).attr('data-crit'), true);
+      game.macros.find(m=>m.data.flags.world?.name==='Health Vitality Change').execute($(this).attr('data-val'), $(this).attr('data-crit'), true);
     });
     
     $('.applyDamage').click(async function(e){

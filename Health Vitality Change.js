@@ -1,14 +1,14 @@
-let doVitality = false; 
+let doVitality = true; 
 let inputValue='';
 let inputCritical=false;
-let useTargets=true;
+let useSelected=false;
 if (args[0])
     inputValue = args[0];
 if (args[1])
     inputCritical = args[1];
 if (args[2])
-    useTargets = args[2];
-  
+    useSelected = args[2];
+console.log(args);
 function tokenIds() {
     let targets = [];
     $(".userSelected:checked").each(function () {
@@ -16,9 +16,12 @@ function tokenIds() {
     });
     return targets;
 }
+
+let visibleTokens = canvas.tokens.placeables.filter(t=>t.actor?.effects?.filter(e=>e.data.label==="Dead").length===0&&t.visible);
 let windowId = "health-vitality-dialog";
 let position = Object.values(ui.windows).find(w=> w.id===windowId)?.position || {  width : 400 };
 position["id"] = windowId;
+position["height"] = (Math.ceil(visibleTokens.length/9)*40)+135;
 console.log(position);
 
 let content=`
@@ -49,11 +52,11 @@ content: '';
 }
 </style>
 `;
-//let visibleTokens = canvas.tokens.placeables.filter(t => t.visible);
 
 
-content += `<center><div id="selected-tokens" style="height: ${Math.ceil(canvas.tokens.placeables.length/9)*40}px">`;
-for (const x of canvas.tokens.placeables){
+
+content += `<center><div id="selected-tokens" style="height: ${Math.ceil(visibleTokens.length/9)*40}px">`;
+for (const x of visibleTokens){
        //console.log(x);
         content += `<input type="checkbox" class="userSelected" id="target-${x.id}" name="${x.id}" style="display: none;"/>
         <label class="userSelectedLabel" for="target-${x.id}" title="${x.data.name}"><img height="36" src="${x.data.img}" /></label>`;
@@ -100,7 +103,7 @@ let d = new Dialog({
     
     $("#targets-header-button").click(async function(){
       $('.userSelected:checkbox').each(function () {
-        if (!useTargets) {
+        if (useSelected) {
             if (canvas.tokens.controlled.map(t => t.id).includes(this.name)) this.checked = true;
             else this.checked = false;
           } else {
@@ -111,7 +114,7 @@ let d = new Dialog({
     });
     
         $('.userSelected:checkbox').each(function () {
-          if (!useTargets) {
+          if (useSelected) {
             if (canvas.tokens.controlled.map(t => t.id).includes(this.name)) this.checked = true;
           } else {
             if ([...game.user.targets].map(t => t.id).includes(this.name)) this.checked = true;
@@ -119,7 +122,7 @@ let d = new Dialog({
         });
         
         $(".userSelected").click(async function(){
-          if (!useTargets) {
+          if (useSelected) {
             if (this.checked)
                 canvas.tokens.get(this.name).control({releaseOthers: false});
             else
@@ -145,7 +148,7 @@ let d = new Dialog({
                   const a = t.actor;
                   const hpOld = a.data.data.attributes.hp.value;
                   await a.applyDamage(damage);
-                  if (doVitality) game.macros.getName(vitalityMacro).execute(a, damage, hpOld, critical);
+                  if (doVitality) game.macros.find(m=>m.data.flags.world?.name===vitalityMacro).execute(a, damage, hpOld, critical);
                   
               }
               
@@ -161,7 +164,7 @@ let d = new Dialog({
                   const a = t.actor;
                   const hpOld = a.data.data.attributes.hp.value;
                   await a.applyDamage(damage);
-                  if (doVitality) game.macros.getName(vitalityMacro).execute(a, damage, hpOld, false);
+                  if (doVitality) game.macros.find(m=>m.data.flags.world?.name===vitalityMacro).execute(a, damage, hpOld, false);
                   
               }
           }
@@ -175,7 +178,7 @@ let d = new Dialog({
                 
                 let hp = a.data.data.attributes.hp.value;
                 
-                const vitality = Math.min(html.find('#damage')[0].value, a.data.data.abilities.con.value);
+                const vitality = Math.min($('#damage')[0].value, a.data.data.abilities.con.value);
                 const con = a.data.data.abilities.con.value;
                 let updates = {};
                 updates["flags.world.vitality"] = {"value" : vitality, "min": 0 , "max" : con};
@@ -218,7 +221,7 @@ let d = new Dialog({
                
                 let hp = a.data.data.attributes.hp.value;
                 let v = a.getFlag("world", "vitality");
-                let input = html.find('#damage')[0].value;
+                let input = $('#damage')[0].value;
                 let vitality = parseInt(v.value) + parseInt(input);
                 console.log(`${vitality}, 0 , ${t.actor.data.data.abilities.con.value}`);
                 vitality = Math.clamped(vitality, 0, a.data.data.abilities.con.value);

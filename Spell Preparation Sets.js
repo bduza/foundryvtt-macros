@@ -27,9 +27,9 @@ let d = new Dialog({
       let updates = actor.itemTypes.spell.filter(s=>s.data.data.preparation.mode === 'prepared').map(s=> {return {_id:s.id, "data.preparation.prepared":spellSet.spells?.includes(s.id)}});
       console.log(updates)
       await actor.updateEmbeddedDocuments("Item", updates);
-      game.macros.getName(macroName).execute();
+      game.macros.find(m=>m.data.flags.world?.name===macroName).execute();
       if (Object.values(ui.windows).find(w=> w.id === `spell-preparation`))
-        game.macros.getName('Spell Preparation').execute(token.actor.uuid);
+        game.macros.find(m=>m.data.flags.world?.name==='Spell Preparation').execute(token.actor.uuid);
     });
     
     $('.spell-set').contextmenu(async function() {
@@ -43,7 +43,7 @@ let d = new Dialog({
       }
       console.log(SpellSets);
       await actor.setFlag('world', 'SpellSets', SpellSets);
-      game.macros.getName(macroName).execute();
+      game.macros.find(m=>m.data.flags.world?.name===macroName).execute();
     });
     
     $('#add-spell-set-button').click(async function(){
@@ -53,7 +53,7 @@ let d = new Dialog({
       let flag = token.actor.data.flags.world.SpellSets;
       flag.push({name, spells: preparedSpells});
       await actor.setFlag('world', 'SpellSets', flag);
-      game.macros.getName(macroName).execute();
+      game.macros.find(m=>m.data.flags.world?.name===macroName).execute();
     });
   },
   buttons: {},

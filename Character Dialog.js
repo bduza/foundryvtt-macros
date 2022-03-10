@@ -157,7 +157,7 @@ content+=`
 <div style="font-size:1.1em;"><a style="" class="roll-dialog-button-${t}" name="${t}-abilities-save">Saves</a></div>
 <div style="font-size:1.1em;"><a style="" class="roll-dialog-button-${t}" name="${t}-skills-check">Skills</a> </div>
 <div style="font-size:1.1em;"><a style="margin-right:5px" onclick="_token.toggleCombat(game.combats.active);"><i class="fas fa-fist-raised"></i></a><a  onclick="_token.actor.rollInitiative()">Initiative</a></div>
-<div style="font-size:1.1em;"><a onclick="game.macros.getName('Actor Effects List').execute('${t}');"><i class="fas fa-bolt"></i></a></div>
+<div style="font-size:1.1em;"><a onclick="game.macros.find(m=>m.data.flags.world?.name==='Actor Effects List').execute('${t}');"><i class="fas fa-bolt"></i></a></div>
 </div>`;
 
 let doNotFilter = ["feat", "tool", "loot", "equipment"];
@@ -333,7 +333,7 @@ let d = new Dialog({
       if (args[1]) $(`#items-dialog-${t}-${args[1]} > header > h4`).html(header);
       
       $(`#${t}-header-title`).click(async function(e){
-        game.macros.getName('Character Dialog').execute();
+        game.macros.find(m=>m.data.flags.world?.name==='Character Dialog').execute();
       });
       
       $(`#${t}-header-title`).contextmenu(async function(e){
@@ -375,7 +375,7 @@ let d = new Dialog({
       $(`.roll-dialog-button-${t}`).each(function() {
         $(this).click(async function(e){
           let vars = this.name.split('-');
-          game.macros.getName('Roll Dialog').execute(vars[0],vars[1],vars[2], {left: e.clientX, top: e.clientY});
+          game.macros.find(m=>m.data.flags.world?.name==='Roll Dialog').execute(vars[0],vars[1],vars[2], {left: e.clientX, top: e.clientY});
         });
       });
       

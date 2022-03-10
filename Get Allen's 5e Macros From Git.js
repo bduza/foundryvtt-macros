@@ -28,6 +28,7 @@ let macros = [
   "Roll Dialog",
   "Actor Menu",
   "Spell Preparation",
+  "Spell Preparation Sets",
   "Chat Messages Dialog",
   "Health Vitality Change",
   "UpdateVitality(actor, damage, hpOld, critical)",
