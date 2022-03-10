@@ -10,16 +10,12 @@ if (gitData)
 await Macro.create({
     "name": args[0],
     "type": "script",
-    "author": game.user.id,
     "img": "icons/svg/dice-target.svg",
     "scope": "global",
     "command": gitData,
     "folder": null,
     "sort": 0,
-    "permission": {
-        "default": 0,
-        [game.user.id]:3
-    }
+    "permission": { "default": 2 }
 });
 if(game.macros.getName(args[0])) return ui.notifications.info('Macro: ' + args[0] + ' created');
 else return ui.notifications.info('Macro: ' + args[0] + ' not created. something went wrong');
