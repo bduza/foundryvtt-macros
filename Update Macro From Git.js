@@ -15,7 +15,7 @@ await jQuery.get(`https://raw.githubusercontent.com/xaukael/foundryvtt-macros/ma
 }catch (error){console.log(error)}
 if (!match && game.user.isGM) {
   ui.notifications.info(`${macro.name} is updating from git`)
-  await macro.update({command:gitData});
+  await macro.update({command:gitData, 'flags.world.name': macro.data.name});
   ui.notifications.info(`${macro.name} updated from git`)
   updated = true;
 }
