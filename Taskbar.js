@@ -1,3 +1,4 @@
+$('#sidebar-tabs').css('display', 'flex')
 $('#taskbar').remove();
 //if (!Hooks._hooks.closeApplication || Hooks._hooks.closeApplication?.findIndex(f=>f.toString().includes('removeWindowFromTaskbar'))==-1)
 if (!game.user.data.flags.world.pinnedTaskbarDocuments)
@@ -61,6 +62,9 @@ Hooks.on(`addWindowToTaskbar`, async function addWindowToTaskbar(app)  {
       $(this).addClass('dormant');
     else
       $(this).removeClass('dormant');
+      
+    $(`.taskbar-app.active`).removeClass('active');
+    $(`#taskbar-app-${ui.activeWindow.appId}`).addClass('active');
   });
   $(`#taskbar-app-${app.appId}`).contextmenu( function(){
     let id = $(this).attr('name');
@@ -73,7 +77,11 @@ Hooks.on(`addWindowToTaskbar`, async function addWindowToTaskbar(app)  {
       $(`#taskbar-app-${id}`).remove();
       w.close();
     }
+    $(`.taskbar-app.active`).removeClass('active');
+    $(`#taskbar-app-${ui.activeWindow.appId}`).addClass('active');
   });
+  $(`.taskbar-app.active`).removeClass('active');
+  $(`#taskbar-app-${ui.activeWindow.appId}`).addClass('active');
 });
 
 
@@ -91,6 +99,9 @@ let $taskbar = $(`
 #ui-left {
     height: calc(100% - 26px);
 }
+#ui-right {
+    height: calc(100% - 45px);
+}
 #ui-bottom {
   margin-bottom: 27px;
 }
@@ -99,7 +110,8 @@ let $taskbar = $(`
   position: absolute;
   transform-origin: bottom left;
   transform: scale(var(--ft-scale));
-  width: calc((100vw - var(--ft-sidebar)) / var(--ft-scale));
+  /*width: calc((100vw - var(--ft-sidebar)) / var(--ft-scale));*/
+  width: calc((100vw - 10px)) ;
   height: 30px;
   bottom: 5px;
   left: 5px;
@@ -122,6 +134,9 @@ let $taskbar = $(`
 }
 .taskbar-app div {
   height: 30px;
+}
+.taskbar-app.active {
+  background-color: #444; 
 }
 #taskbar-start-menu {
   width: aut0; position: absolute; left: 5px;
@@ -150,27 +165,40 @@ span.start-menu-item {
 .dormant {
   color: #888;
 }
+.taskbar-sidebar-tab {
+  display:inline-block;
+  margin: 0 .44em
+}
+.taskbar-sidebar-tab.active {
+  color: #ff6400; 
+}
 </style>
 <div class="taskbar-items"></div>
 <a style="" id="calendar-time-taskbar"></a>
 <a style="margin-left:.5em" id="taskbar-hide-all"><div style="height: 30px"><i class="fas fa-tv"></i></div></a>
+<div id="taskbar-sidebar-tabs" style=" margin-left: 5px;"></div>
 </div>
 `);
 
 $("body").append($taskbar);
 
 $('#taskbar > div.taskbar-items').empty();
-let windows = `
+let icons = `
 <a id="taskbar-menu-toggle" class="taskbar-button" style="margin-left:.25em"><div style="height: 30px; width: 20px; left: -20px; position: relative;"><i style="padding-left: 20px" class="fas fa-list"></i></div></a>
 <a id="taskbar-players-toggle" class="taskbar-button" style="margin-left:.25em"><div style="height: 30px; width: 20px;"><i class="fas fa-users"></i></div></a>
 <a id="taskbar-macro-toggle" class="taskbar-button" style="margin-left:.25em"><div style="height: 30px; width: 20px;"><i class="fas fa-code" ></i></div></a>
 `;
 
-$('#taskbar > div.taskbar-items').append(windows);
+$('#taskbar > div.taskbar-items').append(icons);
+$('#sidebar-tabs').css('display', 'none');
+
+
 
 for (let w of Object.entries(ui.windows).filter(w=> w[1].title !== '' && w[1].options.popOut && !game.user.data.flags.world.pinnedTaskbarDocuments.includes(w.document?.uuid))) {
   Hooks.call(`addWindowToTaskbar`, (w[1]));
 }
+
+//$("#BigButton").clone().appendTo("#rightDiv");
 
 for (let doc of game.user.data.flags.world.pinnedTaskbarDocuments) {
   let d = await fromUuid(doc);
@@ -194,6 +222,15 @@ $("#calendar-time-taskbar").click(async function() {
 });
 let dateTime = window.SimpleCalendar.api.timestampToDate(window.SimpleCalendar.api.timestamp());
 $("#calendar-time-taskbar").html(`<div style="height: 30px">${dateTime.currentSeason.name}, ${dateTime.display.date} | ${dateTime.display.time}</div>`);
+
+$('#sidebar-tabs > a.item').clone().removeClass('item').removeClass('active').addClass('taskbar-sidebar-tab').click(function(){
+  ui.sidebar.activateTab($(this).attr('data-tab'));
+  $('.taskbar-sidebar-tab.active').removeClass('active');
+  $(this).addClass('active');
+}).contextmenu(function(){
+  ui[$(this).attr('data-tab')].renderPopout()
+}).appendTo($('#taskbar-sidebar-tabs'));
+$(`.taskbar-sidebar-tab[data-tab="${ui.sidebar._tabs[0].active}"]`).addClass('active');
 
 $("#taskbar-menu-toggle").click(async function(e) {
   if ($(`#taskbar-start-menu`).length===0) {
@@ -267,6 +304,8 @@ while (Hooks._hooks.closeApplication && Hooks._hooks.closeApplication.findIndex(
     
 Hooks.on(`closeApplication`, async (app) => {
   //removeWindowFromTaskbar
+  $(`.taskbar-app.active`).removeClass('active');
+  $(`#taskbar-app-${ui.activeWindow.appId}`).addClass('active');
   if ($(`#taskbar-app-${app.appId}`).hasClass('pinned')) $(`#taskbar-app-${app.appId}`).addClass('dormant');//.removeAttr('name').removeAttr('id');
   else $(`#taskbar-app-${app.appId}`).remove();
 });
