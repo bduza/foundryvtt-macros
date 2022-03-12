@@ -2,6 +2,9 @@ let display =
 //'row';
 'column';
 
+if (!game.user.data.flags.world.ActorMenuAutoClose)
+  await game.user.setFlag('world', 'ActorMenuAutoClose');
+
 let t = '';
 if (!token) token = _token;
 if (!token) actor = game.user.character;
