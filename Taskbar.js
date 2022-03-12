@@ -181,7 +181,7 @@ span.start-menu-item {
 <div class="taskbar-items"></div>
 <a style="" id="calendar-time-taskbar"></a>
 <a style="margin-left:.5em" id="taskbar-hide-all"><div style="height: 30px"><i class="fas fa-tv"></i></div></a>
-<div id="taskbar-sidebar-tabs" style=" margin-left: 5px;"></div>
+<div id="taskbar-sidebar-tabs" style=" margin-left: 5px; height: 30px"></div>
 </div>
 `);
 
@@ -228,15 +228,18 @@ $("#calendar-time-taskbar").click(async function() {
 let dateTime = window.SimpleCalendar.api.timestampToDate(window.SimpleCalendar.api.timestamp());
 $("#calendar-time-taskbar").html(`<div style="height: 30px" title="${dateTime.currentSeason.name}, ${dateTime.display.date}">${dateTime.display.time}</div>`);
 
-$('#sidebar-tabs > a.item').clone().removeClass('item').removeClass('active').addClass('taskbar-sidebar-tab').click(function(){
+$('#sidebar-tabs > a.item').each(function(){$(this).clone().removeClass('item').removeClass('active').addClass('taskbar-sidebar-tab').click(function(){
   ui.sidebar.activateTab($(this).attr('data-tab'));
   $('.taskbar-sidebar-tab.active').removeClass('active');
   $(this).addClass('active');
 }).contextmenu(function(){
   ui[$(this).attr('data-tab')].renderPopout()
-}).appendTo($('#taskbar-sidebar-tabs'));
-$(`.taskbar-sidebar-tab[data-tab="${ui.sidebar._tabs[0].active}"]`).addClass('active');
+}).appendTo($('#taskbar-sidebar-tabs'))});
 
+$('.taskbar-sidebar-tab i').wrap($('<div style="height: 30px;"></div>'));
+
+$(`.taskbar-sidebar-tab[data-tab="${ui.sidebar._tabs[0].active}"]`).addClass('active');
+//.wrap($('<div style="height: 30px></div>'))
 $("#taskbar-menu-toggle").click(async function(e) {
   if ($(`#taskbar-start-menu`).length===0) {
     let macros = [];
