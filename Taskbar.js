@@ -184,7 +184,7 @@ $("body").append($taskbar);
 
 $('#taskbar > div.taskbar-items').empty();
 let icons = `
-<a id="taskbar-menu-toggle" class="taskbar-button" style="margin-left:.25em"><div style="height: 30px; width: 20px; left: -20px; position: relative;"><i style="padding-left: 20px" class="fas fa-list"></i></div></a>
+<a id="taskbar-menu-toggle" class="taskbar-button" style="margin-left:.25em"><div style="height: 30px; width: 20px; position: relative;"><i class="fas fa-list"></i></div></a>
 <a id="taskbar-players-toggle" class="taskbar-button" style="margin-left:.25em"><div style="height: 30px; width: 20px;"><i class="fas fa-users"></i></div></a>
 <a id="taskbar-macro-toggle" class="taskbar-button" style="margin-left:.25em"><div style="height: 30px; width: 20px;"><i class="fas fa-code" ></i></div></a>
 `;
