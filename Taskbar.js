@@ -1,7 +1,7 @@
 $('#sidebar-tabs').css('display', 'flex')
 $('#taskbar').remove();
 //if (!Hooks._hooks.closeApplication || Hooks._hooks.closeApplication?.findIndex(f=>f.toString().includes('removeWindowFromTaskbar'))==-1)
-if (!game.user.data.flags.world.pinnedTaskbarDocuments)
+if (!game.user.data.flags?.world?.pinnedTaskbarDocuments)
   game.user.setFlag('world', 'pinnedTaskbarDocuments', []);
 
 //if (!Hooks._hooks.addWindowToTaskbar || Hooks._hooks.addWindowToTaskbar?.findIndex(f=>f.toString().includes('addWindowToTaskbar'))==-1)
@@ -11,7 +11,7 @@ Hooks.on(`addWindowToTaskbar`, async function addWindowToTaskbar(app)  {
   console.log(app);
   
   //console.log(app.title === "" , $(`#taskbar-app-${app.appId}`) , !app.options.popOut)
-  if (app.title === "" ||  $(`#taskbar-app-${app.appId}`).length>0 ) return;
+  if (!app.title || $(`#taskbar-app-${app.appId}`).length>0 || $(`.taskbar-app[data-id="${app.id}"]`).length>0) return;
   //console.log('RENDER APP:', app);
   let uuidAttr = '';
   let pinned = '';
@@ -24,7 +24,7 @@ Hooks.on(`addWindowToTaskbar`, async function addWindowToTaskbar(app)  {
     }
   }
   
-  $('#taskbar > div.taskbar-items').append(`<a class="taskbar-app ${pinned}" id="taskbar-app-${app.appId}" name="${app.appId}" ${uuidAttr}><div>${pin}${app.title}</div></a>`);
+  $('#taskbar > div.taskbar-items').append(`<a class="taskbar-app ${pinned}" id="taskbar-app-${app.appId}" data-id="${app.id}" name="${app.appId}" ${uuidAttr}><div class="app-title-div" title="${app.title}">${pin}${app.title}</div></a>`);
  
   $(`#taskbar-app-${app.appId}`).click(async function(e){
     let id = $(this).attr('name');
@@ -98,6 +98,7 @@ let $taskbar = $(`
 }
 #ui-left {
     height: calc(100% - 26px);
+            
 }
 #ui-right {
     height: calc(100% - 45px);
@@ -112,6 +113,7 @@ let $taskbar = $(`
   transform: scale(var(--ft-scale));
   /*width: calc((100vw - var(--ft-sidebar)) / var(--ft-scale));*/
   width: calc((100vw - 10px)) ;
+  max-width: calc((100vw - 10px)) ;
   height: 30px;
   bottom: 5px;
   left: 5px;
@@ -171,6 +173,9 @@ span.start-menu-item {
 }
 .taskbar-sidebar-tab.active {
   color: #ff6400; 
+}
+.app-title-div {
+  white-space: nowrap; overflow: hidden;  text-overflow: ellipsis;
 }
 </style>
 <div class="taskbar-items"></div>
@@ -240,7 +245,7 @@ $("#taskbar-menu-toggle").click(async function(e) {
     let content = `<div id="taskbar-start-menu" style="height: ${macros.length*25+10}px">${macros.join('<br>')} </div>`;
 
     $("body").append(content);
-    $(`#ui-left`).css('height', 'calc(100% + 100px)');
+    $(`#ui-left`).css('height', `calc(100% + 100px + (${$('#player-list > li').length*20}px))`);
     $('.start-menu-macro').click(function(){ 
       let id = $(this).attr('name');
       game.macros.get(id).execute();
@@ -272,14 +277,17 @@ $("#taskbar-menu-toggle").click(async function(e) {
 });
 
 
-$(`#ui-left`).css('height', 'calc(100% + 100px)');
+$(`#ui-left`).css('height', `calc(100% + 100px + (${$('#player-list > li').length*20}px))`);
 
 $('#taskbar-players-toggle').click(async function() {
   let currentHeight = parseInt($(`#ui-left`).css('height').replace('px', ''));
-  if (window.innerHeight < currentHeight)
-    $(`#ui-left`).css('height', 'calc(100% - 26px)');
-  else
-    $(`#ui-left`).css('height', 'calc(100% + 100px)');
+  if (window.innerHeight < currentHeight) {
+    $(`#ui-left`).css('height', `calc(100% - 26px )`);
+    
+  }
+  else {
+    $(`#ui-left`).css('height', `calc(100% + 100px + (${$('#player-list > li').length*20}px))`);
+  }
 });
 
 $(`#hotbar`).hide();

@@ -2,14 +2,14 @@ let display =
 //'row';
 'column';
 
-if (!game.user.data.flags.world.ActorMenuAutoClose)
+if (!game.user.data.flags.world?.ActorMenuAutoClose)
   await game.user.setFlag('world', 'ActorMenuAutoClose');
 
 let t = '';
 if (!token) token = _token;
 if (!token) actor = game.user.character;
 else actor = token.actor;
-if (!actor) return ui.notifications.error("No Actor");;
+if (!actor) return ui.notifications.error("No Actor");
 token = null;
 t = actor.uuid.replaceAll('.','_');
 if($(`#menu-${t}`).length) return ui.windows[$(`#menu-${t}`).attr('data-appid')].close();
@@ -67,7 +67,7 @@ new Dialog({
     
     $(`#menu-${t}`).click(async function(e){
         console.log(t);
-        let placeables = canvas.tokens.placeables.filter(tp => tp.actor?.uuid === t.replaceAll('_','.'))
+        let placeables = canvas.tokens.placeables.filter(tp => tp?.actor?.uuid === t.replaceAll('_','.'))
         if (placeables.length > 0)
           placeables[0].control({releaseOthers:true});
         else 

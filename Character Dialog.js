@@ -1,3 +1,11 @@
+if (args[0]) {
+  let uuidParts = args[0].split('.');
+  console.log(uuidParts);
+  if (uuidParts[2]==='Token') actor = canvas.tokens.get(uuidParts[3]).actor;
+  else  actor = game.actors.get(uuidParts[1]);
+  actor = canvas.tokens.placeables.find(t=>t.actor?.uuid===args[0]).actor;
+}
+
 let sortByActionType = false;
 let closeOnMouseLeave = args[3];
 console.log('closeOnMouseLeave', closeOnMouseLeave);
@@ -5,25 +13,16 @@ let t = '';
 if (!token) token = _token;
 if (!token && !actor) actor = game.user.character;
 else actor = token?.actor;
-if (!actor) return ui.notifications.error("No Actor");;
+if (!actor) return ui.notifications.error("No Actor");
 token = null;
 t = actor.uuid.replaceAll('.','_');
 
-
-if (args[0]) {
-  /*
-  let uuidParts = args[0].split('.');
-  console.log(uuidParts);
-  if (uuidParts[2]==='Token') actor = canvas.tokens.get(uuidParts[3]).actor;
-  else  actor = game.actors.get(uuidParts[1]);*/
-  actor = canvas.tokens.placeables.find(t=>t.actor.uuid===args[0]).actor;
-}
 console.log('t: ', t);
 let top = 3;
 //let left = window.innerWidth-610;
 if (game.user.isGM) top = 80;
 let left = 350;
-let height = window.innerheight-50;
+let height = '100%';//window.innerheight-50;
 let width = 300;
 let w_id = `items-dialog-${t}`;
 if (args[1]) w_id += `-${args[1]}`;
@@ -40,7 +39,7 @@ if (combatPopout) {
 
 if (!game.user.isGM) ui.nav._element.hide();
 
-if (!Hooks._hooks.preCreateChatMessage || Hooks._hooks.preCreateChatMessage?.findIndex(f=>!f.toString().includes('chatmessagetargetflags')!==-1)
+if (!Hooks._hooks.preCreateChatMessage || Hooks._hooks.preCreateChatMessage?.findIndex(f=>!f.toString().includes('chatmessagetargetflags')!==-1))
   Hooks.on(`preCreateChatMessage`, async (message, data, options, user) => {
     //chatmessagetargetflags
     if (message.data.flavor?.toUpperCase().includes('ATTACK') || message.data.flavor?.toUpperCase().includes('CAST'))
@@ -104,7 +103,7 @@ function itemFilter(i){
 
 let spells = {};
 if (actor.data?.data?.spells) {
-  JSON.parse(JSON.stringify(actor.data.data.spells));
+  let spells = JSON.parse(JSON.stringify(actor.data.data.spells));
   for (const [key, value] of Object.entries(spells)){
     if (value.max > 0) {
       for (let level = parseInt(key.substr(-1)); level > 0; level--) {
@@ -375,7 +374,7 @@ let d = new Dialog({
       $(`.roll-dialog-button-${t}`).each(function() {
         $(this).click(async function(e){
           let vars = this.name.split('-');
-          game.macros.find(m=>m.data.flags.world?.name==='Roll Dialog').execute(vars[0],vars[1],vars[2], {left: e.clientX, top: e.clientY});
+          game.macros.find(m=>m.data.flags.world?.name==='Roll Dialog').execute(vars[0].replaceAll('_','.'),vars[1],vars[2], {left: e.clientX - 15, top: e.clientY + 15}, false);
         });
       });
       
@@ -532,7 +531,7 @@ let d = new Dialog({
         }
         
         let d = new Dialog({
-              title : `${actor.name} - ${x.data.name}`, 
+              title : `${x.data.name}`, 
               content : TextEditor.enrichHTML(text),
               buttons : {},
               render: (app) => {

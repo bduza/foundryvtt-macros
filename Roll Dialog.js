@@ -1,6 +1,11 @@
 if (!args[0]) return;
-
-let uuid = args[0];
+else {
+  let uuidParts = args[0].split('.');
+  console.log(uuidParts);
+  if (uuidParts[2]==='Token') actor = canvas.tokens.get(uuidParts[3]).actor;
+  else  actor = game.actors.get(uuidParts[1]);
+  actor = canvas.tokens.placeables.find(t=>t.actor?.uuid===args[0]).actor;
+}
 let rollType = args[1];
 let abilType = args[2];
 console.log(args);
@@ -8,13 +13,10 @@ console.log(args);
 let t = '';
 if (!token) token = _token;
 if (!token && !actor) actor = game.user.character;
-else actor = token?.actor;
+else actor = token.actor;
 if (!actor) return ui.notifications.error("No Actor");;
 token = null
 
-if (args[0]) {
-  actor = canvas.tokens.placeables.find(t=>t.actor.uuid===args[0]).actor;
-}
 t = actor.uuid.replaceAll('.','_');
 console.log('t: ', t);
     

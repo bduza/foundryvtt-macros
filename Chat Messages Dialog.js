@@ -20,7 +20,7 @@ let windowId = "roll-messages-dialog"
 let position = Object.values(ui.windows).find(w=> w.id === windowId)?.position || { height: 721, width : 450 , id: windowId};
 position["id"] = windowId;
 let header = `<h4><a onclick="game.macros.find(m=>m.data.flags.world?.name==='${this.name}').execute()" oncontextmenu="game.macros.find(m=>m.data.flags.world?.name==='${this.name}').sheet.render(true)" style="margin: 0 0 0 0;">${title}</a></h4>`
-if (!Hooks._hooks.renderChatMessage ||Hooks._hooks.renderChatMessage?.findIndex(f=>!f.toString().includes('renderchatmessagesdialog'))==-1)
+if (!Hooks._hooks.renderChatMessage || Hooks._hooks.renderChatMessage?.findIndex(f=>f.toString().includes('renderchatmessagesdialog'))==-1)
   Hooks.on(`renderChatMessage`, (message, html, data) => { 
     //renderchatmessagesdialog
     if (Object.values(ui.windows).filter(w=> w.id === "roll-messages-dialog" && (message.data.flavor || message.data._roll))){
