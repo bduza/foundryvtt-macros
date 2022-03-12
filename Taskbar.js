@@ -226,7 +226,7 @@ $("#calendar-time-taskbar").click(async function() {
   Gametime.showCalendar();
 });
 let dateTime = window.SimpleCalendar.api.timestampToDate(window.SimpleCalendar.api.timestamp());
-$("#calendar-time-taskbar").html(`<div style="height: 30px">${dateTime.currentSeason.name}, ${dateTime.display.date} | ${dateTime.display.time}</div>`);
+$("#calendar-time-taskbar").html(`<div style="height: 30px" title="${dateTime.currentSeason.name}, ${dateTime.display.date}">${dateTime.display.time}</div>`);
 
 $('#sidebar-tabs > a.item').clone().removeClass('item').removeClass('active').addClass('taskbar-sidebar-tab').click(function(){
   ui.sidebar.activateTab($(this).attr('data-tab'));
@@ -362,5 +362,5 @@ if (!Hooks._hooks.closeSidebarTab || Hooks._hooks.closeSidebarTab?.findIndex(f=>
 if (!Hooks._hooks.pseudoclockSet || Hooks._hooks.pseudoclockSet?.findIndex(f=>f.toString().includes('calendar-time-taskbar'))==-1) 
   Hooks.on(`pseudoclockSet`, async (time) => {
     let dateTime = window.SimpleCalendar.api.timestampToDate(time)
-    $("#calendar-time-taskbar").html(`<div style="height: 30px">${dateTime.currentSeason.name}, ${dateTime.display.date} | ${dateTime.display.time}</div>`);
+    $("#calendar-time-taskbar").html(`<div style="height: 30px" title="${dateTime.currentSeason.name}, ${dateTime.display.date}">${dateTime.display.time}</div>`);
   });
