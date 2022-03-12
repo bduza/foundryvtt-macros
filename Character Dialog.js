@@ -40,7 +40,7 @@ if (combatPopout) {
 
 if (!game.user.isGM) ui.nav._element.hide();
 
-if (!(Hooks._hooks.preCreateChatMessage?.findIndex(f=>f.toString().includes('chatmessagetargetflags'))!==-1))
+if (!Hooks._hooks.preCreateChatMessage || Hooks._hooks.preCreateChatMessage?.findIndex(f=>!f.toString().includes('chatmessagetargetflags')!==-1)
   Hooks.on(`preCreateChatMessage`, async (message, data, options, user) => {
     //chatmessagetargetflags
     if (message.data.flavor?.toUpperCase().includes('ATTACK') || message.data.flavor?.toUpperCase().includes('CAST'))
