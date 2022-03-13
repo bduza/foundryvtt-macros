@@ -1,5 +1,6 @@
-$('#sidebar-tabs').css('display', 'flex')
 $('#taskbar').remove();
+let moveSidebarTabs = false;
+if (!moveSidebarTabs) $('#sidebar-tabs').css('display', 'flex');
 //if (!Hooks._hooks.closeApplication || Hooks._hooks.closeApplication?.findIndex(f=>f.toString().includes('removeWindowFromTaskbar'))==-1)
 if (!game.user.data.flags?.world?.pinnedTaskbarDocuments)
   game.user.setFlag('world', 'pinnedTaskbarDocuments', []);
@@ -8,27 +9,31 @@ if (!game.user.data.flags?.world?.pinnedTaskbarDocuments)
 Hooks._hooks.addWindowToTaskbar = [];
 Hooks.on(`addWindowToTaskbar`, async function addWindowToTaskbar(app)  {
   //addWindowToTaskbar
-  console.log(app);
-  
-  //console.log(app.title === "" , $(`#taskbar-app-${app.appId}`) , !app.options.popOut)
-  if (!app.title || $(`#taskbar-app-${app.appId}`).length>0 || $(`.taskbar-app[data-id="${app.id}"]`).length>0) return;
+  //console.log(app);
+  if (!app.title ) return;
+  if ($(`.taskbar-app[data-id="${app.id}"]`).length>0 || $(`#taskbar-app-${app.appId}`).length>0) {
+    $(`.taskbar-app[data-id="${app.id}"]`).removeClass('hidden');
+    return $(`#${app.id}`).show();;
+  }
   //console.log('RENDER APP:', app);
+  let isPinned = game.user.data.flags.world?.pinnedTaskbarDocuments.includes(app.document?.uuid);
   let uuidAttr = '';
   let pinned = '';
   let pin = ``;
   if (app.document?.uuid) {
     uuidAttr = `data-uuid="${app.document?.uuid}"`;
-    if (game.user.data.flags.world.pinnedTaskbarDocuments.includes(app.document.uuid)) {
+    if (isPinned) {
       pinned = `pinned`;
       pin = `<i class="fas fa-thumbtack"></i>`;
     }
   }
   
   $('#taskbar > div.taskbar-items').append(`<a class="taskbar-app ${pinned}" id="taskbar-app-${app.appId}" data-id="${app.id}" name="${app.appId}" ${uuidAttr}><div class="app-title-div" title="${app.title}">${pin}${app.title}</div></a>`);
- 
+  
   $(`#taskbar-app-${app.appId}`).click(async function(e){
-    let id = $(this).attr('name');
-    console.log(id)
+    let id = $(this).attr('data-id');
+    let appId = $(this).attr('name');
+    console.log(appId, id)
     if (e.ctrlKey || e.shiftKey) {
       console.log($(this).hasClass('pinned'))
       if ($(this).hasClass('pinned')) {
@@ -45,47 +50,69 @@ Hooks.on(`addWindowToTaskbar`, async function addWindowToTaskbar(app)  {
       return console.log(game.user.data.flags.world.pinnedTaskbarDocuments);
     }
     
-    let w = ui.windows[id];
+    let w = ui.windows[appId];
     if (!w) {
       let d = await fromUuid($(this).attr('data-uuid'));
       let w = await d.sheet.render(true);
+      
+      console.log('rendering', w)
       return Hooks.call(`addWindowToTaskbar`, w)
     }
-    if (w===ui.activeWindow) {
-      $(`#${w.id}`).toggle();
-    }
-    else {
-      $(`#${w.id}`).show();
-      w.bringToTop();
-    }
-    if ($(`#${w.id}`).is(":hidden"))
-      $(this).addClass('dormant');
-    else
-      $(this).removeClass('dormant');
+    
+      if ($(this).hasClass('hidden')) {
+        $(this).removeClass('hidden');
+        ui.activeWindow = w;
+      } else
+        $(this).addClass('hidden');
       
+    console.log('hidden', $(this).hasClass('hidden'))
+    
     $(`.taskbar-app.active`).removeClass('active');
-    $(`#taskbar-app-${ui.activeWindow.appId}`).addClass('active');
+    $(`#taskbar-app-${appId}`).addClass('active');
   });
+  
   $(`#taskbar-app-${app.appId}`).contextmenu( function(){
-    let id = $(this).attr('name');
-    let w = ui.windows[id];
+    let id = $(this).attr('data-id');
+    let appId = $(this).attr('name');
+    
     if ($(this).hasClass('pinned')) {
-      $(`#${w.id}`).hide();
-      $(this).addClass('dormant');
+      $(`#${id}`).hide();
+      $(this).addClass('hidden');
     }
     else { 
-      $(`#taskbar-app-${id}`).remove();
-      w.close();
+      let w = ui.windows[$(this).attr('name')];
+      if (w) w.close();
+      $(`#taskbar-app-${appId}`).remove();
     }
     $(`.taskbar-app.active`).removeClass('active');
     $(`#taskbar-app-${ui.activeWindow.appId}`).addClass('active');
   });
+  
+  $(`#taskbar-app-${app.appId}`).mouseenter(function(e) {
+    let id = $(this).attr('data-id');
+    let appId = $(this).attr('name');
+    ui.windows[appId].bringToTop();
+    if($(this).hasClass('hidden'))
+      $(`#${id}`).show();
+    $(`.taskbar-app.active`).removeClass('active');
+    if (ui.activeWindow)
+      $(`#taskbar-app-${ui.activeWindow.appId}`).addClass('active');
+  });
+  $(`#taskbar-app-${app.appId}`).mouseleave( function(e){
+    let id = $(this).attr('data-id');
+    if($(this).hasClass('hidden')) {
+      $(`#${id}`).hide();
+      ui.activeWindow = null
+      $(`.taskbar-app.active`).removeClass('active');
+    }
+  });
+     
   $(`.taskbar-app.active`).removeClass('active');
-  $(`#taskbar-app-${ui.activeWindow.appId}`).addClass('active');
+  $(`#taskbar-app-${app.appId}`).addClass('active');
 });
 
 
-let $taskbar = $(`
+let taskbar = $(`
 <div class="taskbar" id="taskbar">
 <style id="taskbar-style">
 :root {
@@ -97,14 +124,14 @@ let $taskbar = $(`
   --ft-start-menu-item-size: 30px;
 }
 #ui-left {
-    height: calc(100% - 26px);
+    height: calc(100% - 22px);
             
 }
 #ui-right {
-    height: calc(100% - 45px);
+    height: calc(100% - 40px);
 }
 #ui-bottom {
-  margin-bottom: 27px;
+  margin-bottom: 22px;
 }
 #taskbar {
   color: var(--ft-text-color);
@@ -112,36 +139,43 @@ let $taskbar = $(`
   transform-origin: bottom left;
   transform: scale(var(--ft-scale));
   /*width: calc((100vw - var(--ft-sidebar)) / var(--ft-scale));*/
-  width: calc((100vw - 10px)) ;
-  max-width: calc((100vw - 10px)) ;
+  /*width: calc((100vw - 10px)) ;*/
+  width: 100vw;
+  /*max-width: calc((100vw - 10px)) ;*/
   height: 30px;
-  bottom: 5px;
-  left: 5px;
+  bottom: 0px;
+  left: 0px;
   padding: 5px;
-  z-index: 100;
+  z-index: 1000;
   display: flex;
   flex-direction: row;
   background: url(../ui/denim075.png);
-  border: 1px solid #000;
+  border-top: 1px solid #000;
   border-radius: 3px;
   transition: bottom 0.2s ease-in-out;
   box-shadow: 0 0 20px var(--color-shadow-dark);
 }
 .taskbar-app {
-  padding-left: 6px;
+  padding-left: 3px;
   padding-right: 3px;
-  margin-left: 3px;
-  border-left: 2px solid #BBB;
+  margin-left: 7px;
+  border-bottom: 2px solid rgba(255,255,255,.1);
   height: 100%;
+  
+}
+.taskbar-app.active {
+  /*background-color:  rgba(255,255,255,.1);*/
+  border-bottom: 2px solid rgba(255,255,255,1);
 }
 .taskbar-app div {
   height: 30px;
 }
-.taskbar-app.active {
-  background-color: #444; 
+.taskbar-app.hidden {
+  color: #aaa;
 }
+
 #taskbar-start-menu {
-  width: aut0; position: absolute; left: 5px;
+  width: auto; position: absolute; left: 5px;
   background: url(../ui/denim075.png);
   border: 1px solid #000;
   border-radius: 3px;
@@ -150,6 +184,7 @@ let $taskbar = $(`
   color: #FFF;
   box-shadow: 0 0 20px var(--color-shadow-dark);
   z-index:1000;
+  height: auto;
 }
 div.taskbar-items {
   display: flex; flex-direction: row;
@@ -158,15 +193,23 @@ div.taskbar-items {
 #calendar-time-taskbar {
  margin-left: auto;
 }
-span.start-menu-item {
+
+.start-menu-item  {
+  border: 1px solid rgba(255,255,255,0);
+}
+.start-menu-item:hover {
+  border: 1px solid rgba(255,255,255,1);
+  background-color: rgba(0,0,0,.3);
+}
+.start-menu-item span {
   vertical-align: middle;font-size: 20px; margin:5px; width:100%;
 }
+
+
 .fas.fa-thumbtack {
   margin-right: .25em;
 }
-.dormant {
-  color: #888;
-}
+
 .taskbar-sidebar-tab {
   display:inline-block;
   margin: 0 .44em
@@ -180,24 +223,20 @@ span.start-menu-item {
 </style>
 <div class="taskbar-items"></div>
 <a style="" id="calendar-time-taskbar"></a>
-<a style="margin-left:.5em" id="taskbar-hide-all"><div style="height: 30px"><i class="fas fa-tv"></i></div></a>
-<div id="taskbar-sidebar-tabs" style=" margin-left: 5px; height: 30px"></div>
+<a style="" id="taskbar-hide-all"><div style="height: 30px; margin-left: 8px; ${moveSidebarTabs?'width:25px;':'width:30px; right: -5px; position: relative;'}"><i class="fas fa-tv"></i></div></a>
 </div>
 `);
 
-$("body").append($taskbar);
+$("body").append(taskbar);
 
 $('#taskbar > div.taskbar-items').empty();
 let icons = `
-<a id="taskbar-menu-toggle" class="taskbar-button" style="margin-left:.25em"><div style="height: 30px; width: 40px; left: -20px; margin-right:-20px; position: relative;"><i style="margin-left: 20px; " class="fas fa-list"></i></div></a>
-<a id="taskbar-players-toggle" class="taskbar-button" style="margin-left:.25em"><div style="height: 30px; width: 20px;"><i class="fas fa-users"></i></div></a>
-<a id="taskbar-macro-toggle" class="taskbar-button" style="margin-left:.25em"><div style="height: 30px; width: 20px;"><i class="fas fa-code" ></i></div></a>
+<a id="taskbar-menu-toggle" title="Macro List" class="taskbar-button" style="margin-left:.25em"><div style="height: 30px; width: 40px; left: -20px; margin-right:-20px; position: relative;"><i style="margin-left: 20px; " class="fas fa-list"></i></div></a>
+<a id="taskbar-players-toggle" title="Player List" class="taskbar-button" style="margin-left:.25em"><div style="height: 30px; width: 25px;"><i class="fas fa-users"></i></div></a>
+<a id="taskbar-macro-toggle" title="Macro Hotbar" class="taskbar-button" style="margin-left:.25em"><div style="height: 30px; width: 25px;"><i class="fas fa-terminal"></i></div></a>
 `;
 
 $('#taskbar > div.taskbar-items').append(icons);
-$('#sidebar-tabs').css('display', 'none');
-
-
 
 for (let w of Object.entries(ui.windows).filter(w=> w[1].title !== '' && w[1].options.popOut && !game.user.data.flags.world.pinnedTaskbarDocuments.includes(w.document?.uuid))) {
   Hooks.call(`addWindowToTaskbar`, (w[1]));
@@ -208,17 +247,26 @@ for (let w of Object.entries(ui.windows).filter(w=> w[1].title !== '' && w[1].op
 for (let doc of game.user.data.flags.world.pinnedTaskbarDocuments) {
   let d = await fromUuid(doc);
   let w = await d.sheet.render(true);
+  let waitRender = Math.floor(1000 / 50);
+  while (w._state !== Application.RENDER_STATES.RENDERED && waitRender-- > 0) {
+    await new Promise((r) => setTimeout(r, 50));
+  }
+  // eslint-disable-next-line no-undef
+  if (w._state !== Application.RENDER_STATES.RENDERED) {
+    this.log("Timeout out waiting for app to render");
+  }
   await Hooks.call(`addWindowToTaskbar`, w);
-  //windows += `<a class="taskbar-app dormant pinned" data-uuid="${doc}"  ><div><i class="fas fa-thumbtack"></i>${doc}</div></a>`;
+  $(`#${w.id}`).hide();
+  $(`#taskbar-app-${w.appId}`).addClass('hidden')
+  //windows += `<a class="taskbar-app hidden pinned" data-uuid="${doc}"  ><div><i class="fas fa-thumbtack"></i>${doc}</div></a>`;
 }
 
 $("#taskbar-hide-all").click(function() { 
   $('.taskbar-app').each(function(){ 
-    let id = $(this).attr('name');
-    if (!id) return;
-    let w = ui.windows[id];
-    if (w) $(`#${w.id}`).hide();
-    $(this).addClass('dormant');
+    $(`#${$(this).attr('data-id')}`).hide();
+    $(this).addClass('hidden');
+    $(this).removeClass('active');
+    ui.activeWindow = null;
   });
 });
 
@@ -228,25 +276,28 @@ $("#calendar-time-taskbar").click(async function() {
 let dateTime = window.SimpleCalendar.api.timestampToDate(window.SimpleCalendar.api.timestamp());
 $("#calendar-time-taskbar").html(`<div style="height: 30px" title="${dateTime.currentSeason.name}, ${dateTime.display.date}">${dateTime.display.time}</div>`);
 
-$('#sidebar-tabs > a.item').each(function(){$(this).clone().removeClass('item').removeClass('active').addClass('taskbar-sidebar-tab').click(function(){
-  ui.sidebar.activateTab($(this).attr('data-tab'));
-  $('.taskbar-sidebar-tab.active').removeClass('active');
-  $(this).addClass('active');
-}).contextmenu(function(){
-  ui[$(this).attr('data-tab')].renderPopout()
-}).appendTo($('#taskbar-sidebar-tabs'))});
-
-$('.taskbar-sidebar-tab i').wrap($('<div style="height: 30px;"></div>'));
-
-$(`.taskbar-sidebar-tab[data-tab="${ui.sidebar._tabs[0].active}"]`).addClass('active');
+if (moveSidebarTabs) {
+  $('#sidebar-tabs').css('display', 'none');
+  $('#taskbar').append(`<div id="taskbar-sidebar-tabs" style=" margin-left: 5px; height: 30px"></div>`);
+  $('#sidebar-tabs > a.item').each(function(){$(this).clone().removeClass('item').removeClass('active').addClass('taskbar-sidebar-tab').click(function(){
+    ui.sidebar.activateTab($(this).attr('data-tab'));
+    $('.taskbar-sidebar-tab.active').removeClass('active');
+    $(this).addClass('active');
+  }).contextmenu(function(){
+    ui[$(this).attr('data-tab')].renderPopout()
+  }).appendTo($('#taskbar-sidebar-tabs'))});
+  $('.taskbar-sidebar-tab i').wrap($('<div style="height: 30px;"></div>'));
+  $(`.taskbar-sidebar-tab[data-tab="${ui.sidebar._tabs[0].active}"]`).addClass('active');
+}
 //.wrap($('<div style="height: 30px></div>'))
 $("#taskbar-menu-toggle").click(async function(e) {
   if ($(`#taskbar-start-menu`).length===0) {
     let macros = [];
     for (let i = 1; i <= 5; i ++)
-      macros = macros.concat(Object.values(game.user.getHotbarMacros(i)).filter(m=>!!m.macro).map(m=>`<a id="start-${m.macro.data._id}" class="start-menu-macro" name="${m.macro.data._id}" ><img src="${m.macro.data.img}" width="18" style="vertical-align: middle;"><span class="start-menu-item">${m.macro.data.name}</span></a>`));
-    let content = `<div id="taskbar-start-menu" style="height: ${macros.length*25+10}px">${macros.join('<br>')} </div>`;
-
+      macros = macros.concat(Object.values(game.user.getHotbarMacros(i)).filter(m=>!!m.macro).map(m=>`<a id="start-${m.macro.data._id}" class="start-menu-macro" name="${m.macro.data._id}" ><div class="start-menu-item"><img src="${m.macro.data.img}" width="18" style="vertical-align: middle;"><span>${m.macro.data.name}</span></div></a>`));
+    let content = `<div id="taskbar-start-menu"><div id="start-menu-search-results" style="color: black;"></div><div id="start-menu-macros">${macros.join('')}</div><input type="text" style="color: white;"></input></div>`;
+    
+//height: ${macros.length*25+10}px
     $("body").append(content);
     $(`#ui-left`).css('height', `calc(100% + 100px + (${$('#player-list > li').length*20}px))`);
     $('.start-menu-macro').click(function(){ 
@@ -271,9 +322,29 @@ $("#taskbar-menu-toggle").click(async function(e) {
       if (e.shiftKey) return;
       $(`#taskbar-start-menu`).remove();
     });
-  }
-  else
-  {
+    
+    $("#taskbar-start-menu > input").keyup(function(){
+      let input = '';
+      let docs = ['actors','items', 'scenes', 'journal', 'tables', 'macros', 'cards'];
+      input = $(this).val();
+      if (input.length < 3) {
+        $("#start-menu-macros").show();
+        $("#start-menu-search-results").hide();
+        return;
+      } else {
+        $("#start-menu-macros").hide();
+        $("#start-menu-search-results").show();
+        let filter = input.toUpperCase();
+        let links = [];
+        for (let doc of docs)
+          links = links.concat(game[doc.toLowerCase()].filter(a=>a.name.toUpperCase().includes(input.toUpperCase())).map(x=>`<p>${x.link}</p>`));
+        
+        $("#start-menu-search-results").html(TextEditor.enrichHTML(links.join('')));
+      }
+    });
+    $("#taskbar-start-menu > input").focus();
+    
+  } else {
     $(`#taskbar-start-menu`).remove();
   }
   //new Dialog({title:'', content, buttons:{}, close: ()=>{return}}).render(true);
@@ -285,7 +356,7 @@ $(`#ui-left`).css('height', `calc(100% + 100px + (${$('#player-list > li').lengt
 $('#taskbar-players-toggle').click(async function() {
   let currentHeight = parseInt($(`#ui-left`).css('height').replace('px', ''));
   if (window.innerHeight < currentHeight) {
-    $(`#ui-left`).css('height', `calc(100% - 26px )`);
+    $(`#ui-left`).css('height', `calc(100% - 20px )`);
     
   }
   else {
@@ -301,14 +372,15 @@ $('#taskbar-macro-toggle').click(async function() {
 
 $('.taskbar-app').each(function(){ 
   let id = $(this).attr('name');
-  if (!id) return $(this).addClass('dormant');
+  if (!id) return $(this).addClass('hidden');
   let w = ui.windows[id];
   if (!w) return;
   if ($(`#${w.id}`).is(":hidden"))
-    $(this).addClass('dormant')
+    $(this).addClass('hidden')
   else
-    $(this).removeClass('dormant')
+    $(this).removeClass('hidden')
 });
+
 
 while (Hooks._hooks.closeApplication && Hooks._hooks.closeApplication.findIndex(f=>f.toString().includes('removeWindowFromTaskbar'))>-1)
     Hooks._hooks.closeApplication.splice(Hooks._hooks.closeApplication.findIndex(f=>f.toString().includes('removeWindowFromTaskbar')), 1)
@@ -317,7 +389,7 @@ Hooks.on(`closeApplication`, async (app) => {
   //removeWindowFromTaskbar
   $(`.taskbar-app.active`).removeClass('active');
   $(`#taskbar-app-${ui.activeWindow.appId}`).addClass('active');
-  if ($(`#taskbar-app-${app.appId}`).hasClass('pinned')) $(`#taskbar-app-${app.appId}`).addClass('dormant');//.removeAttr('name').removeAttr('id');
+  if ($(`#taskbar-app-${app.appId}`).hasClass('pinned')) $(`#taskbar-app-${app.appId}`).addClass('hidden');//.removeAttr('name').removeAttr('id');
   else $(`#taskbar-app-${app.appId}`).remove();
 });
 
