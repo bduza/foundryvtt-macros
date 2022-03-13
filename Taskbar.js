@@ -1,5 +1,5 @@
 $('#taskbar').remove();
-let moveSidebarTabs = false;
+let moveSidebarTabs = true;
 if (!moveSidebarTabs) $('#sidebar-tabs').css('display', 'flex');
 //if (!Hooks._hooks.closeApplication || Hooks._hooks.closeApplication?.findIndex(f=>f.toString().includes('removeWindowFromTaskbar'))==-1)
 if (!game.user.data.flags?.world?.pinnedTaskbarDocuments)
@@ -175,16 +175,21 @@ let taskbar = $(`
 }
 
 #taskbar-start-menu {
-  width: auto; position: absolute; left: 5px;
+   
+  position: absolute; 
+  left: 0px;
   background: url(../ui/denim075.png);
   border: 1px solid #000;
   border-radius: 3px;
   padding: 5px 7px 5px 4px;
-  bottom: 35px;
+  bottom: 30px;
   color: #FFF;
   box-shadow: 0 0 20px var(--color-shadow-dark);
   z-index:1000;
   height: auto;
+  width: auto;
+  min-width: 300px;
+  min-height: 600px;; 
 }
 div.taskbar-items {
   display: flex; flex-direction: row;
@@ -294,11 +299,22 @@ $("#taskbar-menu-toggle").click(async function(e) {
   if ($(`#taskbar-start-menu`).length===0) {
     let macros = [];
     for (let i = 1; i <= 5; i ++)
-      macros = macros.concat(Object.values(game.user.getHotbarMacros(i)).filter(m=>!!m.macro).map(m=>`<a id="start-${m.macro.data._id}" class="start-menu-macro" name="${m.macro.data._id}" ><div class="start-menu-item"><img src="${m.macro.data.img}" width="18" style="vertical-align: middle;"><span>${m.macro.data.name}</span></div></a>`));
-    let content = `<div id="taskbar-start-menu"><div id="start-menu-search-results" style="color: black;"></div><div id="start-menu-macros">${macros.join('')}</div><input type="text" style="color: white;"></input></div>`;
+      macros = macros.concat(Object.values(game.user.getHotbarMacros(i)).filter(m=>!!m.macro).map(m=>`
+      <a id="start-${m.macro.data._id}" class="start-menu-macro" name="${m.macro.data._id}" >
+        <div class="start-menu-item" style="">
+          <img src="${m.macro.data.img}" width="18" style="vertical-align: middle;">
+          <span>${m.macro.data.name}</span>
+        </div>
+      </a>`));
+    let content = `<div id="taskbar-start-menu">
+      <div id="start-menu-search-results" style="color: black; margin-bottom: 25px;"></div>
+      <div id="start-menu-macros" style="margin-bottom: 25px;">${macros.join('')}</div>
+      <input type="text" style="color: white; position: absolute; bottom: 0px;"></input>
+    </div>`;
     
 //height: ${macros.length*25+10}px
     $("body").append(content);
+    $(`#start-menu-search-results`).hide();
     $(`#ui-left`).css('height', `calc(100% + 100px + (${$('#player-list > li').length*20}px))`);
     $('.start-menu-macro').click(function(){ 
       let id = $(this).attr('name');
@@ -318,12 +334,14 @@ $("#taskbar-menu-toggle").click(async function(e) {
       if (e.shiftKey) return;
       $(`#taskbar-start-menu`).remove();
     });
+    
     $("#taskbar-start-menu").mouseleave(function(e){
       if (e.shiftKey) return;
       $(`#taskbar-start-menu`).remove();
     });
     
     $("#taskbar-start-menu > input").keyup(function(){
+      $("#taskbar-start-menu").off('mouseleave');
       let input = '';
       let docs = ['actors','items', 'scenes', 'journal', 'tables', 'macros', 'cards'];
       input = $(this).val();
