@@ -1,3 +1,4 @@
+$('#custom-css').remove();
 $('body').append(`<div id="custom-css" style="position: absolute; left: -1000;"><style>
 #context-menu {
 	z-index: 1000;
