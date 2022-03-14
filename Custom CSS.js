@@ -1,14 +1,13 @@
+$('body').append(`<div id="custom-css" style="position: absolute; left: -1000;"><style>
 #context-menu {
 	z-index: 1000;
 }
-
 .chat-control-icon {
 	display: none;	
 }
 img {
 	border: none;
 }
-
 #chat-controls .roll-type-select {
 	margin: 3.5px 1px 0px 1px;
 	height: 20px;
@@ -26,12 +25,10 @@ img {
 #chat-controls > div > a.export-log {
 	margin-left: 3.5px;
 }
-
 .jlnk__entity-link {
 	color: rgba(30, 30, 30, 0.8) !important;
 	background: #DDD;
 }
-
 .dialog > .window-content * {
     color: rgba(255, 255, 255, 0.8) !important;;
 }
@@ -91,13 +88,11 @@ img {
 section > * > input {
     color: rgba(255, 255, 255, 0.8) ;
 }
-
 .tox > *  {
     //color: rgba(255, 255, 255, 0.8) ;
 	background:  rgba(255, 255, 255 ,1) !important ;
 	//background: unset ;
 }
-
 /*
 #hotbar-page-controls > a:nth-child(1) {
 	display: none
@@ -122,13 +117,11 @@ section > * > input {
 #hotbar .macro.inactive {
     box-shadow: 0 0 0px #444 inset;
 }
-
 .hotbar-page {
 	transition: unset;
     width: 630px;
 	bottom: 52px;
 }
-
 #hotbar {
     width: 600px;
 	border-radius: 5px;
@@ -145,7 +138,6 @@ section > * > input {
     cursor: pointer;
 	
 }
-
 #macro-list{
 	grid-column-gap:2px;	
 }
@@ -160,3 +152,4 @@ section > * > input {
     box-shadow: 0 0 0px #444 inset;
     border-radius: 3px;
 }
+</style></div>`).hide();
