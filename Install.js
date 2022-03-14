@@ -76,6 +76,10 @@ let macros = [
   defaultPerm: 0
 }
 ];
+let userMacroFolder = game.folders.find(f => f.data.name === '5e Dialog Macros' && f.data.type === 'Macro');
+  if (!userMacroFolder) userMacroFolder = await Folder.create({name : u.name , type : 'Macro'});
+  updates = updates.concat(game.macros.filter(m=>m.data.author===u.id).map(m=>{return {_id: m.id, folder: userMacroFolder.id}}));
+
 
 //if(!args[0]) return ui.notifications.error('No macro name passed in args');
 let macroName = "Get Allen's 5e Macros From Git"//args[0];
