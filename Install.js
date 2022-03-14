@@ -1,3 +1,5 @@
+let github = "https://raw.githubusercontent.com/xaukael/foundryvtt-macros/main/";
+
 let macros = [
 {
   name: "Character Dialog",
@@ -82,7 +84,7 @@ let match = false;
 let gitData = '';
 console.log(`getting ${macroName} macro from git`);
 try{
-await jQuery.get(`https://raw.githubusercontent.com/xaukael/foundryvtt-macros/main/${encodeURI(macroName)}.js`, function(data) {
+await jQuery.get(`${github}${encodeURI(macroName)}.js`, function(data) {
   gitData = data;
 });
 }catch(error){return ui.notifications.error('Macro not found: '+error.responseText)}
