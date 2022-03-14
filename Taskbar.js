@@ -1,9 +1,10 @@
 $('#taskbar').remove();
-let moveSidebarTabs = true;
+let moveSidebarTabs = 0;
+let autoHideMenu = 0;
 if (!moveSidebarTabs) $('#sidebar-tabs').css('display', 'flex');
 //if (!Hooks._hooks.closeApplication || Hooks._hooks.closeApplication?.findIndex(f=>f.toString().includes('removeWindowFromTaskbar'))==-1)
 if (!game.user.data.flags?.world?.pinnedTaskbarDocuments)
-  game.user.setFlag('world', 'pinnedTaskbarDocuments', []);
+  await game.user.setFlag('world', 'pinnedTaskbarDocuments', []);
 
 //if (!Hooks._hooks.addWindowToTaskbar || Hooks._hooks.addWindowToTaskbar?.findIndex(f=>f.toString().includes('addWindowToTaskbar'))==-1)
 Hooks._hooks.addWindowToTaskbar = [];
@@ -319,6 +320,7 @@ $("#taskbar-menu-toggle").click(async function(e) {
     $('.start-menu-macro').click(function(){ 
       let id = $(this).attr('name');
       game.macros.get(id).execute();
+      if (!autoHideMenu) return;
       if (e.shiftKey) return;
       $(`#taskbar-start-menu`).remove();
     });
@@ -331,11 +333,13 @@ $("#taskbar-menu-toggle").click(async function(e) {
         return;
       }
       macro.sheet.render(true);
+      if (!autoHideMenu) return;
       if (e.shiftKey) return;
       $(`#taskbar-start-menu`).remove();
     });
     
     $("#taskbar-start-menu").mouseleave(function(e){
+      if (!autoHideMenu) return;
       if (e.shiftKey) return;
       $(`#taskbar-start-menu`).remove();
     });
