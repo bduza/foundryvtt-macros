@@ -152,4 +152,5 @@ section > * > input {
     box-shadow: 0 0 0px #444 inset;
     border-radius: 3px;
 }
-</style></div>`).hide();
+</style></div>`)
+$('#custom-css').hide();
