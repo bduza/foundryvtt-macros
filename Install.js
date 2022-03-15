@@ -76,6 +76,12 @@ let macros = [
         "description": "Sets some custom Foundry-app-similar css changes to make dialogs more tolerable to look at",
         "permission": 2,
         "img": "icons/svg/dice-target.svg"
+    },
+    {
+        "name": "Taskbar",
+        "description": "A Windows Style Taskbar",
+        "permission": 2,
+        "img": "icons/svg/wall-direction.svg"
     }
 ]
 /*
