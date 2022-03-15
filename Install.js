@@ -83,14 +83,7 @@ let macros = [
         "permission": 2,
         "img": "icons/svg/wall-direction.svg"
     }
-]
-/*
-for (let macro of macros) 
-  macro.img = game.macros.getName(macro.name).data.img;
-
-console.log(macros);
-return
-*/
+];
 let content = '';
 for (let macro of macros) {
   content += `
@@ -103,8 +96,8 @@ for (let macro of macros) {
       ${game.macros.find(m=>m.data.flags.world?.name===macro.name)?'Update':'Create'}
     </button>
   </div>
-  <hr><br>`;
-}//${game.macros.find(m=>m.data.flags.world?.name===macro.name)?.length?'Update':'Install'}
+  <br>`;
+}
 
 let d = new Dialog({
   title: '5e Dialog Macros Installer' ,
