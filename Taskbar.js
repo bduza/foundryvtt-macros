@@ -145,7 +145,7 @@ let taskbar = $(`
             
 }
 #ui-right {
-    height: calc(100% - 40px);
+    height: calc(100% - 38px);
 }
 #ui-bottom {
   margin-bottom: 22px;
