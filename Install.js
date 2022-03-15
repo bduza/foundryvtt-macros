@@ -106,7 +106,7 @@ let d = new Dialog({
   render: (list) => {
     
         $('#install-all').click(()=>{
-          $('.installer-button').each(()=>{$(this).click()});
+          $('.installer-button').each(()=>{await $(this).click()});
         });
     
        $('.installer-button').click(async function(){
