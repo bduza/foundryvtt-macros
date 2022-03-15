@@ -76,15 +76,16 @@ let macros = [
         "description": "Sets some custom Foundry-app-similar css changes to make dialogs more tolerable to look at",
         "permission": 2,
         "img": "icons/svg/dice-target.svg"
-    },
-    {
-        "name": "Taskbar",
-        "description": "A Windows Style Taskbar",
-        "permission": 2,
-        "img": "icons/svg/wall-direction.svg"
     }
-];
-let content = '';
+]
+/*
+for (let macro of macros) 
+  macro.img = game.macros.getName(macro.name).data.img;
+
+console.log(macros);
+return
+*/
+let content = '<button id="install-all">Install/Update All</button>';
 for (let macro of macros) {
   content += `
   <div>
@@ -96,13 +97,18 @@ for (let macro of macros) {
       ${game.macros.find(m=>m.data.flags.world?.name===macro.name)?'Update':'Create'}
     </button>
   </div>
-  <br>`;
-}
+  <hr><br>`;
+}//${game.macros.find(m=>m.data.flags.world?.name===macro.name)?.length?'Update':'Install'}
 
 let d = new Dialog({
   title: '5e Dialog Macros Installer' ,
   content,
   render: (list) => {
+    
+        $('#install-all').click(()=>{
+          $('.installer-button').each(()=>{$(this).click()});
+        });
+    
        $('.installer-button').click(async function(){
         let folderName = '5e Dialog Macros';
         let userMacroFolder = game.folders.find(f => f.data.name === folderName && f.data.type === 'Macro');
@@ -113,7 +119,7 @@ let d = new Dialog({
         let args = [macro.name];
         let gitData = '';
         try {
-          await jQuery.get(`${github}${encodeURI(macro.name)}.js`, async function(data) {
+          await jQuery.get(`${github}${encodeURI('Get Macro From Git')}.js`, async function(data) {
             gitData = data;
         });
         } catch(error){
@@ -121,9 +127,8 @@ let d = new Dialog({
         } 
         
         console.log($(this).text(), )
-        switch($(this).text().trim()) {
+        switch($(this).text()) {
           case "Create":
-            $(this).text('Update')
             await Macro.create({
               "name": macro.name,
               "type": "script",
@@ -143,17 +148,21 @@ let d = new Dialog({
             });
             break;
           case "Update":
-            let macroToUpdate = game.macros.find(m=>m.data.flags.world?.name===macro.name);
-            await macroToUpdate.update({
+            await Macro.create({
               "name": macro.name,
               "type": "script",
-              "img": macro.img,
+              "img": "icons/svg/dice-target.svg",
               "scope": "global",
               "command": gitData,
-              "folder": folderId,
+              "folder": folder,
               "sort": 0,
               "permission": {
                   "default": macro.permission
+              },
+              "flags": {
+                "world": {
+                  "name": macro.name
+                }
               }
             });
             break;
