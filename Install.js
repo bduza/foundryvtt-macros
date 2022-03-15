@@ -123,6 +123,7 @@ let d = new Dialog({
         console.log($(this).text(), )
         switch($(this).text().trim()) {
           case "Create":
+            $(this).text('Update')
             await Macro.create({
               "name": macro.name,
               "type": "script",
@@ -140,7 +141,6 @@ let d = new Dialog({
                 }
               }
             });
-            $(this).text('Update')
             break;
           case "Update":
             let macroToUpdate = game.macros.find(m=>m.data.flags.world?.name===macro.name);
