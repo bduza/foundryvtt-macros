@@ -120,27 +120,6 @@ Hooks.on(`addWindowToTaskbar`, async function addWindowToTaskbar(app)  {
     if ($(this).hasClass('pinned')) return ui.activeWindow = null;;
     $(`#taskbar-app-${ui.activeWindow.appId}`).addClass('active');
   });
-  /*
-  $(`#taskbar-app-${app.appId}`).mouseenter(function(e) {
-    let id = $(this).attr('data-id');
-    let appId = $(this).attr('name');
-    ui.windows[appId].bringToTop();
-    if($(this).hasClass('hidden'))
-      $(`#${id}`).show();
-    $(`.taskbar-app.active`).removeClass('active');
-    if (ui.activeWindow)
-      $(`#taskbar-app-${ui.activeWindow.appId}`).addClass('active');
-  });
-  
-  $(`#taskbar-app-${app.appId}`).mouseleave( function(e){
-    let id = $(this).attr('data-id');
-    if($(this).hasClass('hidden')) {
-      $(`#${id}`).hide();
-      ui.activeWindow = null
-      $(`.taskbar-app.active`).removeClass('active');
-    }
-  });
-    */ 
   
   if (ui.activeWindow?.appId === app.appId) {
     $(`.taskbar-app.active`).removeClass('active');
@@ -329,12 +308,6 @@ if (moveSidebarTabs) {
     $('.taskbar-sidebar-tab.active').removeClass('active');
     $(this).addClass('active');
   }).contextmenu(function(){
-    /*
-    Hooks.once(`renderSidebarTab`, async (app) => { 
-      app.setPosition({width: 300});
-      app.setPosition({top: window.innerHeight, left: window.innerWidth });
-      app.setPosition({height : 0});
-    });*/
     ui[$(this).attr('data-tab')].renderPopout()
   }).appendTo($('#taskbar-sidebar-tabs'))});
   $('.taskbar-sidebar-tab i').wrap($('<div style="height: 30px;"></div>'));
