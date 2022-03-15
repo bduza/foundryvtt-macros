@@ -81,7 +81,6 @@ let macros = [
 /*
 for (let macro of macros) 
   macro.img = game.macros.getName(macro.name).data.img;
-
 console.log(macros);
 return
 */
@@ -106,10 +105,10 @@ let d = new Dialog({
   render: (list) => {
     
         $('#install-all').click(async ()=>{
-          $('.installer-button').each(async function(){
-              await $(this).click();
-              await new Promise((r) => setTimeout(r, 1000));
-          });
+          for (let m of macros) {
+              $(`.installer-button[name="${m.name}"]`).click();
+              await new Promise((r) => setTimeout(r, 500));
+          }
         });
     
        $('.installer-button').click(async function(){
@@ -122,16 +121,16 @@ let d = new Dialog({
         let args = [macro.name];
         let gitData = '';
         try {
-          await jQuery.get(`${github}${encodeURI('Get Macro From Git')}.js`, async function(data) {
+          await jQuery.get(`${github}${encodeURI(macro.name)}.js`, async function(data) {
             gitData = data;
         });
         } catch(error){
           return ui.notifications.error('Macro not found on github: '+ error.responseText)
         } 
         
-        console.log($(this).text(), )
-        switch($(this).text()) {
+        switch($(this).text().trim()) {
           case "Create":
+            $(this).text("Update")
             await Macro.create({
               "name": macro.name,
               "type": "script",
