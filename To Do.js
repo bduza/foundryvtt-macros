@@ -21,8 +21,8 @@ taskbar module/macro
   sidebar button for Chat Messages Dialog
   hook to load css at start if setting
   clicking token closes other actor menus and opens the selected token's (be sure to turn off click select token to avoid loops
-  add delay to mouseleave on dialogs similar to start menu
+  add delay to mouseleave on all dialogs similar to taskbar start menu
   make a settings dialog to set mouseleave delay on user flag
-    
+  add actor menu only shows death save if 0 hp? hook the next roll and reload after completion.
 
 */
