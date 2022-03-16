@@ -15,6 +15,7 @@ for (let macro of macros)
 taskbar module/macro
   check if pinned document exists when trying to pin it
   if clicked and document is gone, remove
+  update hidden status of all windows on hooks.
   
 5e Dialogs Module
   actor menu header link to open raw character dialog
