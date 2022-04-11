@@ -32,12 +32,12 @@ if (targetSkills.ath.total>=targetSkills.acr.total) {
   skill = 'Acrobatics';
 }
 let dc = mod + 10;
-let opposingRoll = await new Roll(`1d20 + ${mod}`).toMessage({flavor:`Opposing with ${skill}`});
+let opposingRoll = await new Roll(`1d20 + ${mod}`).toMessage({flavor:`Opposing with ${skill}`, speaker: ChatMessage.getSpeaker({token})});
 dc = opposingRoll.roll._total;
 await waitFor3DDiceMessage(opposingRoll.id);
-if (total<dc && this.name === 'Shove') return ChatMessage.create({content: 'Shove Failed'});
-else ChatMessage.create({content: 'Shove Sucessful'});
-if (total<dc && this.name === 'Grapple') return ChatMessage.create({content: 'Grapple Failed'})
+
+if (total<dc) return ChatMessage.create({flavor: `${this.name} Failed`, speaker:ChatMessage.getSpeaker({token})});
+else ChatMessage.create({flavor: `${this.name} Sucessful`, speaker:ChatMessage.getSpeaker({token})});
 
 if (this.name === 'Shove') {
   if (away) await game.macros.getName('Move Token').execute(token, target);

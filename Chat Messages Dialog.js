@@ -1,3 +1,5 @@
+if (!game.user.isGM) return;
+
 async function toggleEffect(effect) {
   for (let t of canvas.tokens.controlled) {
   let actorUuid = t.actor.uuid;
@@ -13,13 +15,10 @@ async function controlUserTargets(section) {
 
 let ce = game.modules.get("dfreds-convenient-effects").active;
 
-let selectedAlias = $(`select#alias-select`).val();
-//console.log(selectedAlias);
 let title = "Roll Messages";
 let windowId = "roll-messages-dialog"
-let position = Object.values(ui.windows).find(w=> w.id === windowId)?.position || { height: 721, width : 450 , id: windowId};
-position["id"] = windowId;
-let header = `<h4><a onclick="game.macros.find(m=>m.data.flags.world?.name==='${this.name}').execute()" oncontextmenu="game.macros.find(m=>m.data.flags.world?.name==='${this.name}').sheet.render(true)" style="margin: 0 0 0 0;">${title}</a></h4>`
+let position = { height: 800, width : 420 , id: windowId};
+let header = `<h4><a onclick="game.macros.find(m=>m.data.flags.world?.name==='Chat Messages Dialog').execute()"  style="margin: 0 0 0 0;">${title}</a></h4>`
 if (!Hooks._hooks.renderChatMessage || Hooks._hooks.renderChatMessage?.findIndex(f=>f.toString().includes('renderchatmessagesdialog'))==-1)
   Hooks.on(`renderChatMessage`, (message, html, data) => { 
     //renderchatmessagesdialog
@@ -28,37 +27,17 @@ if (!Hooks._hooks.renderChatMessage || Hooks._hooks.renderChatMessage?.findIndex
       //console.log('new message:', message);
     }
   });
-
+if (!Hooks._hooks.deleteChatMessage || Hooks._hooks.deleteChatMessage?.findIndex(f=>f.toString().includes('renderchatmessagesdialog'))==-1)
+  Hooks.on(`deleteChatMessage`, (message, html, data) => { 
+    //renderchatmessagesdialog
+    if (Object.values(ui.windows).filter(w=> w.id === "roll-messages-dialog" && (message.data.flavor || message.data._roll))){
+      game.macros.find(m=>m.data.flags.world?.name==='Chat Messages Dialog').execute();
+      //console.log('new message:', message);
+    }
+  });
+//${$("#roll-messages-dialog").height()-55}px    height: 640px;
 let content=`
-<style>
-.thl {
-  border-bottom: 1px solid var(--color-border-highlight);; 
-  width: 100%;
-}
-</style>
-<script>
-function openSection(section) {
-  var i;
-  var x = document.getElementsByClassName('user-message-section');
-  for (i = 0; i < x.length; i++) {
-  x[i].style.display = "none"; 
-  }
-  let y  = document.getElementsByClassName('message-user-tab')
-  for (i = 0; i < x.length; i++) {
-  y[i].style.textShadow =  "";
-  }
-  console.log(section);
-  document.getElementById(section).style.display = "block";  
-  document.getElementById(section+'-tab').style.textShadow = "0 0 8px red";
-  //canvas.tokens.placeables.filter(t => t.actor === game.users.getName(section.replace('act-','')).character)[0].control({releaseOthers: false});
-  canvas.tokens.releaseAll();
-  let userTargets = game.users.getName(section.replace('act-','')).targets;
-  for (const target of userTargets){
-  target.control({releaseOthers: false});
-  }
-}
-</script>
-<div id="messages-dialog-content" style="display:flex; flex-direction: column-reverse;width: 440px; height: 640px;overflow-y: auto;overflow-x: hidden;">
+<div id="messages-dialog-content" style="display:flex; flex-direction: column-reverse;  width: 100%; height: 760px; overflow-y: auto; overflow-x: hidden; ">
 `;
 let users = {};
 let usersDamageTotal = {};
@@ -146,7 +125,7 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
         usersDamageCritical[user] = true;
     }
     if (m.data.flavor?.toUpperCase().includes('ATTACK'))
-      message += `<p title="${title}">${roll.formula} =  ${roll.total}</p>`;
+      message += `<p title="${title}"><a class="applyTargets" data-mid="${m.id}">${roll.formula} =  ${roll.total}</a>${usersAttackCritical[user]?'&ensp;Critical!':''}</p>`;
     else
       message += `<p title="${title}"><a class="applyDamage" data-val="${roll.total}" data-crit="${usersAttackCritical[user]}">${roll.formula} =  ${roll.total}</a> </p>`;
     /*
@@ -166,8 +145,8 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
   if (m.data.flavor?.toUpperCase().includes('ROLLING SAVES FOR')||m.data.flavor?.toUpperCase().includes('ATTACK') && Object.keys(usersDamageTotal[user]).length !== 0){
     let totalTotal = 0;
     for (let [key, value] of Object.entries(usersDamageTotal[user]).reverse()) {
-      message += `<p><b><a class="applyDamage" data-val="${value}" data-crit="${usersAttackCritical[user]}">${key} Damage:  ${value}</a>`;
-      if (game.modules.get("mmm").active && usersAttackCritical[user])
+      message += `<p><b><a class="applyDamage" data-val="${value}" data-crit="${usersAttackCritical[user]}">${key==='null'?``:`${key} `}Damage:  ${value}</a>`;
+      if (game.modules.get("mmm")?.active && usersAttackCritical[user])
         message += `&ensp;<a onclick="ui.chat.processMessage('/mmmm ${key}')">MMMM</a>`;
       message += `</b></p>`;
         
@@ -215,7 +194,9 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
         
       
       
-      targets += `<div style="margin: 5px 0 0 0;"><a onclick="canvas.animatePan({x:${t.data.x}, y:${t.data.y}})" ><img src="${t.data.img}" height="36" style="border:unset; float: left; clear:both; margin-right: 5px;"></a><a class="target-img" data-id="${t_id}">${t.actor.data.name} ${traits}<br>` ;
+      targets += `<div style="margin: 5px 0 0 0;"><a onclick="canvas.animatePan({x:${t.data.x}, y:${t.data.y}})" >
+      <img src="${t.data.img}" height="36" style="border:unset; float: left; clear:both; margin-right: 5px;"></a>
+      <a class="target-img" data-id="${t_id}">${t.actor.data.name} ${traits}<br>` ;
       
       if (m.data.flavor?.toUpperCase().includes('ATTACK')) 
         targets += `AC: ${t.actor.data.data.attributes.ac.value} (${usersLastAttack[user]>=t.actor.data.data.attributes.ac.value?'hits':'misses'})&nbsp;`;
@@ -224,10 +205,10 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
         targets += `<b>${saves[user][t.id]}</b> Save &nbsp;`;
         
       if (m.data.flavor?.toUpperCase().includes('CAST'))
-        targets += ``;
+        targets += `&nbsp;`;
         
       if (m.data.flavor?.toUpperCase().includes('HEALING')) 
-        targets += ``;
+        targets += `&nbsp;`;
         
       for (let [key, value] of Object.entries(usersDamageTotal[user]).reverse()) {
         if (t.actor.data.data?.traits?.dv?.value?.includes(key.toLowerCase())) value *= 2;
@@ -235,9 +216,9 @@ for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) 
         if (t.actor.data.data?.traits?.dr?.value?.includes(key.toLowerCase())) value = Math.floor(value/2);
         
         if (hits.includes(t_id) || failed.includes(t_id))
-          targets += `<a class="applyDamage" data-val="${key.toUpperCase().includes('HEALING')?value*-1:value}" data-crit="${usersAttackCritical[user]}" data-token="${t_id}"> ${value} ${key}</a>&nbsp;`;
+          targets += `<a class="applyDamage" data-val="${key.toUpperCase().includes('HEALING')?value*-1:value}" data-crit="${usersAttackCritical[user]}" data-token="${t_id}"> ${value} ${key==='null'?`Damage`:`${key}`}</a>&nbsp;`;
         if (saved.includes(t_id))
-          targets += `<a class="applyDamage" data-val="${key.toUpperCase().includes('HEALING')?value*-1:value}" data-crit="${usersAttackCritical[user]}" data-token="${t_id}"> ${Math.floor(value/2)} ${key}</a>&nbsp;`;
+          targets += `<a class="applyDamage" data-val="${key.toUpperCase().includes('HEALING')?value*-1:value}" data-crit="${usersAttackCritical[user]}" data-token="${t_id}"> ${Math.floor(value/2)} ${key==='null'?`Damage`:`${key}`}</a>&nbsp;`;
       }
       
       targets += `</a><a class="x-target" data-tid="${t_id}" data-mid="${m.id}"><i class="fas fa-times" style="float:right; font-size: 1.25em; margin-right: 1em;"></i></a></div>`;
@@ -281,20 +262,24 @@ for (const m of messages) {
         content += m; 
 }
 content += '</div>';
-//console.log(users);
-let aliasSelect = `<center style="border-bottom: 0px solid white;"><select id="alias-select" style="margin-bottom:.5em;  width: 100%;"><option value="" ${selectedAlias?'selected':''}></option>`;
+//console.log(users);<center style="border-bottom: 0px solid white;"></center>
+//let selectedAlias = $(`#alias-select`).val();
+//if (game.combats.active?.combatant) selectedAlias = $(`#alias-select`).val(game.combats.active.combatant.name);
+//console.log($(`#alias-select`).val(), selectedAlias.val());
+let aliasSelect = `<div style="position: absolute; top: 4px; left: 100px; "><select id="alias-select" style="height: 20px; margin-bottom:.5em;  width: 100%;"><option value="" ${$('#alias-select').val()===""?'selected':''}></option>`;
 for (const alias of Object.keys(users).sort()) {
-  aliasSelect +=  `<option value="${alias}" ${selectedAlias===alias?'selected':''}>${alias}</option>`;
+  aliasSelect +=  `<option value="${alias}" ${$('#alias-select').val()===alias?'selected':''}>${alias}</option>`;
 }
-aliasSelect += `</select></center>`;
+aliasSelect += `</select></div>`;
 content = aliasSelect + content;
 
-let d = new Dialog({
+Dialog.persist({
   title: title,
   content:  content,
   buttons: {},
   render: (html) => {
-    
+    $("#messages-dialog-content").css('height', `${$("#roll-messages-dialog").height()-55}px`)
+    //$('#messages-dialog-content').scrollTop($('#messages-dialog-content').height());
     if ($('#alias-select').val()) {
         $(`div.cm`).css('display', 'none');
         $(`div[name="${$('#alias-select').val()}"]`).css('display', 'unset');
@@ -319,13 +304,10 @@ let d = new Dialog({
       $(this).val('').change();
     });
     
-    $('.HVM').click(async function(e){
-      console.log($(this).attr('data-crit'))
-      game.macros.find(m=>m.data.flags.world?.name==='Health Vitality Change').execute($(this).attr('data-val'), $(this).attr('data-crit').toLowerCase()==='true', false);
-    });
-    
-    $('.HVM').contextmenu(async function(e){
-      game.macros.find(m=>m.data.flags.world?.name==='Health Vitality Change').execute($(this).attr('data-val'), $(this).attr('data-crit'), true);
+    $('.applyTargets').click(async function(e){
+      let m_id = $(this).attr('data-mid');
+      await game.messages.get(m_id).update({"flags.world.targetIds": [...game.user.targets].map(t=>t.id)});
+      game.macros.find(m=>m.data.flags.world?.name==='Chat Messages Dialog').execute();
     });
     
     $('.applyDamage').click(async function(e){
@@ -442,7 +424,10 @@ let d = new Dialog({
   close:   html => {
     while (Hooks._hooks.renderChatMessage?.findIndex(f=>f.toString().includes('renderchatmessagesdialog'))>-1)
       Hooks._hooks.renderChatMessage.splice( Hooks._hooks.renderChatMessage.findIndex(f=>f.toString().includes('renderchatmessagesdialog')), 1)
+    while (Hooks._hooks.deleteChatMessage?.findIndex(f=>f.toString().includes('renderchatmessagesdialog'))>-1)
+      Hooks._hooks.deleteChatMessage.splice( Hooks._hooks.deleteChatMessage.findIndex(f=>f.toString().includes('renderchatmessagesdialog')), 1)  
+      
   return}
 },position
 );
-d.render(true);
+//d.render(true);

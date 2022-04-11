@@ -1,4 +1,6 @@
-const selected = canvas.tokens.controlled;
+let selected = canvas.tokens.controlled;
+if (!selected.length)
+  selected = [...game.user.targets];
 let tableMessage = '<h3>Roll of Fate!</h3><table>';
 let start = 0;
 let cutoff = 0;
@@ -18,5 +20,6 @@ Hooks.once("diceSoNiceRollComplete",(messageId) => {
 let chosen = selected[Math.floor(total/(100/selected.length))];
 
 ui.chat.processMessage('<h3><i>' + chosen.data.name  + ' has been chosen!</i></h3>');
+//game.user.updateUserTargets([])
 chosen.setTarget(true, {releaseOthers: true});
 });

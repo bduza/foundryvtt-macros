@@ -9,7 +9,7 @@ for (const effect of game.dfreds.effects.all){
     
 }
 list += `</div>`;
-let d = new Dialog({
+Dialog.persist({
   title: 'Convenient Effects' ,
   content:  list,
   render: (list) => {
@@ -21,7 +21,7 @@ let d = new Dialog({
             await game.dfreds.effectInterface.toggleEffect(effect, {uuids:canvas.tokens.controlled.map(t=>t.document.uuid)});
             for (let t of canvas.tokens.controlled) 
               if ([...Object.values(ui.windows)].map(w=>w.id).includes(t.actor.uuid.replace('.','_') + "-effects"))
-                game.macros.getName('Actor Effects List').execute(t.actor.uuid.replace('.','_'));
+                game.macros.find(m=>m.data.flags.world?.name==='Actor Effects List').execute(t.actor.uuid.replace('.','_'));
             
             //}
         });
@@ -61,4 +61,3 @@ let d = new Dialog({
       return}
 },{ height:400, width:250 , id: "df-effects-directory"}
 );
-d.render(true)

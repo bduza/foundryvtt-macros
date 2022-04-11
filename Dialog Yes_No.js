@@ -9,11 +9,11 @@ async function dialogYesNo(prompt) {
          no:  { label : `No`,  callback : () => { resolve(false); }}
        },
        close:   html => { resolve(false); }
-        },{ id: "yes-no-dialog"}
+        },{}
       ).render(true);
   });
   return response;
 }
-let prompt = '':
+let prompt = '';
 if (args[0]) prompt = args[0];
 return await dialogYesNo(prompt);

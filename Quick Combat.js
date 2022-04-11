@@ -14,7 +14,7 @@ console.log(combatants.length);
 if (combatants.length) {
     await game.combats.viewed.createEmbeddedDocuments("Combatant", combatants);
     
-    
+    /*
     for (let turn of game.combat.turns) {
         console.log(turn);
         if (turn.actor.hasPlayerOwner){
@@ -36,7 +36,7 @@ if (combatants.length) {
             console.log(data);
             game.socket.emit('module.lmrtfy', data);
         }
-    }
+    }*/
 }
     
 let content = `<select id="select-sound" name="select-type">`;

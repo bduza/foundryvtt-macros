@@ -1,13 +1,36 @@
-if (args[0]) token = canvas.tokens.placeables.filter(t=>t.actor?.uuid===args[0].replaceAll('_','.'))[0];
-token.control({releaseOthers:true});
-let w_id = token.actor.uuid.replace('.','_') + "-effects"
+let {actorUuid, rollType, abilType, position, closeOnMouseLeave} = args[0] || {};
+let t = '';
+if (!token) token = _token;
+if (!token && !actor) actor = game.user.character;
+else actor = token.actor;
+if (!actor) return ui.notifications.error("No Actor");
+token = null
+if (actorUuid) {
+  if (actorUuid.includes('Token')) {
+    token = await fromUuid(actorUuid);
+    actor = token.actor;
+  }
+  else actor = await fromUuid(actorUuid)
+}
+if (!actor) return ui.notifications.error("No Actor");
+t = actor.uuid.replaceAll('.','_');
+let w_id = `${t}-effects`;
+
+let w = Object.values(ui.windows).find(w=>w.id===w_id);
+if (w) position = w.position;
+console.log(position)
+let positionDefault =  
+  {width: 350, id: w_id};
+position = {...positionDefault, ...position, ...{height:'auto'}};
+
+let closeTimeout = 1000;
+
 let list=`
 
-<div id="effectsUL" style="" >
-`;//height:520px;overflow-y:scroll;
-//<div><input type="text" id="myeffectInput"  placeholder="Search for names.." style="margin-bottom:.5em;width:200px"></div>
-
-for (const effect of [...token.actor.effects]){
+<div style="" >
+`;
+let activeEffects = [...actor.effects];
+for (const effect of activeEffects){
         list += `<p id="${effect.id}">
                 <img src="${effect.data.icon}" height="14" style="background: url(../ui/denim075.png) repeat;"/><span><a id="effect-name-${effect.id}" name="${effect.id}"> ${effect.data.label}</a> </span>
                 <a id="effect-delete-${effect.id}" name="${effect.id}" style="float:right;"><i class="fa fa-times"></i></a>
@@ -15,20 +38,39 @@ for (const effect of [...token.actor.effects]){
                 </p>`;
 }
 list += `</div>`;
-let d = new Dialog({
-  title: `${token.actor.name} Active Effects`,
+$(`#${w_id}`).remove()
+if (w) w.close();
+new Dialog({
+  title: `${actor.name} - Active Effects`,
   content:  list,
   render: ()=>{
-    let header = `${token.actor.name} Active Effects <a onclick="game.macros.getName('More Convenient Effects').execute()" style="float: right; ><i class="fa fa-plus"></i> Add</a>`;
-    $(`#${ token.actor.uuid.replace('.','_')}-effects > header > h4`).html(header);
+    //let header = `${actor.name} - Active Effects <a onclick="game.macros.find(m=>m.data.flags.world?.name==='More Convenient Effects').execute()" style="float: right; ><i class="fa fa-plus"></i> Add</a>`;
+    //$(`#${actor.uuid.replace('.','_')}-effects > header > h4`).html(header);
+    
+    if ($(`#${t}-effects-add`).length === 0)
+    $(`#${t}-effects`).find('.window-title').after(`<a id="${t}-effects-add" onclick="game.macros.find(m=>m.data.flags.world?.name==='More Convenient Effects').execute()" style="float: right; "><i class="fa fa-plus"></i> Add</a>`);
+    
+    if (closeOnMouseLeave) {
+        $(`#${w_id}`).mouseenter(function(e){
+          $(`#${w_id}`).removeClass('hide');
+        });
+        
+        $(`#${w_id}`).mouseleave(async function(e){
+          $(`#${w_id}`).addClass('hide');
+          await new Promise((r) => setTimeout(r, closeTimeout));
+          if ($(`#${w_id}`).hasClass('hide'))
+            Object.values(ui.windows).filter(w=> w.id===w_id)[0].close();
+        });  
+      }
     
     $("input#myeffectInput").focus();
     $("a[id^=effect-name]").click(async function(e){
-        let effect = token.actor.effects.get(this.name);
+        let effect = actor.effects.get(this.name);
         effect.sheet.render(true);
     });
+    
     $("a[id^=toggle-effect]").click(async function(){
-        let effect = token.actor.effects.get(this.name);
+        let effect = actor.effects.get(this.name);
         await effect.update({disabled:!effect.data.disabled})
         if (effect.data.disabled) {
           $(this).find('i').removeClass('fa-toggle-on')
@@ -38,32 +80,17 @@ let d = new Dialog({
           $(this).find('i').removeClass('fa-toggle-off')
         }
     });
+    
     $("a[id^=effect-delete]").click(async function(){
-        let effect = token.actor.effects.get(this.name);
+        let effect = actor.effects.get(this.name);
         await effect.delete();
         $(this).parent().remove();
     });
-    $("input#myeffectInput").keyup(function(){
-        var input, filter, ul, li, a, i, txtValue;
-        input = document.getElementById('myeffectInput');
-        filter = input.value.toUpperCase();
-        ul = document.getElementById("effectsUL");
-        li = ul.getElementsByTagName('p'); 
-        
-        for (i = 0; i < li.length; i++) {
-            a = li[i].getElementsByTagName("span")[0];
-            txtValue = a.textContent || a.innerText;
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                li[i].style.display = "";
-            } else {
-                li[i].style.display = "none";
-            }
-        }
-    });  
+    
   },
   buttons: {},
   close:   html => {
       return}
-},{width: 350, id: w_id}
-);
-d.render(true);
+}, position
+).render(true);
+//d.render(true);

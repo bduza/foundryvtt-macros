@@ -1,37 +1,92 @@
-$('#custom-css').remove();
+if ($('#custom-css').length) return $('#custom-css').remove();
+else
 $('body').append(`<div id="custom-css" style="position: absolute; left: -1000;"><style>
-#context-menu {
-	z-index: 1000;
-}
-.chat-control-icon {
-	display: none;	
+.editor-content {
+  font-size: 120%;
 }
 img {
 	border: none;
 }
-#chat-controls .roll-type-select {
-	margin: 3.5px 1px 0px 1px;
-	height: 20px;
+.chat-message  {
+  background: #111;
+  color: white;
+  border: 1px solid #555;
 }
-#chat-form > textarea {
-	height: 10px;	
+.chat-message * {
+  background: #111;
+  color: white;
+}
+.dice-roll {
+ position: relative;
+}
+.dice-formula, .dice-total, .dice-rolls {
+  
+  background: unset !important;
+  /*text-align: left !important;
+  justify-content: left !important;*/
+}
+.dice-formula, .dice-total {
+border: 1px solid black !important;
+  box-shadow: 0 0 2px #555 inset !important;
+}
+.dice-total {
+  /*position: absolute; 
+  height: 0px;
+  bottom: 1em; 
+  right: -5em;
+  font-size: 2em !important;*/
+}
+.dice-result {
+}
+.dice-tooltip {
+  display: inline !important;
+}
+.message-sender {
+  /*text-align: center;*/
+  color: white;
+}
+.message-metadata {
+  display: none;
+}
+.flavor-text{
+  background: unset;
+  color: white;
+  /*text-align: center;*/
+  /*font-size: 1.1em !important;*/
+}
+.chat-control-icon {
+	display: none;	
+}
+#chat-controls .roll-type-select  {
+	margin: 3.5px 1px 0px -2px;
+	height: 20px;
+	background: #111;
+  color: white ;
+}
+#chat-controls .roll-type-select * {
+	background: #111;
 }
 #chat-form  {
 	height: 30px;	
 	flex-basis: 50px;
 }
-#chat-message textarea {
-	min-height: 20px; !important;	
+textarea#chat-message  {
+	min-height: 20px !important;	
+	background: #111;
+  color: white ;
+  border: 1px solid #aaa;
+  margin-left: -2px;
 }
 #chat-controls > div > a.export-log {
 	margin-left: 3.5px;
+	color: white
 }
 .jlnk__entity-link {
-	color: rgba(30, 30, 30, 0.8) !important;
+	color: rgba(30, 30, 30, 0.8) ;
 	background: #DDD;
 }
 .dialog > .window-content * {
-    color: rgba(255, 255, 255, 0.8) !important;;
+    color: rgba(255, 255, 255, 1) ;
 }
 .dialog > section  {
     background: unset ;
@@ -40,71 +95,61 @@ img {
     ;
 }
 .dialog > section > div.dialog-content > *  {
-    color: rgba(255, 255, 255, 0.8) ;
+    color: rgba(255, 255, 255, .9) ;
 	background:  rgba(30, 30, 30 ,1); /*!important ;*/
 	//background: unset ;
 }
 .dialog > section > div.dialog-content  * > option {
-    color: rgba(255, 255, 255, 0.8) ;
+    color: rgba(255, 255, 255, .9) ;
 	background:  rgba(00, 00, 00 ,1); /*!important ;*/
 	//background: unset ;
 }
 .dialog-button {
-    color: rgba(255, 255, 255, 0.8) ;
+    color: rgba(255, 255, 255, .9) ;
 }
 .dialog > section > div.dialog-content  {
-    color: rgba(255, 255, 255, 0.8) ;
+    color: rgba(255, 255, 255, .9) ;
 }
 .dialog-content > * > button  {
-    color: rgba(255, 255, 255, 0.8) ;
+    color: rgba(255, 255, 255, .9) ;
 	background:  rgba(30, 30, 30 ,0);
 }
 .dialog-content > form > *  {
-    color: rgba(255, 255, 255, 0.8) ;
+    color: rgba(255, 255, 255, .9) ;
 	background: rgba(30, 30, 30 ,1) ;
 }
 .dialog-button {
-    color: rgba(255, 255, 255, 0.8) ;
+    color: rgba(255, 255, 255, .9) ;
 }
 .dialog > section > div.dialog-content  * {
-    color: rgba(255, 255, 255, 0.8) ;
+    color: rgba(255, 255, 255, .9) ;
 	background: rgba(30, 30, 30 ,0) ;
 }
 .dialog > section > * > button  {
-    color: rgba(255, 255, 255, 0.8) ;
+    color: rgba(255, 255, 255, .9) ;
 	background: --dialog-background ;
 }
 .dialog > footer > button {
-    color: rgba(255, 255, 255, 0.8) ;
+    color: rgba(255, 255, 255, .9) ;
 }
 .dialog .inline-roll {
 	color: #000;
 }
 .section-tab {
-    color: rgba(255, 255, 255, 0.8) ;
+    color: rgba(255, 255, 255, .9) ;
 	background: unset ;
 	background:  rgba(130, 130, 130 ,1) !important;
 	
 }
 section > * > input {
-    color: rgba(255, 255, 255, 0.8) ;
+    color: rgba(255, 255, 255, .9) ;
 }
 .tox > *  {
-    //color: rgba(255, 255, 255, 0.8) ;
+    //color: rgba(255, 255, 255, .9) ;
 	background:  rgba(255, 255, 255 ,1) !important ;
 	//background: unset ;
 }
 /*
-#hotbar-page-controls > a:nth-child(1) {
-	display: none
-}
-#hotbar-page-controls > a:nth-child(3) {
-	display: none
-}
-#hotbar-page-controls > span {
-	margin-top: 1em;  
-}
-*/
 #hotbar #macro-list {
     border: 1px solid #FFFFFF00;
 	    flex: 0 0 523px;
@@ -139,6 +184,7 @@ section > * > input {
     cursor: pointer;
 	
 }
+*/
 #macro-list{
 	grid-column-gap:2px;	
 }
