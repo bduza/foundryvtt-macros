@@ -100,7 +100,7 @@ for (let macro of macros) {
 }//${game.macros.find(m=>m.data.flags.world?.name===macro.name)?.length?'Update':'Install'}
 
 let d = new Dialog({
-  title: '5e Dialog Macros Installer' ,
+  title: "Allen's Macros Installer" ,
   content,
   render: (list) => {
     
