@@ -71,9 +71,6 @@ let content = `
     box-shadow: 0 0 20px var(--color-shadow-dark);
   }
   #Dice-Tray-Dialog > header > h4 > a > i{margin: 0 3px 0 0}
-  #dice-div {
-    margin-right: -.5em;
-  }
   #input-div input, #input-div button, #dice-div button{
     text-align: center;
     margin: 0 !important;
@@ -144,7 +141,7 @@ let content = `
     </div>
   </div>
   
-  <div id="dice-div" style="display:grid; grid-template-columns: calc(${width}px - .5em) repeat(7, auto); column-gap:.25em; justify-content:center;">
+  <div id="dice-div" style="display:grid; grid-template-columns: calc(${width}px - .5em) repeat(6, auto); column-gap:.25em; justify-content:center;">
     <div style="display:grid; grid-template-columns: auto;row-gap:.25em;  ">
       <button class="advantage">ADV</button>
       <button class="dis advantage">DIS</button>
