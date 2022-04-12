@@ -163,7 +163,9 @@ let d = new Dialog({
             });
             break;
           case "Update":
-            await macro.update({
+            let m  = game.macros.find(m=>m.data.flags.world?.name === $(this).attr('name'));
+            if (!m) return ui.notifications.error('macro to update not found');
+            await m.update({
               "name": macro.name,
               "type": "script",
               "img": "icons/svg/dice-target.svg",
