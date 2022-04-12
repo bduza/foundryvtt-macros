@@ -149,6 +149,7 @@ let content = `
       <button class="advantage">ADV</button>
       <button class="dis advantage">DIS</button>
     </div>
+    <button class="term" data-text="1d20"><img src="icons/dice/d20black.svg"></button>
     <button class="term" data-text="1d12"><img src="icons/dice/d12black.svg"></button>
     <button class="term" data-text="1d10"><img src="icons/dice/d10black.svg"></button>
     <button class="term" data-text="1d8" ><img src="icons/dice/d8black.svg"> </button>
