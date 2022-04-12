@@ -1,10 +1,15 @@
-
 let macros = [
     {
         "name": "Character Dialog",
         "description": "A dialog that lists actor items by category. Clicking an item creates another dialog with details, inline rolls for artacks and damage, and other useful buttons.",
         "permission": 2,
         "img": "icons/magic/movement/trail-streak-zigzag-yellow.webp"
+    },
+    {
+        "name": "Chat Messages Dialog",
+        "description": "For DM. Iterates through chat messages to detect attack hits, damage (with application), and saves succeeded/failed. My method of semi-automating damage application with inline rolls",
+        "permission": 0,
+        "img": "icons/sundries/documents/envelope-sealed-red-brown.webp"
     },
     {
         "name": "Roll Dialog",
@@ -35,12 +40,6 @@ let macros = [
         "description": "Shows Hit Dice as clickable images to roll. Short Rest and Long Rest button.",
         "permission": 2,
         "img": "icons/svg/unconscious.svg"
-    },
-    {
-        "name": "Chat Messages Dialog",
-        "description": "For DM. Iterates through chat messages on each chat message render to detect attack hits, damage (with application), and saves succeeded/failed.",
-        "permission": 0,
-        "img": "icons/sundries/documents/envelope-sealed-red-brown.webp"
     },
     {
         "name": "Whisper Request Inline Roll",
@@ -97,19 +96,20 @@ for (let macro of macros)
 console.log(macros);
 return
 */
-let content = '<button id="install-all">Install/Update All</button>';
+let content = '<div style="margin:0 .25em 12m 0"><button id="install-all">Install/Update All</button></div>';
 for (let macro of macros) {
   content += `
-  <div>
+  <div style="margin-top: 1em">
     <h2><img src="${macro.img}" height="20" style="margin-right: .25em">${macro.name}</h2>
     <p>${macro.description}</p>
   </div>
-  <div>
+  <div style="padding-bottom: 1em;">
     <button class="installer-button" name="${macro.name}">
       ${game.macros.find(m=>m.data.flags.world?.name===macro.name)?'Update':'Create'}
     </button>
   </div>
-  <hr><br>`;
+  <hr>
+  `;
 }//${game.macros.find(m=>m.data.flags.world?.name===macro.name)?.length?'Update':'Install'}
 
 let d = new Dialog({

@@ -52,8 +52,9 @@ if (combatPopout && !actorUuid) {
 if (!Hooks._hooks.preCreateChatMessage || Hooks._hooks.preCreateChatMessage?.findIndex(f=>f.toString().includes('chatmessagetargetflags'))==-1)
   Hooks.on(`preCreateChatMessage`, async (message, data, options, user) => {
     //chatmessagetargetflags
+    //console.log([...game.user.targets]);
     if (message.data.flavor?.toUpperCase().includes('ATTACK') || message.data.flavor?.toUpperCase().includes('CAST'))
-      message.data.update({"flags.world.targetIds": [...game.user.targets].map(t=>t.id)});
+      message.data.update({"flags.world.targetIds": [...game.user.targets].filter(t=>t.visible).map(t=>t.id)});
     
     if (message.data.flavor?.toUpperCase().includes('DAMAGE')) {
       let dt = message.data.flavor.split(' ')[message.data.flavor.split(' ').indexOf('Damage')-1] || 'null';
@@ -61,12 +62,12 @@ if (!Hooks._hooks.preCreateChatMessage || Hooks._hooks.preCreateChatMessage?.fin
     }
     
     if (message.data.flavor?.toUpperCase().includes('HEALING')) {
-      message.data.update({"flags.world.targetIds": [...game.user.targets].map(t=>t.id)});
+      message.data.update({"flags.world.targetIds": [...game.user.targets].filter(t=>t.visible).map(t=>t.id)});
       message.data.update({"flags.world.damageType": 'Healing'});
     }
     
     if (message.data.flavor?.toUpperCase().includes('ROLLING SAVES'))
-      message.data.update({"flags.world.targetIds": [...game.user.targets].map(t=>t.id)});
+      message.data.update({"flags.world.targetIds": [...game.user.targets].filter(t=>t.visible).map(t=>t.id)});
     
   });
 
