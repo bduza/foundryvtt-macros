@@ -96,7 +96,7 @@ for (let macro of macros)
 console.log(macros);
 return
 */
-let content = '<div style="margin:0 .25em 12m 0"><button id="install-all">Install/Update All</button></div>';
+let content = '<div style="padding-bottom: 1em;"><button id="install-all">Install/Update All</button></div><hr>';
 for (let macro of macros) {
   content += `
   <div style="margin-top: 1em">
