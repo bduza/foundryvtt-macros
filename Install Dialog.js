@@ -96,9 +96,10 @@ for (let macro of macros)
 console.log(macros);
 return
 */
-let content = '<div style="padding-bottom: 1em;"><button id="install-all">Install/Update All</button></div><hr>';
+let content = '<div style="padding-bottom: 1em;"><button id="install-all">Install/Update All</button></div>';
 for (let macro of macros) {
   content += `
+  <hr>
   <div style="margin-top: 1em">
     <h2><img src="${macro.img}" height="20" style="margin-right: .25em">${macro.name}</h2>
     <p>${macro.description}</p>
@@ -108,7 +109,6 @@ for (let macro of macros) {
       ${game.macros.find(m=>m.data.flags.world?.name===macro.name)?'Update':'Create'}
     </button>
   </div>
-  <hr>
   `;
 }//${game.macros.find(m=>m.data.flags.world?.name===macro.name)?.length?'Update':'Install'}
 
