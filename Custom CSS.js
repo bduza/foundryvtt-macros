@@ -7,10 +7,18 @@ $('body').append(`<div id="custom-css" style="position: absolute; left: -1000;">
 img {
 	border: none;
 }
-.chat-message  {
+.chat-message {
   background: #111;
   color: white;
   border: 1px solid #555;
+}
+.chat-message.whisper {
+  background: #111;
+  border: 1px solid blue;
+}
+.chat-message.whisper.blind {
+  background: #111;
+  border: 1px solid red;
 }
 .chat-message * {
   background: #111;
@@ -45,8 +53,13 @@ border: 1px solid black !important;
   /*text-align: center;*/
   color: white;
 }
-.message-metadata {
-  display: none;
+.message-metadata * {
+  /*display: none;*/
+  color: #999;
+}
+.message-metadata i{
+  /*display: none;*/
+  color: #DD0000;
 }
 .flavor-text{
   background: unset;
