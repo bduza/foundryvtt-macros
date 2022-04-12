@@ -288,7 +288,7 @@ ${(game.modules.get("minimal-ui")?.active)?minimalCSS:''}
 <div class="taskbar-items">
 <a id="taskbar-menu-toggle" title="Macro List" class="" style="margin-left:.25em"><div style="height: 30px; width: 40px; left: -20px; margin-right:-20px; position: relative;"><i style="margin-left: 20px; " class="fas fa-list"></i></div></a>
 <a id="taskbar-logo-toggle" title="Logo Toggle" class="taskbar-button ui-toggle" name="logo" style="margin:0 .25em"><div>
-<img src="icons/anvil.png" style="height: 20px; filter: invert(100%); vertical-align: top; margin-top: -2px"></div></a>
+<img src="icons/anvil.png" style="height: 20px; filter: invert(100%); vertical-align: top; margin-top: -2px; border: unset;"></div></a>
 <a id="taskbar-navigation-toggle" title="Scene Navigation" class="taskbar-button ui-toggle" name="navigation"><div><i class="fas fa-compass"></i></div></a>
 <a id="taskbar-players-toggle" title="Player List" class="taskbar-button ui-toggle" name="players"><div><i class="fas fa-users"></i></div></a>
 <a id="taskbar-macro-toggle" title="Macro Hotbar" class="taskbar-button ui-toggle" name="hotbar"><div ><i class="fas fa-code"></i></div></a>
@@ -610,90 +610,86 @@ $("#ui-right").mouseleave(async function(e){
 });
 
 $("#taskbar-menu-toggle").click(async function(e) {
-  if ($(`#taskbar-start-menu`).length===0) {
-    let macros = [];
-    for (let i = 1; i <= 5; i ++)
-      macros = macros.concat(Object.values(game.user.getHotbarMacros(i)).filter(m=>!!m.macro).map(m=>`
-      <a id="start-${m.macro.data._id}" class="start-menu-macro" name="${m.macro.data._id}" >
-        <div class="start-menu-item" style="">
-          <img src="${m.macro.data.img}" width="18" style="vertical-align: middle; margin-left: 3px;">
-          <span>${m.macro.data.name}</span>
-        </div>
-      </a>`));
-    let content = `<div id="taskbar-start-menu" style="z-index:${_maxZ+1}">
-      
-      <div id="start-menu-search-results" style="color: black; margin-bottom: 30px;"></div>
-      <div id="start-menu-macros" style="${game.user.isGM?'margin-bottom: 25px;':''}">${macros.join('')}</div>`;
-    if (game.user.isGM) content += `<div style="position: absolute; bottom: 3px;  margin: 0px; width: calc(100% - 11px);"><input id="start-menu-search-input" type="text" style="width: 100%; color: white;"></input></div>`;
-    content += `</div>`;
-//height: ${macros.length*25+10}px
-    $("body").append(content);
-    $('#taskbar-start-menu').prepend(`<style>#hotbar {margin-left: ${$('#taskbar-start-menu').width()-200}px;}</style>`);
-    $(`#start-menu-search-results`).hide();
-    $(`#ui-left`).css('height', `calc(100% + 100px + (${$('#player-list > li').length*20}px))`);
-    $('.start-menu-macro').click(function(){ 
-      let id = $(this).attr('name');
-      game.macros.get(id).execute();
-      if (!game.user.data.flags.world?.autohideTaskbarMenu) return;
-      if (e.shiftKey) return;
-      $(`#taskbar-start-menu`).remove();
-    });
-    $('.start-menu-macro').contextmenu(function(e){ 
-      let id = $(this).attr('name');
-      let macro = game.macros.get(id);
-      if (e.ctrlKey) {
-        var blob = new Blob([macro.data.command], {type: "text/plain;charset=utf-8"});
-        saveAs(blob, macro.data.name + '.js')
-        return;
-      }
-      macro.sheet.render(true);
-      if (!game.user.data.flags.world?.autohideTaskbarMenu) return;
-      if (e.shiftKey) return;
-      $(`#taskbar-start-menu`).remove();
-    });
+  if ($(`#taskbar-start-menu`).length) return $(`#taskbar-start-menu`).remove();
+  
+  let macros = [];
+  for (let i = 1; i <= 5; i ++)
+    macros = macros.concat(Object.values(game.user.getHotbarMacros(i)).filter(m=>!!m.macro).map(m=>`
+    <a id="start-${m.macro.data._id}" class="start-menu-macro" name="${m.macro.data._id}" >
+      <div class="start-menu-item" style="">
+        <img src="${m.macro.data.img}" width="18" style="vertical-align: middle; margin-left: 3px;">
+        <span>${m.macro.data.name}</span>
+      </div>
+    </a>`));
+  let content = `<div id="taskbar-start-menu" style="z-index:${_maxZ+1};">
     
-    $("#taskbar-start-menu").mouseenter(function(e){
-      $(`#taskbar-start-menu`).removeClass('hide');
-    });
-    
-    $("#taskbar-start-menu").mouseleave(async function(e){
-      if (!game.user.data.flags.world?.autohideTaskbarMenu) return;
-      if (e.shiftKey) return;
-      $(`#taskbar-start-menu`).addClass('hide');
-      await new Promise((r) => setTimeout(r, 2000));
-      if ($(`#taskbar-start-menu`).hasClass('hide'))
-        $(`#taskbar-start-menu`).remove();
-    });
-    
-    $("#start-menu-search-input").keyup(function(){
-      $("#taskbar-start-menu").off('mouseleave');
-      if (!game.user.isGM) return;
-      let input = '';
-      let docs = ['actors','items', 'scenes', 'journal', 'tables', 'macros', 'cards'];
-      input = $(this).val();
-      if (input.length < 3) {
-        $("#start-menu-macros").show();
-        $("#start-menu-search-results").hide();
-        return;
-      } else {
-        $("#start-menu-macros").hide();
-        $("#start-menu-search-results").show();
-        let filter = input.toUpperCase();
-        let links = [];
-        for (let doc of docs)
-          links = links.concat(game[doc.toLowerCase()].filter(a=>a.name.toUpperCase().includes(input.toUpperCase())).map(x=>`<p><img src="${x.thumbnail}" style="vertical-align:top;height:18px; width: 18px; margin-right: .5em ">${x.link}</p>`));
-        
-        $("#start-menu-search-results").html(TextEditor.enrichHTML(links.join('')));
-        $('#taskbar-start-menu').find('a.entity-link').contextmenu(async function() { 
-          game.collections.get($(this).attr('data-entity')).get($(this).attr('data-id')).sheet.render(true);
-        });
-      }
-    });
-    $("#start-menu-search-input").focus();
-    
-  } else {
+    <div id="start-menu-search-results" style="color: black; margin-bottom: 30px;"></div>
+    <div id="start-menu-macros" style="max-height: calc(100vh - 75px); overflow: auto; ${game.user.isGM?'margin-bottom: 25px;':''}">${macros.join('')}</div>`;
+  if (game.user.isGM) content += `<div style="position: absolute; bottom: 3px;  margin: 0px; width: calc(100% - 11px);"><input id="start-menu-search-input" type="text" style="width: 100%; color: white;"></input></div>`;
+  content += `</div>`;
+  $("body").append(content);
+  $('#taskbar-start-menu').prepend(`<style>#hotbar {margin-left: ${$('#taskbar-start-menu').width()-200}px;}</style>`);
+  $(`#start-menu-search-results`).hide();
+  $(`#ui-left`).css('height', `calc(100% + 100px + (${$('#player-list > li').length*20}px))`);
+  $('.start-menu-macro').click(function(){ 
+    let id = $(this).attr('name');
+    game.macros.get(id).execute();
+    if (!game.user.data.flags.world?.autohideTaskbarMenu) return;
+    if (e.shiftKey) return;
     $(`#taskbar-start-menu`).remove();
-  }
+  });
+  $('.start-menu-macro').contextmenu(function(e){ 
+    let id = $(this).attr('name');
+    let macro = game.macros.get(id);
+    if (e.ctrlKey) {
+      var blob = new Blob([macro.data.command], {type: "text/plain;charset=utf-8"});
+      saveAs(blob, macro.data.name + '.js')
+      return;
+    }
+    macro.sheet.render(true);
+    if (!game.user.data.flags.world?.autohideTaskbarMenu) return;
+    if (e.shiftKey) return;
+    $(`#taskbar-start-menu`).remove();
+  });
+  
+  $("#taskbar-start-menu").mouseenter(function(e){
+    $(`#taskbar-start-menu`).removeClass('hide');
+  });
+  
+  $("#taskbar-start-menu").mouseleave(async function(e){
+    if (!game.user.data.flags.world?.autohideTaskbarMenu) return;
+    if (e.shiftKey) return;
+    $(`#taskbar-start-menu`).addClass('hide');
+    await new Promise((r) => setTimeout(r, 2000));
+    if ($(`#taskbar-start-menu`).hasClass('hide'))
+      $(`#taskbar-start-menu`).remove();
+  });
+  
+  $("#start-menu-search-input").keyup(function(){
+    $("#taskbar-start-menu").off('mouseleave');
+    if (!game.user.isGM) return;
+    let input = '';
+    let docs = ['actors','items', 'scenes', 'journal', 'tables', 'macros', 'cards'];
+    input = $(this).val();
+    if (input.length < 3) {
+      $("#start-menu-macros").show();
+      $("#start-menu-search-results").hide();
+      return;
+    } else {
+      $("#start-menu-macros").hide();
+      $("#start-menu-search-results").show();
+      let filter = input.toUpperCase();
+      let links = [];
+      for (let doc of docs)
+        links = links.concat(game[doc.toLowerCase()].filter(a=>a.name.toUpperCase().includes(input.toUpperCase())).map(x=>`<p><img src="${x.thumbnail}" style="vertical-align:top;height:18px; width: 18px; margin-right: .5em ">${x.link}</p>`));
+      
+      $("#start-menu-search-results").html(TextEditor.enrichHTML(links.join('')));
+      $('#taskbar-start-menu').find('a.entity-link').contextmenu(async function() { 
+        game.collections.get($(this).attr('data-entity')).get($(this).attr('data-id')).sheet.render(true);
+      });
+    }
+  });
+  $("#start-menu-search-input").focus();
 });
 
 if (!game.user.isGM) $("#calendar-time-taskbar").remove();
