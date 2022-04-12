@@ -1,4 +1,5 @@
 function getMessages() {
+  if (game.user.isGM) return game.messages.contents.reverse().filter(m=>m._roll);
   return game.messages.contents.reverse().filter(m=>m._roll && m.data.user === game.user.id && !m.data.blind);
 }
 
