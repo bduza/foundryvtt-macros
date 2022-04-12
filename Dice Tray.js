@@ -1,7 +1,11 @@
+function getMessages() {
+  return game.messages.contents.reverse().filter(m=>m._roll && m.data.user === game.user.id && !m.data.blind);
+}
+
 function lastChatMessage(l) {
   let message;
   if (!$('#Dice-Tray-Dialog').find('.message-id').val() || l) {
-    message = game.messages.contents.reverse().filter(m=>m._roll && m.data.user === game.user.id)[0];
+    message = getMessages()[0];
     $('#Dice-Tray-Dialog').find('.message-id').val(message.id);
   } else message = game.messages.get($('#Dice-Tray-Dialog').find('.message-id').val());
   //if (game.user.isGM)
@@ -14,7 +18,7 @@ function lastChatMessage(l) {
 }
 function prevChatMessage() {
   let message;
-  let messages = game.messages.contents.reverse().filter(m=>m._roll && m.data.user === game.user.id);
+  let messages = getMessages();
   if ($('#Dice-Tray-Dialog').find('.message-id').val()) {
     let i = messages.indexOf(game.messages.get($('#Dice-Tray-Dialog').find('.message-id').val()));
     message = messages[i+1];
@@ -31,7 +35,7 @@ function prevChatMessage() {
 }
 function nextChatMessage() {
   let message;
-  let messages = game.messages.contents.reverse().filter(m=>m._roll && m.data.user === game.user.id);
+  let messages = getMessages();
   if ($('#Dice-Tray-Dialog').find('.message-id').val()) {
     let i = messages.indexOf(game.messages.get($('#Dice-Tray-Dialog').find('.message-id').val()));
     message = messages[i-1];
