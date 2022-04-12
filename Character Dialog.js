@@ -335,7 +335,7 @@ Dialog.persist({
   title: header,
   content:  content,
   buttons: {},
-  render: (app) => {
+  render: (html) => {
     
       if (closeOnMouseLeave) {
         //$(`#${w_id}`).mouseleave(async function(e){
@@ -354,7 +354,7 @@ Dialog.persist({
       }
         
       
-      $('.iah, .ith, .ilh ').contextmenu(async function(e){
+      html.find('.iah, .ith, .ilh ').contextmenu(async function(e){
         $(this).next().toggle();
       });
       
@@ -364,11 +364,11 @@ Dialog.persist({
       }
       if (type) $(`#items-dialog-${_uuid}-${type} > header > h4`).html(header);
       
-      $(`#${_uuid}-header-img`).click(async function(e){
+      html.find(`#${_uuid}-header-img`).click(async function(e){
         game.macros.find(m=>m.data.flags.world?.name==='Character Dialog').execute();
       });
       
-      $(`#${_uuid}-header-img`).contextmenu(async function(e){
+      html.find(`#${_uuid}-header-img`).contextmenu(async function(e){
         console.log("title click", this.name);
         if (this.name.includes("Token"))
           canvas.tokens.get(this.name.split('_')[3]).actor.sheet.render(true);
@@ -376,7 +376,7 @@ Dialog.persist({
           game.actors.get(this.name.split('_')[1]).sheet.render(true);
       });
       
-      $(".editable-span").click(async function(e){
+      html.find(".editable-span").click(async function(e){
         if (!$(this).attr("text")) $(this).attr("text", $(this).html());
         let text = $(this).attr("text");
         let id = $(this).attr("id");
@@ -404,7 +404,7 @@ Dialog.persist({
         });
       });
       
-      $(`.roll-dialog-button-${_uuid}`).each(function() {
+      html.find(`.roll-dialog-button-${_uuid}`).each(function() {
         $(this).click(async function(e){
           let vars = this.name.split('-');
           console.log(vars)
@@ -418,11 +418,11 @@ Dialog.persist({
         });
       });
       
-      $(`.ammo-select`).change(async function(){
+      html.find(`.ammo-select`).change(async function(){
         await actor.updateEmbeddedDocuments("Item", [{_id: this.name, "data.consume.target": $(`select#${this.name}-ammo`).val()}]);
       });
       
-      $("a[id^=roll]").click(async function(e){
+      html.find("a[id^=roll]").click(async function(e){
         let item = actor.items.get(this.name);
         console.log(item);
         if(!item) item = game.items.get(this.name);
@@ -651,7 +651,7 @@ Dialog.persist({
                   
                   
                 console.log(`#item-rolls-dialog-${_uuid}-${item.id} .inline-roll`)
-                $(`#item-rolls-dialog-${_uuid}-${item.id} .inline-roll.roll`).contextmenu(async function(e) {
+                app.find(`#item-rolls-dialog-${_uuid}-${item.id} .inline-roll.roll`).contextmenu(async function(e) {
                   let targetElement = $(this);
                   let oldFormula = targetElement.attr('data-formula');
                   let flavor = targetElement.attr('data-flavor');
@@ -674,13 +674,13 @@ Dialog.persist({
                   targetElement.html(`<i class="fas fa-dice-d20"></i> ${oldFormula}`);
                 });
                   
-                $(`#item-rolls-dialog-${_uuid}-${item.id} > header > h4`).html(header);
+                app.find(`#item-rolls-dialog-${_uuid}-${item.id} > header > h4`).html(header);
                 
-                $(`a[id^=${item.id}-header-roll]`).click(async function(e){
+                app.find(`a[id^=${item.id}-header-roll]`).click(async function(e){
                   actor.items.get(`${item.id}`).roll()
                 });
                 
-                $(`a[id^=${item.id}-effect-button]`).click(async function(e){
+                app.find(`a[id^=${item.id}-effect-button]`).click(async function(e){
                   let effect = $(this).attr('name');
                   let mode = $(this).attr('data-mode');
                   if (mode !== 'self') {
@@ -691,22 +691,22 @@ Dialog.persist({
                   }
                 });
                 
-                $(`a[id^=${item.id}-effect-button]`).contextmenu(async function(e){
+                app.find(`a[id^=${item.id}-effect-button]`).contextmenu(async function(e){
                   let effect = $(this).attr('name');
                   let mode = $(this).attr('data-mode');
                   await game.dfreds.effectInterface.toggleEffect(effect, {uuids:[_uuid.replaceAll('_','.')]});
                   
                 });
                 
-                $(`a[id^=${item.id}-chat-description]`).click(async function(e){
+                app.find(`a[id^=${item.id}-chat-description]`).click(async function(e){
                   ChatMessage.create({flavor: `${item.data.name}`, speaker:ChatMessage.getSpeaker({actor: item.parent}),  content:  $(this).next().html()})
                 });//flavor: `${item.data.name}`,`@ActorEmbeddedItem[${item.parent.id}][${item.id}]{${item.data.name}}<br>` +
                 
-                $(`a[id^=${item.id}-inline-targeting]`).click(async function(e){
+                app.find(`a[id^=${item.id}-inline-targeting]`).click(async function(e){
                   game.dnd5e.canvas.AbilityTemplate.fromItem(item).drawPreview()
                 });
                 
-                $(`a[id^=${item.id}-inline-dc]`).click(async function(e){
+                app.find(`a[id^=${item.id}-inline-dc]`).click(async function(e){
                   //ui.chat.processMessage(`<h2>${item.data.name}</h2><h3>Save ${item.labels.save}</h3>`);
                   let dcArray = item.labels.save.split(' ');
                   let ability = dcArray[dcArray.length-1];
@@ -725,7 +725,7 @@ Dialog.persist({
                     //console.log(roll.total)
                   }
                 });
-                $(`a[id^=${item.id}-inline-recharge]`).click(async function(e){
+                app.find(`a[id^=${item.id}-inline-recharge]`).click(async function(e){
                   let roll = await new Roll(`1d6`).roll({ async: true });
                   let result ;
                   if (roll.total < item.data.data.recharge.value) {
@@ -740,7 +740,7 @@ Dialog.persist({
                  
                 });
                 
-                $(`a[id^=${item.id}-inline-recharge]`).contextmenu(async function(e){
+                app.find(`a[id^=${item.id}-inline-recharge]`).contextmenu(async function(e){
                   if (this.text.includes('Recharge')) {
                     $(this).html(`<i class="fas fa-dice-d6"></i> Charged`);
                     await item.update({'data.recharge.charged':true});
@@ -751,7 +751,7 @@ Dialog.persist({
                   }
                 });
                 
-                $(`a[id^=${item.id}-inline-adv]`).click(async function(e){
+                app.find(`a[id^=${item.id}-inline-adv]`).click(async function(e){
                   let targetElement = $(this).parent().children(':first-child');
                   let formulaArray = targetElement.attr('data-formula').split(' ');
                   let numD20 = 2;
@@ -769,7 +769,7 @@ Dialog.persist({
                   targetElement.attr('data-flavor', targetElement.attr('data-flavor').replace(' with advantage',''));
                 });
                 
-                $(`a[id^=${item.id}-inline-d20]`).click(async function(e){
+                app.find(`a[id^=${item.id}-inline-d20]`).click(async function(e){
                   let targetElement = $(this).parent().children(':first-child');
                   let formulaArray = targetElement.attr('data-formula').split(' ');
                   let numD20 = parseInt(formulaArray[0].split('d')[0]);
@@ -781,7 +781,7 @@ Dialog.persist({
                   targetElement.html(`<i class="fas fa-dice-d20"></i> ${formula}`);
                 });
                 
-                $(`a[id^=${item.id}-inline-dis]`).click(async function(e){
+                app.find(`a[id^=${item.id}-inline-dis]`).click(async function(e){
                   let targetElement = $(this).parent().children(':first-child');
                   let formulaArray = targetElement.attr('data-formula').split(' ');
                   formulaArray.shift();
@@ -796,7 +796,7 @@ Dialog.persist({
                   targetElement.attr('data-flavor', targetElement.attr('data-flavor').replace(' with disadvantage',''));
                 });
                 
-                $(`a[id^=${item.id}-inline-max]`).click(async function(e){
+                app.find(`a[id^=${item.id}-inline-max]`).click(async function(e){
                   let targetElement = $(this).parent().children(':first-child');
                   let oldFormula = targetElement.attr('data-formula');
                   let formula = oldFormula.replaceAll('d','*');
@@ -809,7 +809,7 @@ Dialog.persist({
                   targetElement.html(`<i class="fas fa-dice-d20"></i> ${oldFormula}`);
                 });
                 
-                $(`a[id^=${item.id}-inline-crit]`).click(async function(e){
+                app.find(`a[id^=${item.id}-inline-crit]`).click(async function(e){
                   let targetElement = $(this).parent().children(':first-child');
                   let oldFormula = targetElement.attr('data-formula');
                   let formula = new Roll(oldFormula).alter(2,0)._formula;
@@ -821,7 +821,7 @@ Dialog.persist({
                   targetElement.attr('data-flavor', targetElement.attr('data-flavor').replace(' Critical',''));
                   targetElement.html(`<i class="fas fa-dice-d20"></i> ${oldFormula}`);
                 });
-                $(`a[id^=${item.id}-inline-scaling]`).click(async function(e){
+                app.find(`a[id^=${item.id}-inline-scaling]`).click(async function(e){
                   let targetElement = $(this).parent().children(':first-child');
                   let item = actor.items.get($(this).attr('name'));
                   let formulaArray = targetElement.attr('data-formula').split(' ');
@@ -832,7 +832,7 @@ Dialog.persist({
                   targetElement.html(`<i class="fas fa-dice-d20"></i> ${formula}`);
                 });
                 
-                $(`a[id^=${item.id}-inline-scaling]`).contextmenu(async function(e){
+                app.find(`a[id^=${item.id}-inline-scaling]`).contextmenu(async function(e){
                   let targetElement = $(this).parent().children(':first-child');
                   let scalingFormula = `${item.data.data.scaling.formula}[${item.data.data.damage.parts[0][1]}]`;
                   let formula = targetElement.attr('data-formula');
@@ -842,7 +842,7 @@ Dialog.persist({
                   targetElement.html(`<i class="fas fa-dice-d20"></i> ${newFormula}`);
                 });
                 
-                $(`a[id^=${item.id}-uses-count]`).contextmenu(async function(e){
+                app.find(`a[id^=${item.id}-uses-count]`).contextmenu(async function(e){
                   let item = actor.items.get(this.name);
                   let uses = JSON.parse(JSON.stringify(item.data.data.uses));
                   console.log(uses)
@@ -859,7 +859,7 @@ Dialog.persist({
                   }
                 });
                 
-                $(`a[id^=${item.id}-uses-count]`).click(async function(e){
+                app.find(`a[id^=${item.id}-uses-count]`).click(async function(e){
                   let item = actor.items.get(this.name);
                   let uses = JSON.parse(JSON.stringify(item.data.data.uses));
                   if (uses.value > 0) {
@@ -877,7 +877,7 @@ Dialog.persist({
                   }
                 });
                 
-                $(`a[id^=${item.id}-ammo-count]`).contextmenu(async function(e){
+                app.find(`a[id^=${item.id}-ammo-count]`).contextmenu(async function(e){
                   let count = $(`a#${item.id}-ammo-count`).html();
                     count++;
                   let a = actor.items.get(this.name);
@@ -888,7 +888,7 @@ Dialog.persist({
                   if (count > 0) $(`a#roll-${a.id}`).css('color', `unset`);
                 });
                 
-                $(`a[id^=${item.id}-ammo-count]`).click(async function(e){
+                app.find(`a[id^=${item.id}-ammo-count]`).click(async function(e){
                   let count = parseInt($(`a#${item.id}-ammo-count`).html());
                   if (count > 0) {
                     count--;
@@ -901,7 +901,7 @@ Dialog.persist({
                   }
                 });
                 
-                $(`a[id^=${item.id}-charges-count]`).contextmenu(async function(e){
+                app.find(`a[id^=${item.id}-charges-count]`).contextmenu(async function(e){
                   let item  = actor.items.get(this.name);
                   
                   let uses = JSON.parse(JSON.stringify(item.data.data.uses));
@@ -918,7 +918,7 @@ Dialog.persist({
                   }
                 });
                 
-                $(`a[id^=${item.id}-charges-count]`).click(async function(e){
+                app.find(`a[id^=${item.id}-charges-count]`).click(async function(e){
                   let item = actor.items.get(this.name);
                   
                   let uses = JSON.parse(JSON.stringify(item.data.data.uses));
@@ -936,7 +936,7 @@ Dialog.persist({
                   }
                 });
                 
-                $("a[id*=-spell-level-]").click(async function(e){
+                app.find("a[id*=-spell-level-]").click(async function(e){
                   //ui.chat.processMessage(`<h2>${item.data.name}</h2><h3>Save ${item.labels.save}</h3>`);
                   let spellLevel = this.name;
                   console.log(item.data.data.level, spellLevel, spellLevel-parseInt(item.data.data.level));
@@ -980,7 +980,7 @@ Dialog.persist({
                   }
                 });
                 
-                $("a[id*=-spell-level-]").contextmenu(async function(e){
+                app.find("a[id*=-spell-level-]").contextmenu(async function(e){
                   let spellLevel = this.name;
                   if (spellLevel==="0") return;
                   let spells = JSON.parse(JSON.stringify(actor.data.data.spells));
@@ -1025,7 +1025,7 @@ Dialog.persist({
                   else 
                     canvas.tokens.releaseAll();
                 });
-                $(`#item-rolls-dialog-${_uuid}-${item.id}`).addClass('clickToToken');
+                app.find(`#item-rolls-dialog-${_uuid}-${item.id}`).addClass('clickToToken');
                 //$(`.inline-roll`).attr('data-mode', game.settings.get("core", "rollMode"));
               },
               close:   html => {
@@ -1035,17 +1035,17 @@ Dialog.persist({
         
       });
       
-      $("a[id^=roll]").contextmenu(async function(e){
+      html.find("a[id^=roll]").contextmenu(async function(e){
         actor.items.get(this.name).sheet.render(true);
       });
       
-      $(".item-img").click(async function(e){
+      html.find(".item-img").click(async function(e){
         actor.items.get(this.name).roll(true);
       });
       
       //$(`#items-dialog-${_uuid}`).off('click');
       //if (!$(`#items-dialog-${_uuid}`).hasClass('clickToToken'))
-      $(`#items-dialog-${_uuid}`).click(async function(e){
+      $(`#${w_id}`).click(async function(e){
         console.log(_uuid);
         let placeables = canvas.tokens.placeables.filter(tp => tp.actor?.uuid === _uuid.replaceAll('_','.'))
         if (placeables.length > 0)
@@ -1067,3 +1067,13 @@ Dialog.persist({
   },position
 );
 //d.render(true);
+
+Object.getPrototypeOf(Dialog).persist = function(data, options) {
+  let w = Object.values(ui.windows).find(w=> w.id===options.id);
+  let position = w?.position || {};
+  options = {...options, ...position};
+  new Dialog(data, options).render(true);
+  if (w) w.bringToTop();
+  if (w) w.setPosition({height:'auto'})  
+  return;
+}
