@@ -1,5 +1,11 @@
 let macros = [
     {
+        "name": "Dialog.persist",
+        "description": "Utility function required for any of my dialog macros",
+        "permission": 0,
+        "img": ""
+    },
+    {
         "name": "Character Dialog",
         "description": "A dialog that lists actor items by category. Clicking an item creates another dialog with details, inline rolls for artacks and damage, and other useful buttons.",
         "permission": 2,
