@@ -1,3 +1,17 @@
+if (typeof Dialog.persist !== "function")
+Object.getPrototypeOf(Dialog).persist = function(data, options) {
+  let w = Object.values(ui.windows).find(w=> w.id===options.id);
+  let position = w?.position || {};
+  options = {...options, ...position};
+  new Dialog(data, options).render(true);
+  if (w) w.bringToTop();
+  if (w) w.setPosition({height:'auto'})  
+  return;
+}
+
+let app = Object.values(ui.windows).find(w=>w.id.includes('request-roll-dialog'));
+if (app) app.close();
+
 let content=`
 <style>
 center > div > label:before {
@@ -34,7 +48,7 @@ content += `
 <a id="built-roll" class="inline-roll roll" data-mode="roll" data-flavor="" data-formula="" style="display:none"></a>
   <div style="display: grid; grid-template-columns: repeat(8, 1fr ); margin-top: .5em; margin-bottom: .5em">
       <center></center><center></center>
-      <center><a title="roll" class="mirm">/r</a></center>
+      <center><a title="roll" class="mirm" style="text-shadow: 0 0 8px red;">/r</a></center>
       <center><a title="gmroll" class="mirm">/gmr</a></center>
       <center><a title="blindroll" class="mirm">/br</a></center>
       <center><a title="selfroll" class="mirm">/sr</a></center>
@@ -70,14 +84,14 @@ content += `
 	</div>
 	<center><input id="roll-request-dc" style=" text-align: center; font-weight:bold;" placeholder="DC"></input></center>
   `;
-let d = new Dialog({
+Dialog.persist({
   title: `Request Rolls`,
   content:  content,
   buttons: {},
   render: (content) => {
-      let currentrollmode = game.settings.get("core", "rollMode")
-    $(`#built-roll`).attr('data-mode', currentrollmode);
-    $(`[title='${currentrollmode}']`).css('textShadow' , "0 0 8px red");
+    //let currentrollmode = game.settings.get("core", "rollMode")
+    $(`#built-roll`).attr('data-mode', 'roll');
+    //$(`[title='${currentrollmode}']`).css('textShadow' , "0 0 8px red");
     $(`a.mir`).click(async function(e){
       let users = [];
       $('.macro-users:checked').each(function () {
@@ -115,7 +129,7 @@ let d = new Dialog({
             return;
         }    
         let formula = roll + '+' + bonus;
-        let content = `Roll ${flavor} [[${$('.mirm[title='+game.settings.get("core", "rollMode")+']').text()} ${formula} # ${flavor}]]`;
+        let content = `Roll ${flavor} [[${$('.mirm[style*="red"]').text()} ${formula} # ${flavor}]]`;
         if (dc)
           content += "<br>DC: " + dc;
         ChatMessage.create({
@@ -129,12 +143,12 @@ let d = new Dialog({
     $('a.mirm').click(async function(e){
         $(`#built-roll`).attr('data-mode', $(this).attr('title'));
         $(`#built-roll`).attr('data-rm', $(this).text());
-        game.settings.set("core", "rollMode", $(this).attr('title'));
-        $("a.mirm").css('textShadow' , "unset");
-        $(this).css('textShadow' , "0 0 8px red");
+        //game.settings.set("core", "rollMode", $(this).attr('title'));
+        $("a.mirm").css('text-shadow' , "unset");
+        $(this).css('text-shadow' , "0 0 8px red");
     });
   },
   close:   html => {
       return}
-},{width: 330 , id:`request-roll-dialog` }
-).render(true);
+},{width: 330 , left: 110, top: 80, id:`request-roll-dialog` }
+);
