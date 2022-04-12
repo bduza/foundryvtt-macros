@@ -74,11 +74,9 @@ let content = `
     margin: 0 !important;
     width: 100% !important;
   }
-  #input-div.hidden input.roll-flavor, #input-div.hidden .edit-buttons button {
-  /*display:none !important;*/
+  #input-div.hidden input.roll-flavor {
     text-align: center;
-    pointer-events:none;
-    
+    /*pointer-events:none;*/
   }
   #input-div.hidden .edit-buttons {
     display:none !important;
@@ -97,16 +95,16 @@ let content = `
     pointer-events:none;
     width: 100% !important;
   }
-  .term img {
+  #Dice-Tray-Dialog .term img {
     width: ${width}px;
     margin: 20% auto -17% auto;
     filter:  invert(100%);
     transition-property: filter;
     transition-duration: .1s; 
   }
-  .term img:hover {filter: drop-shadow(0px 0px 4px #0ff) invert(100%);}
-  .term:hover {text-shadow: 0 0 8px var(--color-shadow-primary);}
-  .saved-rolls { 
+  #Dice-Tray-Dialog .term img:hover {filter: drop-shadow(0px 0px 4px #0ff) invert(100%);}
+  #Dice-Tray-Dialog .term:hover {text-shadow: 0 0 8px var(--color-shadow-primary);}
+  #Dice-Tray-Dialog .saved-rolls { 
     line-height: 1.75em; 
     width: auto; 
     margin: .5em 0 0 0 ;
@@ -115,13 +113,13 @@ let content = `
     grid-template-columns: auto;
     row-gap: .25em;
   }
-  .advantage {line-height: 1.65em}
-  .saved-rolls .inline-roll {text-align: center; border: 1px solid var(--color-border-light-primary);}
-  .saved-rolls .inline-roll:hover {box-shadow: 0 0 5px var(--color-shadow-primary);}
+  #Dice-Tray-Dialog .advantage {line-height: 1.65em}
+  #Dice-Tray-Dialog .saved-rolls .inline-roll {text-align: center; border: 1px solid var(--color-border-light-primary);}
+  #Dice-Tray-Dialog .saved-rolls .inline-roll:hover {box-shadow: 0 0 5px var(--color-shadow-primary);}
   #Dice-Tray-Dialog * { background: unset !important; color: white; }
   #Dice-Tray-Dialog img { border: none}
-  .roll-formula, .roll-flavor {border: 1px solid var(--color-border-light-primary) !important; margin-right: -2px;}
-  .roll-button:hover, .save-button:hover {text-shadow: 0 0 8px var(--color-shadow-primary);}
+  #Dice-Tray-Dialog .roll-formula, #Dice-Tray-Dialog .roll-flavor {border: 1px solid var(--color-border-light-primary) !important; margin-right: -2px;}
+  #Dice-Tray-Dialog .roll-button:hover, #Dice-Tray-Dialog .save-button:hover {text-shadow: 0 0 8px var(--color-shadow-primary);}
   </style>
   <input class="message-id" style="display:none"></input>
   <div id="input-div" class="hidden" style="display:grid; grid-template-columns: auto /*auto auto max-content max-content*/; column-gap: 0em; margin: .2em 0 .25em 0; row-gap: .25em">
@@ -144,6 +142,7 @@ let content = `
       <button class="advantage">ADV</button>
       <button class="dis advantage">DIS</button>
     </div>
+    <button class="term" data-text="1d20"><img src="icons/dice/d20black.svg"></button>
     <button class="term" data-text="1d12"><img src="icons/dice/d12black.svg"></button>
     <button class="term" data-text="1d10"><img src="icons/dice/d10black.svg"></button>
     <button class="term" data-text="1d8" ><img src="icons/dice/d8black.svg"> </button>
@@ -187,9 +186,12 @@ else
 $(`#Dice-Tray-Dialog`).draggable();
 $(`#Dice-Tray-Dialog > header > h4`).html(header);
 $(`#Dice-Tray-Dialog > header > h4 > a`).css('margin',' 0 8px 0 0 ')
-$(`#Dice-Tray-Dialog > header > h4 > .close`).click(()=>{$('#Dice-Tray-Dialog').remove();});
+$(`#Dice-Tray-Dialog > header > h4 > .close`).click(()=>{
+  $(`.dice-formula`).removeAttr('style');
+  $('#Dice-Tray-Dialog').remove();
+});
 $(`#Dice-Tray-Dialog > header > h4 > .last-message`).click(()=>{
-  lastChatMessage(true);
+  lastChatMessage();
 });
 $(`.change-mode-button`).click(function(){
   
@@ -213,80 +215,81 @@ $("#Dice-Tray-Dialog .roll-flavor").contextmenu(function(){$(this).val('')});
       <button class="next-button" style="line-height: 15px;">Next</button>
       <button class="last-button" style="line-height: 15px;">Last</button>
 */
-$('#Dice-Tray-Dialog').find(`.prev-button`).click(async function(e){
-  prevChatMessage();
-});
-$('#Dice-Tray-Dialog').find(`.next-button`).click(async function(e){
-  nextChatMessage();
-});
-$('#Dice-Tray-Dialog').find(`.last-button`).click(async function(e){
-  lastChatMessage(true);
-});
+$('#Dice-Tray-Dialog').find(`.prev-button`).click(async function(e){ prevChatMessage(); });
+$('#Dice-Tray-Dialog').find(`.next-button`).click(async function(e){ nextChatMessage(); });
+$('#Dice-Tray-Dialog').find(`.last-button`).click(async function(e){ lastChatMessage(true); });
 
 $('#Dice-Tray-Dialog').find(`.term`).click(async function(e){
-    if ($(`#input-div`).hasClass('hidden')) return;
-    let toAdd = $(this).attr('data-text');
-    if (toAdd==='1d20' && e.shiftKey) toAdd = '2d20kh1'
-    if (toAdd==='1d20' && e.ctrlKey) toAdd = '2d20kl1'
-    if (toAdd==='1d10' && e.shiftKey) toAdd = '1d100'
-    let add = !!e.originalEvent;
-    let targetElement = $("#Dice-Tray-Dialog .roll-formula");
-    let termToAdd = Roll.parse(toAdd)[0];
-    //console.log(add, termToAdd)
-    let termsToRemove = [];
-    let terms = Roll.parse(targetElement.val());
-    let newTerm = true;
-    if (!!termToAdd.flavor && !e.originalEvent) 
-      newTerm = false;
-    if (terms.length > 0) 
-      for (let i = 0; i<terms.length; i++) {
-        //console.log(i, terms[i])
-        if (terms[i-1]?.operator == '-') add = !add;
-        if (terms[i] instanceof DiceTerm && terms[i].faces == termToAdd.faces) {
-          add?terms[i].number++:terms[i].number--;
-          
-          newTerm = false;
-        }
-        if (terms[i] instanceof NumericTerm && !terms[i].flavor && !termToAdd.flavor && termToAdd instanceof NumericTerm) {
-          if (terms[i])
-          add?terms[i].number+=termToAdd.number:terms[i].number-=termToAdd.number;
-          if (terms[i].number < 0 && terms[i-1]?.operator == '-') {
-            terms[i-1].operator = '+';
-            terms[i].number = Math.abs(terms[i].number);
-          }
-          if (terms[i].number < 0 && terms[i-1]?.operator == '+') {
-            terms[i-1].operator = '-';
-            terms[i].number = Math.abs(terms[i].number);
-          }
-          
-          newTerm = false;
-        }
-        if (terms[i].number == 0 && !terms[i].flavor)
-          termsToRemove.push(terms[i]);
+  if ($(`#input-div`).hasClass('hidden')) return;
+  let toAdd = $(this).attr('data-text');
+  if (toAdd==='1d20' && e.shiftKey) toAdd = '2d20kh1'
+  if (toAdd==='1d20' && e.ctrlKey) toAdd = '2d20kl1'
+  if (toAdd==='1d10' && e.shiftKey) toAdd = '1d100'
+  let add = !!e.originalEvent;
+  let targetElement = $("#Dice-Tray-Dialog .roll-formula");
+  let termToAdd = Roll.parse(toAdd)[0];
+  //console.log(add, termToAdd)
+  let termsToRemove = [];
+  let terms = Roll.parse(targetElement.val());
+  let newTerm = true;
+  if (!!termToAdd.flavor && !e.originalEvent) 
+    newTerm = false;
+  if (terms.length > 0) 
+    for (let i = 0; i<terms.length; i++) {
+      //console.log(i, terms[i])
+      if (terms[i-1]?.operator == '-') add = !add;
+      if (terms[i] instanceof DiceTerm && terms[i].faces == termToAdd.faces) {
+        add?terms[i].number++:terms[i].number--;
         
-        if (!!termToAdd.flavor && (termToAdd.flavor == terms[i].flavor) && !!e.originalEvent)
-          newTerm = false;
-        
-        if (!!termToAdd.flavor && (termToAdd.flavor == terms[i].flavor) && !e.originalEvent)
-          termsToRemove.push(terms[i]);
-          
+        newTerm = false;
       }
-    
-    //console.log('termsToRemove', termsToRemove)
-    for (let term of termsToRemove)
-      terms.splice(terms.indexOf(term),1)
+      if (terms[i] instanceof NumericTerm && !terms[i].flavor && !termToAdd.flavor && termToAdd instanceof NumericTerm) {
+        if (terms[i])
+        add?terms[i].number+=termToAdd.number:terms[i].number-=termToAdd.number;
+        if (terms[i].number < 0 && terms[i-1]?.operator == '-') {
+          terms[i-1].operator = '+';
+          terms[i].number = Math.abs(terms[i].number);
+        }
+        if (terms[i].number < 0 && terms[i-1]?.operator == '+') {
+          terms[i-1].operator = '-';
+          terms[i].number = Math.abs(terms[i].number);
+        }
+        
+        newTerm = false;
+      }
+      if (terms[i].number == 0 && !terms[i].flavor)
+        termsToRemove.push(terms[i]);
       
-    if (newTerm) {
-      if (e.originalEvent) terms.push(Roll.parse('+')[0])
-      else terms.push(Roll.parse('-')[0])
-      terms.push(termToAdd);
+      if (!!termToAdd.flavor && (termToAdd.flavor == terms[i].flavor) && !!e.originalEvent)
+        newTerm = false;
+      
+      if (!!termToAdd.flavor && (termToAdd.flavor == terms[i].flavor) && !e.originalEvent)
+        termsToRemove.push(terms[i]);
+        
     }
-    terms = terms.cleanRollTerms();
-    if (terms.length == 0) return targetElement.val('');
-    //if (terms[0] instanceof OperatorTerm && terms[0]?.operator == '+') terms.splice(0,1);
-    console.log(terms)
-    targetElement.val(Roll.fromTerms(terms).formula);
-    //targetElement.val(game.dnd5e.dice.simplifyRollFormula(formula, { preserveFlavor:true } ));
+  
+  //console.log('termsToRemove', termsToRemove)
+  for (let term of termsToRemove)
+    terms.splice(terms.indexOf(term),1)
+    
+  if (newTerm) {
+    if (e.originalEvent) terms.push(Roll.parse('+')[0])
+    else terms.push(Roll.parse('-')[0])
+    terms.push(termToAdd);
+  }
+  terms = terms.cleanRollTerms();
+  if (terms.length == 0) return targetElement.val('');
+  //if (terms[0] instanceof OperatorTerm && terms[0]?.operator == '+') terms.splice(0,1);
+  console.log(terms)
+  targetElement.val(Roll.fromTerms(terms).formula);
+  //targetElement.val(game.dnd5e.dice.simplifyRollFormula(formula, { preserveFlavor:true } ));
+});
+
+
+$('#Dice-Tray-Dialog').find(`.roll-flavor`).keyup(async function(e){
+  if (e.which !== 13) return;
+  if (!$("#input-div").hasClass("hidden")) return;
+  updateMessageWithFlavor(game.messages.get($('#Dice-Tray-Dialog').find('.message-id').val()), $(this).val());
 });
 
 $('#Dice-Tray-Dialog').find(`.term`).contextmenu(async function(e) {$(this).click()});
@@ -481,6 +484,17 @@ $('#dice-div img').ready(function(){
 });
 d.bringToTop();
 */
+async function updateMessageWithFlavor(message, flavor) {
+  if (game.user.isGM) {
+    await message.update({flavor: flavor});
+  } else if (game.macros.getName('updateChatMessage(id, update)')) {
+    game.macros.getName('updateChatMessage(id, update)').execute(message.id, {flavor: flavor});
+  } else {
+    let messageData = {...message.data.toObject(), ...{flavor: flavor}};
+    await message.delete();
+    await ChatMessage.create(messageData);
+  }
+}
 async function updateMessageWithRoll(message, roll) {
   for (let term of roll.terms.filter(term=> term instanceof DiceTerm))
     for (let result of term.results)
@@ -507,13 +521,16 @@ Array.prototype.cleanRollTerms = function() {
   return terms;
 }
 
-if (!Hooks._hooks.renderChatMessage || Hooks._hooks.renderChatMessage?.findIndex(f=>f.toString().includes('rollTermsBackup'))==-1)
+//if (!Hooks._hooks.renderChatMessage || Hooks._hooks.renderChatMessage?.findIndex(f=>f.toString().includes('rollTermsBackup'))==-1)
+while (Hooks._hooks.renderChatMessage?.findIndex(f=>f.toString().includes('rollTermsBackup'))>-1)
+      Hooks._hooks.renderChatMessage.splice( Hooks._hooks.renderChatMessage.findIndex(f=>f.toString().includes('rollTermsBackup')), 1)
 Hooks.on('renderChatMessage', (message, html)=>{
   if (!message.roll) return;
   if (!message.roll?.terms) return;
   if (message.data.user === game.user.id && $("#Dice-Tray-Dialog").length) {
     $(`.dice-formula`).removeAttr('style');
     html.find(`.dice-formula`).attr('style',"border: 1px solid red !important;");
+    $('#Dice-Tray-Dialog').find('.message-id').val(message.id);
     $(`#Dice-Tray-Dialog > header > h4 > .last-message`).click();
   }
   html.find(`div.dice-tooltip`).css('display','block')
