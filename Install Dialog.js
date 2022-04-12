@@ -167,6 +167,7 @@ let d = new Dialog({
                 }
               }
             });
+            return ui.notifications.notify(`Macro created: ${macro.name}`);
             break;
           case "Update":
             let m  = game.macros.find(m=>m.data.flags.world?.name === $(this).attr('name'));
@@ -188,6 +189,7 @@ let d = new Dialog({
                 }
               }
             });
+            return ui.notifications.notify(`Macro updated: ${macro.name}`);
             break;
           default: return;
             // code block
