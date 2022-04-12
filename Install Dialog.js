@@ -163,13 +163,13 @@ let d = new Dialog({
             });
             break;
           case "Update":
-            await Macro.create({
+            await Macro.update({
               "name": macro.name,
               "type": "script",
               "img": "icons/svg/dice-target.svg",
               "scope": "global",
               "command": gitData,
-              "folder": folder,
+              "folder": folderId,
               "sort": 0,
               "permission": {
                   "default": macro.permission
