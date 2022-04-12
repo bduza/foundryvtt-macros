@@ -168,7 +168,7 @@ let d = new Dialog({
             await m.update({
               "name": macro.name,
               "type": "script",
-              "img": "icons/svg/dice-target.svg",
+              "img": macro.img,
               "scope": "global",
               "command": gitData,
               "folder": folderId,
