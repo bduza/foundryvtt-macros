@@ -53,7 +53,7 @@ function nextChatMessage() {
   return message;
 }
 
-actor = _token?.actor// || character || null;
+actor = token?.actor || character || null;
 let width = 60;
 //if (!actor) return ui.notifications.error('no actor');
 if (!jQuery.ui) {
