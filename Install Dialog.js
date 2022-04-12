@@ -67,9 +67,22 @@ let macros = [
   "permission": {"default": 0}
 },
 {
-  name: "Custom CSS",
-  description: "Sets some custom Foundry-app-similar css changes to make dialogs more tolerable to look at",
-  "permission": {"default": 2}
+    "name": "Custom CSS",
+    "description": "Sets some custom Foundry-app-similar css changes and darkening to make dialogs more tolerable to look at",
+    "permission": 2,
+    "img": "icons/magic/light/hand-sparks-glow-yellow.webp"
+},
+{
+    "name": "Taskbar",
+    "description": "Sets some custom Foundry-app-similar css changes to make dialogs more tolerable to look at",
+    "permission": 2,
+    "img": "icons/svg/wall-direction.svg"
+},
+{
+    "name": "Dice Tray",
+    "description": "Edit Messages Roll; Build Rolls; Save Rolls to User Flag [[/r formula # flavor]]",
+    "permission": 2,
+    "img": "icons/sundries/gaming/dice-pair-white-green.webp"
 }
 ];
 let folderName = '5e Dialog Macros'
