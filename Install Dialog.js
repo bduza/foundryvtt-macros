@@ -116,31 +116,34 @@ let d = new Dialog({
   title: '5e Dialog Macros Installer' ,
   content,
   render: (list) => {
-
-        $('#install-all').click(()=>{
-          $('.installer-button').each(()=>{$(this).click()});
+    
+        $('#install-all').click(async ()=>{
+          for (let m of macros) {
+              $(`.installer-button[name="${m.name}"]`).click();
+              await new Promise((r) => setTimeout(r, 500));
+          }
         });
-
+    
        $('.installer-button').click(async function(){
         let folderName = '5e Dialog Macros';
-        let userMacroFolder = game.folders.find(f => f.data.name === folderName && f.data.type === 'Macro');
-        if (!userMacroFolder) userMacroFolder = await Folder.create({name : folderName , type : 'Macro'});
+        let macroFolder = game.folders.find(f => f.data.name === folderName && f.data.type === 'Macro');
+        if (!macroFolder) macroFolder = await Folder.create({name : folderName , type : 'Macro'});
         let folderId = game.folders.find(f => f.data.name === folderName && f.data.type === 'Macro').id;
         let github = "https://raw.githubusercontent.com/xaukael/foundryvtt-macros/main/";
         let macro = macros.find(m=>m.name === $(this).attr('name'))
         let args = [macro.name];
         let gitData = '';
         try {
-          await jQuery.get(`${github}${encodeURI('Get Macro From Git')}.js`, async function(data) {
+          await jQuery.get(`${github}${encodeURI(macro.name)}.js`, async function(data) {
             gitData = data;
         });
         } catch(error){
           return ui.notifications.error('Macro not found on github: '+ error.responseText)
         } 
-
-        console.log($(this).text(), )
-        switch($(this).text()) {
+        
+        switch($(this).text().trim()) {
           case "Create":
+            $(this).text("Update")
             await Macro.create({
               "name": macro.name,
               "type": "script",
@@ -188,4 +191,4 @@ let d = new Dialog({
       return}
 },{ height:400, width:500 , id: "Installer"}
 );
-d.render(true) 
+d.render(true)
