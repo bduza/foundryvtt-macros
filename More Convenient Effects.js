@@ -1,13 +1,5 @@
-if (typeof Dialog.persist !== "function")
-Object.getPrototypeOf(Dialog).persist = function(data, options) {
-  let w = Object.values(ui.windows).find(w=> w.id===options.id);
-  let position = w?.position || {};
-  options = {...options, ...position};
-  new Dialog(data, options).render(true);
-  if (w) w.bringToTop();
-  if (w) w.setPosition({height:'auto'})  
-  return;
-}
+if (typeof Dialog.persist !== "function") game.macros.find(m=>m.data.flags.world?.name==='Dialog.persist').execute();
+
 
 let list=`
 <input type="text" id="myEffectsInput"  placeholder="Search for names.." style="margin-bottom:.5em;">
