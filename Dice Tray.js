@@ -72,7 +72,6 @@ let content = `
     border-radius: 5px; 
     width: ${width*7}px;
     background: url(../ui/denim075.png) repeat;
-    padding: .5em;
     box-shadow: 0 0 20px var(--color-shadow-dark);
   }
   #Dice-Tray-Dialog > header > h4 > a > i{margin: 0 3px 0 0}
@@ -81,7 +80,8 @@ let content = `
     margin: 0 !important;
     width: 100% !important;
   }
-  #input-div.hidden input.roll-flavor, #input-div.hidden .edit-buttons button {
+  ${game.user.isGM?'':'#input-div.hidden input.roll-flavor,'}
+  #input-div.hidden .edit-buttons button {
   /*display:none !important;*/
     text-align: center;
     pointer-events:none;
@@ -172,29 +172,32 @@ if (actor && game.system.id==='dnd5e')
 content += `<div class="saved-rolls"></div>`;
 
 let position = $(`#Dice-Tray-Dialog`).attr(`style`) || `top:10px;left:${window.innerWidth - width*7 -315}px;position:absolute;`;
-$('#Dice-Tray-Dialog').remove();
-/*let d = await new Dialog({
-  title: header,
+
+
+//--------------------------------------------------------- 
+/*
+let d = await new Dialog({
+  title: '',
   content,
   buttons: {
   },
-  render: (html) => {*/
-let $tray = $(`<div id="Dice-Tray-Dialog" style="${position}"><header class="window-title"><h4></h4></header>${content}</div>`);
-$(`body`).append($tray);
+  render: (html) => {
+$(`#Dice-Tray-Dialog > header > h4`).append(`<a class="last-message">Die Tray</a>${actor?.name?' - ' + actor?.name:''}`);
+//---------------------------------------------------------    */
+
+$('#Dice-Tray-Dialog').remove();
+$(`body`).append(`<div id="Dice-Tray-Dialog" style="${position}"><header class="window-title"><h4></h4></header>${content}</div>`);
+$(`#Dice-Tray-Dialog`).draggable();
+$(`#Dice-Tray-Dialog`).css('padding', '.5em');
+$(`#Dice-Tray-Dialog > header > h4`).append(`<a class="last-message">Die Tray</a>${actor?.name?' - ' + actor?.name:''}`);
+$(`#Dice-Tray-Dialog > header > h4`).append(`<a title="Close" class="close" style="float: right" ><i class="fas fa-times"></i>Close</a>`)
+//---------------------------------------------------------    */
 lastChatMessage()
 
-
-let header = `<a class="last-message">Die Tray</a>${actor?.name?' - ' + actor?.name:''}`;
-header += `<a title="Close" class="close" style="float: right" ><i class="fas fa-times"></i>Close</a>`;
-header += `<a title="Roll 0" style="float: right" class="roll-0"><i class="fab fa-creative-commons-zero"></i>Roll</a>`;
-
-if ($(`#input-div`).hasClass('hidden')) 
-  header += `<a title="Change Mode" style="float: right" class="change-mode-button"><i class="fas fa-plus"></i>Roll </a>`;
-else
-  header += `<a title="Change Mode" style="float: right" class="change-mode-button"><i class="fas fa-dice-d20"></i>Build</a>`;  
-$(`#Dice-Tray-Dialog`).draggable();
-$(`#Dice-Tray-Dialog > header > h4`).html(header);
-$(`#Dice-Tray-Dialog > header > h4 > a`).css('margin',' 0 8px 0 0 ')
+$(`#Dice-Tray-Dialog > header > h4`).append(`<a title="Roll 0" style="float: right" class="roll-0"><i class="fab fa-creative-commons-zero"></i>Roll</a>`);
+if ($(`#input-div`).hasClass('hidden')) $(`#Dice-Tray-Dialog > header > h4`).append(`<a title="Change Mode" style="float: right" class="change-mode-button"><i class="fas fa-plus"></i>Roll </a>`);
+else $(`#Dice-Tray-Dialog > header > h4`).append(`<a title="Change Mode" style="float: right" class="change-mode-button"><i class="fas fa-dice-d20"></i>Build</a>`);  
+$(`#Dice-Tray-Dialog > header > h4 > a`).css('margin',' 0 8px 0 0 ');
 $(`#Dice-Tray-Dialog > header > h4 > .close`).click(()=>{$('#Dice-Tray-Dialog').remove();});
 $(`#Dice-Tray-Dialog > header > h4 > .last-message`).click(()=>{
   lastChatMessage(true);
@@ -216,11 +219,6 @@ $("#Dice-Tray-Dialog").css('min-width: max-content')
 $("#Dice-Tray-Dialog .roll-formula").contextmenu(function(){$(this).val('')});
 $("#Dice-Tray-Dialog .roll-flavor").contextmenu(function(){$(this).val('')});
 
-/*
-      <button class="prev-button" style="line-height: 15px;">Prev</button>
-      <button class="next-button" style="line-height: 15px;">Next</button>
-      <button class="last-button" style="line-height: 15px;">Last</button>
-*/
 $('#Dice-Tray-Dialog').find(`.prev-button`).click(async function(e){
   prevChatMessage();
 });
@@ -322,21 +320,7 @@ $('#Dice-Tray-Dialog').find(`.term`).click(async function(e) {
   await roll.evaluate();
   roll.terms = roll.terms.cleanRollTerms();
   roll._formula = roll.formula;
-  
   return updateMessageWithRoll(message, roll);
-  if (game.user.isGM) {
-    await message.update({content:roll.total, roll:JSON.stringify(roll)});
-  } else if (game.macros.getName('updateChatMessage(id, update)')) {
-    game.macros.getName('updateChatMessage(id, update)').execute(message.id, {content:roll.total, roll:JSON.stringify(roll)});
-  } else {
-    let messageData = {...message.data.toObject(), ...{content:roll.total, roll:JSON.stringify(roll)}};
-    await message.delete();
-    await ChatMessage.create(messageData);
-  }
-  return;
-  //game.macros.getName('updateChatMessage(id, update)').execute(message.id, {content:roll.total, roll:JSON.stringify(roll)});
-  if (message.data.flavor?.toLowerCase().includes('damage'))
-    game.macros.getName('applyDamage(damage, targets)').execute(toAddRoll.total, [...game.user.targets].map(t=>t.id));
 });
 
 $('#Dice-Tray-Dialog').find(`.roll-button`).click(async function() {
@@ -393,6 +377,14 @@ $('#Dice-Tray-Dialog').find(`button.term`).mouseup(async function() {
 
 $('#Dice-Tray-Dialog').find(`.roll-0`).click(async function() {
   new Roll('0').toMessage({speaker: ChatMessage.getSpeaker({actor})});
+});
+
+$('#Dice-Tray-Dialog').find(`.roll-flavor`).keyup(async function(e) {
+  if (!$(`#input-div`).hasClass('hidden')) return;
+  if (e.which !== 13) return;
+  let flavor = $(this).val();
+  let message = lastChatMessage();
+  updateMessageWithFlavor(message, flavor)
 });
 
 $('#Dice-Tray-Dialog').find(`.advantage`).contextmenu(async function(e) {$(this).click()});
@@ -469,8 +461,10 @@ $('#Dice-Tray-Dialog').find(`.advantage`).click(async function() {
   //newRoll.toMessage();
 });
 
+
     //console.log(html.find('img.term')[0].onload(()=>{game.windows.setPosition({height: '100%'});}))
-    /*
+//--------------------------------------------------------------------------   
+/*
   },
   close: html => {
     return
@@ -488,7 +482,19 @@ $('#dice-div img').ready(function(){
   //console.log('position set')
 });
 d.bringToTop();
-*/
+//-------------------------------------------------------------------------- */
+async function updateMessageWithFlavor(message, flavor) {
+  if (game.user.isGM) {
+    await message.update({flavor});
+  } else if (game.macros.getName('updateChatMessage(id, update)')) {
+    game.macros.getName('updateChatMessage(id, update)').execute(message.id, {flavor});
+  } else {
+    let messageData = {...message.data.toObject(), ...{flavor}};
+    await message.delete();
+    await ChatMessage.create(messageData);
+  }
+}
+
 async function updateMessageWithRoll(message, roll) {
   for (let term of roll.terms.filter(term=> term instanceof DiceTerm))
     for (let result of term.results)
@@ -515,14 +521,19 @@ Array.prototype.cleanRollTerms = function() {
   return terms;
 }
 
-if (!Hooks._hooks.renderChatMessage || Hooks._hooks.renderChatMessage?.findIndex(f=>f.toString().includes('rollTermsBackup'))==-1)
+//if (!Hooks._hooks.renderChatMessage || Hooks._hooks.renderChatMessage?.findIndex(f=>f.toString().includes('rollTermsBackup'))==-1)
+
+while (Hooks._hooks.renderChatMessage?.findIndex(f=>f.toString().includes('rollTermsBackup'))>-1)
+  Hooks._hooks.renderChatMessage.splice( Hooks._hooks.renderChatMessage.findIndex(f=>f.toString().includes('rollTermsBackup')), 1)
+
 Hooks.on('renderChatMessage', (message, html)=>{
   if (!message.roll) return;
   if (!message.roll?.terms) return;
   if (message.data.user === game.user.id && $("#Dice-Tray-Dialog").length) {
     $(`.dice-formula`).removeAttr('style');
     html.find(`.dice-formula`).attr('style',"border: 1px solid red !important;");
-    $(`#Dice-Tray-Dialog > header > h4 > .last-message`).click();
+    if ($('#Dice-Tray-Dialog').find('.message-id').val() !== message?.id)
+      $(`#Dice-Tray-Dialog > header > h4 > .last-message`).click();
   }
   html.find(`div.dice-tooltip`).css('display','block')
   let $diceTooltip = $(`<div class="dice-tooltip">`)
