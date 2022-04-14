@@ -1,5 +1,12 @@
 if (typeof Dialog.persist !== "function") game.macros.find(m=>m.data.flags.world?.name==='Dialog.persist').execute();
 
+if (!Hooks._hooks.controlToken || Hooks._hooks.controlToken?.findIndex(f=>f.toString().includes('Actor Menu'))==-1)
+Hooks.on("controlToken", (token, selected)=>{
+  console.log(token, selected)
+  if (!selected || !$('.actor-menu').length) return;
+  game.macros.find(m=>m.data.flags.world?.name==='Actor Menu').execute({actorUuid: token.actor.uuid});
+});
+
 if (!game.user.data.flags.world?.ActorMenuAutoClose)
   await game.user.setFlag('world', 'ActorMenuAutoClose');
 let {actorUuid} = args[0] || {};
@@ -43,12 +50,13 @@ for (let [type, array] of Object.entries(actor.itemTypes) ) {
 }
 let length = types.length + 6;
 if (types.includes('Spells')) length ++;
-//console.log(types, length)
-let content = `
-<div style="margin: 0 3px; position: absolute; right:60px; top: 7px;">
-  <input type="checkbox" id="${t}-closeOnMouseLeave" style="float:right; margin-top: 3px;  height: 12px;">
+//console.log(types, length)//margin: 0 3px; position: absolute; right:60px; top: 7px;
+let $autoclose = $(`<span class="autoclose" style="display:inline;width:2em;">
+  <input type="checkbox" id="${t}-closeOnMouseLeave" style=" margin-top: 3px;  height: 12px;">
   <label for="${t}-closeOnMouseLeave">Auto-Close</label>
-</div>`;
+</span>`)
+let content = `
+`;
 //<div id="${t}-menu-div" style="font-size: 1.1em; font-weight: semibold; display:grid; grid-template-${display}s: repeat(${length}, auto) 10px; grid-${display}-gap: .6em;">`;
 let list = [];
 for (let type of types){
@@ -83,6 +91,10 @@ list.push(`<a id="initiative-${t}"  data-t="${t}">
 list.push(`<a id="${t}-ce" data-t="${t}" >
   <span style="margin: 0 10px 0 3px" >Effects</span>
 </a>`);
+list.push(`<span class="autoclose">
+  <input type="checkbox" id="${t}-closeOnMouseLeave" style=" margin: 3px 0px;  height: 12px;">
+  <label for="${t}-closeOnMouseLeave">Auto-Close</label>
+</span>`);
 
 content += '<span style="white-space: nowrap;">'+list.join('')  + '</span>';
 Dialog.persist({
@@ -90,6 +102,8 @@ Dialog.persist({
   content,
   buttons: {},
   render: ()=>{
+    if (!$(`#${w_id} .autoclose`).length)
+    //$(`#${w_id} > header > a.close`).before($autoclose);
     /*
     $(`#menu-${t}`).click(async function(e){
         console.log(t);
@@ -210,7 +224,9 @@ Dialog.persist({
   },
   close:   html => {
     for ( let w of Object.values(ui.windows).filter(w=> w.id !== `menu-${t}` && w.id.includes(`${t}`)))
-          ui.windows[w.appId].close();
+      ui.windows[w.appId].close();
+    //while (Hooks._hooks.controlToken?.findIndex(f=>f.toString().includes('Actor Menu'))>-1)
+      //Hooks._hooks.controlToken.splice(Hooks._hooks.controlToken.findIndex(f=>f.toString().includes('Actor Menu')), 1)
       return;}
 },position
 );//.render(true);
