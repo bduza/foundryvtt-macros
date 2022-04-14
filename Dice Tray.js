@@ -536,6 +536,8 @@ Hooks.on('renderChatMessage', (message, html)=>{
     html.find(`.dice-formula`).attr('style',"border: 1px solid red !important;");
     if ($('#Dice-Tray-Dialog').find('.message-id').val() !== message?.id)
       $(`#Dice-Tray-Dialog > header > h4 > .last-message`).click();
+    $("#Dice-Tray-Dialog .roll-formula").val(message?.roll.formula);
+    $("#Dice-Tray-Dialog .roll-flavor").val(message?.data.flavor);
   }
   html.find(`div.dice-tooltip`).css('display','block')
   let $diceTooltip = $(`<div class="dice-tooltip">`)
