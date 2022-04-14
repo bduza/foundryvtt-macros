@@ -3,6 +3,9 @@ Hooks.on('appbarRefresh', async () => {
 $('#taskbar').remove();
 $(`#taskbar-start-menu`).remove();
 $(`#taskbar-settings-menu`).remove();
+$('#ui-bottom').prepend($('#players'))
+$('#ui-top').after($('#ui-left'))
+$('body').prepend($('#logo'));
 let moveSidebarTabs = 1;
 let autohideMenu = 1;
 //if (!moveSidebarTabs) $('#sidebar-tabs').css('display', 'flex');
@@ -61,7 +64,7 @@ Hooks.on(`addWindowToTaskbar`, async function addWindowToTaskbar(app)  {
       pinned = `pinned`;
       pin = `<i class="fas fa-thumbtack"></i>`;
     }
-    thumbnail = `<img src="${app.document.thumbnail}"  style="vertical-align:top; margin-right: 3px ;height:16px;width:16px;">`;
+    thumbnail = app.document.thumbnail?`<img src="${app.document.thumbnail}" style="vertical-align:top; margin-right: 3px; height:16px; width:16px; border: unset">`:'';
   }
     
   $('#taskbar > div.taskbar-items').append(`<a class="taskbar-app ${pinned}" id="taskbar-app-${app.appId}" data-id="${app.id}" name="${app.appId}" ${uuidAttr}><div class="app-title-div" title="${app.appId} | ${app.id}">${pin}${thumbnail}${app.title}</div></a>`);
@@ -136,10 +139,7 @@ Hooks.on(`addWindowToTaskbar`, async function addWindowToTaskbar(app)  {
   return Hooks.call(`updateTaskbarClasses`);
 });
 let minimalCSS = `
-#players {
-  bottom: 24px !important;
-}
-#hotbar {
+#players, #hotbar {
   bottom: 24px !important;
 }
 `;
@@ -156,9 +156,18 @@ let taskbar = $(`
   --ft-start-menu-item-size: 30px;
   --playerbot: 30px;
 }
-
+#ui-top, #players {
+  margin-left: 5px !important;
+}
+#ui-top {
+  min-height: 55px
+}
 #ui-left {
-    height: calc(100% - 22px);
+  height: 100%;
+}
+#ui-bottom {
+  display: flex;
+  margin-bottom: 23px;
 }
 #ui-right {
     height: calc(100% - 38px);
@@ -168,12 +177,19 @@ let taskbar = $(`
 }
 #ui-right.hidden {
     right: -304px;
-    /*display:none;*/
 }
-#ui-bottom {
-  margin-bottom: 23px;
+#controls {
+  margin-top: 15px;
 }
-
+#logo {
+  position: absolute;
+}
+#navigation {
+  margin-left: 120px;
+}
+#hotbar {
+  margin:auto 0 12px 5px;
+}
 #taskbar {
   color: var(--ft-text-color);
   position: absolute;
@@ -259,7 +275,6 @@ div.taskbar-items {
 .start-menu-item span {
   vertical-align: middle;font-size: 20px; margin:5px; width:100%;
 }
-
 .app-title-div > .fas.fa-thumbtack {
   margin-right: .25em;
 }
@@ -274,10 +289,10 @@ div.taskbar-items {
   white-space: nowrap; overflow: hidden;  text-overflow: ellipsis;
 }
 .taskbar-button {
-margin:0 .1em;
+  margin:0 .1em;
 }
 .taskbar-button > div {
-height: 30px; width: 25px;
+  height: 30px; width: 25px;
 }
 #taskbar-logo-toggle > div > img:hover {
   filter: drop-shadow(0px 0px 3px rgb(0 255 255 / 0.9)) invert(100%) !important;
@@ -287,7 +302,7 @@ ${(game.modules.get("minimal-ui")?.active)?minimalCSS:''}
 </style>
 <div class="taskbar-items">
 <a id="taskbar-menu-toggle" title="Macro List" class="" style="margin-left:.25em"><div style="height: 30px; width: 40px; left: -20px; margin-right:-20px; position: relative;"><i style="margin-left: 20px; " class="fas fa-list"></i></div></a>
-<a id="taskbar-logo-toggle" title="Logo Toggle" class="taskbar-button ui-toggle" name="logo" style="margin:0 .25em"><div>
+<a id="taskbar-logo-toggle" title="Logo Toggle" class="taskbar-button ui-toggle" name="logo" style="margin:-1px .25em"><div>
 <img src="icons/anvil.png" style="height: 20px; filter: invert(100%); vertical-align: top; margin-top: -2px; border: unset;"></div></a>
 <a id="taskbar-navigation-toggle" title="Scene Navigation" class="taskbar-button ui-toggle" name="navigation"><div><i class="fas fa-compass"></i></div></a>
 <a id="taskbar-players-toggle" title="Player List" class="taskbar-button ui-toggle" name="players"><div><i class="fas fa-users"></i></div></a>
@@ -304,44 +319,33 @@ $("body").append(taskbar);
 
 
 
-$('.taskbar-button.ui-toggle').click(function(e){
+$('.taskbar-button.ui-toggle').click(async function(e){
   let uiId = $(this).attr('name');
-  if (uiId !== 'players') {
-    //$(`#${uiId}`).toggle();
-    if ($(`#hide-ui-${uiId}`).length) $(`#hide-ui-${uiId}`).remove();
-    else $(`#taskbar`).append(`<style id="hide-ui-${uiId}">#${uiId}{display:none !important;}</style>`);
-    //console.log(uiId, $(`#${uiId}`).is(":hidden"))
+    if ($(`#hide-ui-${uiId}`).length) {
+      $(`#hide-ui-${uiId}`).remove();
+      await game.user.setFlag('world', `autohide${uiId.capitalize()}`, false);
+    } else { 
+      $(`#taskbar`).append(`<style id="hide-ui-${uiId}">#${uiId}{display:none !important;}</style>`);
+      await game.user.setFlag('world', `autohide${uiId.capitalize()}`, true);
+    }
     if ($(`#hide-ui-${uiId}`).length) $(this).css('filter', 'opacity(50%)')
     else $(this).css('filter', 'opacity(100%)')
-  } else {
-    let currentHeight = parseInt($(`#ui-left`).css('height').replace('px', ''));
-    if (window.innerHeight < currentHeight) {
-      $(`#ui-left`).css('height', `calc(100% - 22px )`);
-      //$('#players').show();
-      $(this).css('filter', 'opacity(100%)')
-    } else {
-      $(`#ui-left`).css('height', `calc(100% + 110px + (${$('#player-list > li').length*25}px))`);
-      $(this).css('filter', 'opacity(50%)')
-      //$('#players').hide();
-    }
-  }
 });
-if (game.user.data.flags.world?.autohideLogo) $(`.taskbar-button.ui-toggle[name=logo]`).click();
-if (game.user.data.flags.world?.autohideNavigation) $(`.taskbar-button.ui-toggle[name=navigation]`).click();
-if (game.user.data.flags.world?.autohidePlayers) $(`#ui-left`).css('height', `calc(100% + 110px + (${$('#player-list > li').length*25}px))`);
-//if (game.user.data.flags.world?.autohidePlayers) $('#players').hide();
-if (game.user.data.flags.world?.autohideHotbar) $(`.taskbar-button.ui-toggle[name=hotbar]`).click();
+
+let uiElements = ['players', 'navigation', 'hotbar', 'logo'];
+for (let e of uiElements)
+  if (game.user.data.flags.world[`autohide${e.capitalize()}`]) $(`.taskbar-button.ui-toggle[name=${e}]`).click();
 
 $('.taskbar-button.ui-toggle').each(function(){
   let uiId = $(this).attr('name');
-  if ($(`#hide-ui-${uiId}`).length || uiId === 'players') $(this).css('filter', 'opacity(50%)');
+  if ($(`#hide-ui-${uiId}`).length) $(this).css('filter', 'opacity(50%)');
   else $(this).css('filter', 'opacity(100%)')
 });
   
 if ($("#taskbar").hasClass('autohide')) $(`#taskbar-start-menu`).addClass('hide');
 
-for (let w of Object.entries(ui.windows).filter(w=> w[1].title !== '' && w[1].options.popOut && !game.user.data.flags.world.pinnedTaskbarDocuments.includes(w.document?.uuid))) {
-  Hooks.call(`addWindowToTaskbar`, (w[1]));
+for (let w of Object.values(ui.windows).filter(w=> w.title !== '' && w.options.popOut && !game.user.data.flags.world?.pinnedTaskbarDocuments.includes(w.document?.uuid))) {
+  Hooks.call(`addWindowToTaskbar`, (w));
 }
 
 let pinnedDocs = game.user.data.flags.world.pinnedTaskbarDocuments;
@@ -386,14 +390,15 @@ $('#toggle-autohide').click(async function() {
 $("#taskbar").mouseenter(function(e){
   $(`#taskbar`).removeClass('hide').removeClass('hidden');
   let currentHeight = parseInt($(`#ui-left`).css('height').replace('px', ''));
-  if (window.innerHeight+20 > currentHeight) {
+  /*if (window.innerHeight+20 > currentHeight) {
     $(`#ui-left`).css('height', `calc(100% - 22px )`);
   }
   else {
     $(`#ui-left`).css('height', `calc(100% + 110px + (${$('#player-list > li').length*25}px))`);
-  }
+  }*/
+  //$(`#ui-left`).css('height', `calc(100% - 23px )`);
   $(`#ui-right`).css(`height`,`calc(100% - 38px)`);
-  $(`#ui-bottom`).css(`margin-bottom`,` 23px`);
+  $(`#ui-bottom`).css(`margin-bottom`,`23px`);
 });
     
 $("#taskbar").mouseleave(async function(e){
@@ -404,17 +409,19 @@ $("#taskbar").mouseleave(async function(e){
     $(`#taskbar`).addClass('hidden');
     let currentHeight = parseInt($(`#ui-left`).css('height').replace('px', ''));
     console.log(window.innerHeight, currentHeight)
-    if (window.innerHeight+20 > currentHeight) {
+    /*if (window.innerHeight+20 > currentHeight) {
       $(`#ui-left`).css('height', `calc(100%)`);
     }
     else {
       $(`#ui-left`).css('height', `calc(100% + 110px + (${$('#player-list > li').length*25}px))`);
-    }
+    }*/
+    //$(`#ui-left`).css('height', `calc(100%)`);
     $(`#ui-right`).css(`height`,`calc(100% - 15px)`);
     $(`#ui-bottom`).css(`margin-bottom`,`1px`);
 
   }
 });
+
 $(`#ui-right`).css(`height`,`calc(100% - 38px)`);
 
 if (game.modules.get("about-time")?.active) {
@@ -502,17 +509,6 @@ $("#taskbar-settings-toggle").click(async function(e) {
   }
   </style>
   <center style="border-bottom: 1px solid white; margin-bottom: .5em;">Taskbar Settings</center>
-    <input id="autohideLogo" type="checkbox" ${game.user.data.flags.world?.autohideLogo?'checked':''}>
-    <label for="autohideLogo">Hide Logo On Load</label><br>  
-    
-    <input id="autohideNavigation" type="checkbox" ${game.user.data.flags.world?.autohideNavigation?'checked':''}>
-    <label for="autohideNavigation">Hide Scenes On Load</label><br>
-    
-    <input id="autohidePlayers" type="checkbox" ${game.user.data.flags.world?.autohidePlayers?'checked':''}>
-    <label for="autohidePlayers">Hide Players On Load</label><br>
-    
-    <input id="autohideHotbar" type="checkbox" ${game.user.data.flags.world?.autohideHotbar?'checked':''}>
-    <label for="autohideHotbar">Hide Hotbar On Load</label><br>
     
     <input id="autohideTaskbar" type="checkbox" ${game.user.data.flags.world?.autohideTaskbar?'checked':''}>
     <label for="autohideTaskbar">Auto-Hide Taskbar</label><br>
@@ -528,6 +524,19 @@ $("#taskbar-settings-toggle").click(async function(e) {
     
     <center><p><button id="taskbar-settings-refresh" style="height: 20px; line-height: 16px;">Refresh</button></p><center>
   </div>`;
+  /*
+  <input id="autohideLogo" type="checkbox" ${game.user.data.flags.world?.autohideLogo?'checked':''}>
+    <label for="autohideLogo">Hide Logo On Load</label><br>  
+    
+    <input id="autohideNavigation" type="checkbox" ${game.user.data.flags.world?.autohideNavigation?'checked':''}>
+    <label for="autohideNavigation">Hide Scenes On Load</label><br>
+    
+    <input id="autohidePlayers" type="checkbox" ${game.user.data.flags.world?.autohidePlayers?'checked':''}>
+    <label for="autohidePlayers">Hide Players On Load</label><br>
+    
+    <input id="autohideHotbar" type="checkbox" ${game.user.data.flags.world?.autohideHotbar?'checked':''}>
+    <label for="autohideHotbar">Hide Hotbar On Load</label><br>
+    */
   $("body").append(settings);
   $('#taskbar-settings-refresh').click(async function(e){
     $('#taskbar-settings-menu').remove();
@@ -622,15 +631,15 @@ $("#taskbar-menu-toggle").click(async function(e) {
       </div>
     </a>`));
   let content = `<div id="taskbar-start-menu" style="z-index:${_maxZ+1};">
-    
+    <style> #players {display:none;}</style>
     <div id="start-menu-search-results" style="color: black; margin-bottom: 30px;"></div>
     <div id="start-menu-macros" style="max-height: calc(100vh - 75px); overflow: auto; ${game.user.isGM?'margin-bottom: 25px;':''}">${macros.join('')}</div>`;
   if (game.user.isGM) content += `<div style="position: absolute; bottom: 3px;  margin: 0px; width: calc(100% - 11px);"><input id="start-menu-search-input" type="text" style="width: 100%; color: white;"></input></div>`;
   content += `</div>`;
   $("body").append(content);
-  $('#taskbar-start-menu').prepend(`<style>#hotbar {margin-left: ${$('#taskbar-start-menu').width()-200}px;}</style>`);
+  $('#taskbar-start-menu').prepend(`<style>#hotbar {position: absolute; left:${$('#taskbar-start-menu').width() + 15}px; bottom: 22px;}</style>`);
   $(`#start-menu-search-results`).hide();
-  $(`#ui-left`).css('height', `calc(100% + 100px + (${$('#player-list > li').length*20}px))`);
+  //$(`#ui-left`).css('height', `calc(100% + 100px + (${$('#player-list > li').length*20}px))`);
   $('.start-menu-macro').click(function(){ 
     let id = $(this).attr('name');
     game.macros.get(id).execute();
@@ -681,9 +690,10 @@ $("#taskbar-menu-toggle").click(async function(e) {
       let filter = input.toUpperCase();
       let links = [];
       for (let doc of docs)
-        links = links.concat(game[doc.toLowerCase()].filter(a=>a.name.toUpperCase().includes(input.toUpperCase())).map(x=>`<p><img src="${x.thumbnail}" style="vertical-align:top;height:18px; width: 18px; margin-right: .5em ">${x.link}</p>`));
+        links += game[doc.toLowerCase()].filter(a=>a.name.toUpperCase().includes(input.toUpperCase())).reduce((acc,x,i,a)=>acc+=(a.length&&!i?`<h2 style="color: white">${doc.at(doc.length-1)=='s'?doc.capitalize():doc.capitalize()+'s'}</h2>`:``)+`<p><img src="${x.thumbnail?x.thumbnail:'icons/svg/book.svg'}" style="vertical-align:top;height:20px; margin-top: -2px;width: 18px; margin-right: .5em ">${x.link}</p>`,``);
+        //links = links.concat(game[doc.toLowerCase()].filter(a=>a.name.toUpperCase().includes(input.toUpperCase())).map(x=>`<p><img src="${x.thumbnail}" style="vertical-align:top;height:18px; width: 18px; margin-right: .5em ">${x.link}</p>`));
       
-      $("#start-menu-search-results").html(TextEditor.enrichHTML(links.join('')));
+      $("#start-menu-search-results").html(TextEditor.enrichHTML(links));
       $('#taskbar-start-menu').find('a.entity-link').contextmenu(async function() { 
         game.collections.get($(this).attr('data-entity')).get($(this).attr('data-id')).sheet.render(true);
       });
@@ -780,17 +790,3 @@ if (!Hooks._hooks.ready || Hooks._hooks.ready?.findIndex(f=>f.toString().include
 Hooks.once('ready', async () => {
   Hooks.call('appbarRefresh');
 });
-if (game.modules.get("lib-df-hotkeys")?.active) {
-await Hotkeys.deregisterShortcut("Taskbar Menu");
-try {
-Hotkeys.registerShortcut({
-	name: "Taskbar Menu",
-	label: "Open Taskbar Menu",
-	default: { key: Hotkeys.keys.KeyM, alt: false, ctrl: true, shift: false },
-	onDown: () => {},
-	onKeyUp: () => {
-			$(`#taskbar-menu-toggle`).click();
-		}    
-});
-}catch(err){console.log(err)}
-}
