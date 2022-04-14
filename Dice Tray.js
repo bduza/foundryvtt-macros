@@ -2,7 +2,9 @@ function getMessages() {
   if (game.user.isGM) return game.messages.contents.reverse().filter(m=>m._roll);
   return game.messages.contents.reverse().filter(m=>m._roll && m.data.user === game.user.id && !m.data.blind);
 }
-
+function getMessage() {
+  return game.messages.get($('#Dice-Tray-Dialog').find('.message-id').val());
+}
 function lastChatMessage(l) {
   let message;
   if (!$('#Dice-Tray-Dialog').find('.message-id').val() || l) {
@@ -383,7 +385,7 @@ $('#Dice-Tray-Dialog').find(`.roll-flavor`).keyup(async function(e) {
   if (!$(`#input-div`).hasClass('hidden')) return;
   if (e.which !== 13) return;
   let flavor = $(this).val();
-  let message = lastChatMessage();
+  let message = getMessage();
   updateMessageWithFlavor(message, flavor)
 });
 
