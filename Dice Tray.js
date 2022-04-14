@@ -7,14 +7,14 @@ function lastChatMessage(l) {
   let message;
   if (!$('#Dice-Tray-Dialog').find('.message-id').val() || l) {
     message = getMessages()[0];
-    $('#Dice-Tray-Dialog').find('.message-id').val(message.id);
+    $('#Dice-Tray-Dialog').find('.message-id').val(message?.id);
   } else message = game.messages.get($('#Dice-Tray-Dialog').find('.message-id').val());
   //if (game.user.isGM)
     //message = game.messages.contents.reverse().filter(m=>m._roll && m.data.speaker.actor === actor.id)[0]
-  $("#Dice-Tray-Dialog .roll-formula").val(message.roll.formula);
-  $("#Dice-Tray-Dialog .roll-flavor").val(message.data.flavor);
+  $("#Dice-Tray-Dialog .roll-formula").val(message?.roll.formula);
+  $("#Dice-Tray-Dialog .roll-flavor").val(message?.data.flavor);
   $(`.dice-formula`).removeAttr('style');
-  $(`li[data-message-id="${message.id}"]`).find(`.dice-formula`).attr('style',"border: 1px solid red !important;");
+  $(`li[data-message-id="${message?.id}"]`).find(`.dice-formula`).attr('style',"border: 1px solid red !important;");
   return message;
 }
 function prevChatMessage() {
@@ -24,14 +24,14 @@ function prevChatMessage() {
     let i = messages.indexOf(game.messages.get($('#Dice-Tray-Dialog').find('.message-id').val()));
     message = messages[i+1];
     if (!message) return;
-    $('#Dice-Tray-Dialog').find('.message-id').val(message.id);
+    $('#Dice-Tray-Dialog').find('.message-id').val(message?.id);
   } else message = messages[0];
   //if (game.user.isGM)
     //message = game.messages.contents.reverse().filter(m=>m._roll && m.data.speaker.actor === actor.id)[0]
   $("#Dice-Tray-Dialog .roll-formula").val(message.roll.formula);
   $("#Dice-Tray-Dialog .roll-flavor").val(message.data.flavor);
   $(`.dice-formula`).removeAttr('style');
-  $(`li[data-message-id="${message.id}"]`).find(`.dice-formula`).attr('style',"border: 1px solid red !important;");
+  $(`li[data-message-id="${message?.id}"]`).find(`.dice-formula`).attr('style',"border: 1px solid red !important;");
   return message;
 }
 function nextChatMessage() {
@@ -41,15 +41,15 @@ function nextChatMessage() {
     let i = messages.indexOf(game.messages.get($('#Dice-Tray-Dialog').find('.message-id').val()));
     message = messages[i-1];
     if (!message) return;
-    $('#Dice-Tray-Dialog').find('.message-id').val(message.id);
+    $('#Dice-Tray-Dialog').find('.message-id').val(message?.id);
   } else message = messages[0];
   
   //if (game.user.isGM)
     //message = game.messages.contents.reverse().filter(m=>m._roll && m.data.speaker.actor === actor.id)[0]
-  $("#Dice-Tray-Dialog .roll-formula").val(message.roll.formula);
-  $("#Dice-Tray-Dialog .roll-flavor").val(message.data.flavor);
+  $("#Dice-Tray-Dialog .roll-formula").val(message?.roll.formula);
+  $("#Dice-Tray-Dialog .roll-flavor").val(message?.data.flavor);
   $(`.dice-formula`).removeAttr('style');
-  $(`li[data-message-id="${message.id}"]`).find(`.dice-formula`).attr('style',"border: 1px solid red !important;");
+  $(`li[data-message-id="${message?.id}"]`).find(`.dice-formula`).attr('style',"border: 1px solid red !important;");
   return message;
 }
 
