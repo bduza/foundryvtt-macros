@@ -1,22 +1,22 @@
-if (!args[0]) return;
-else {
-  let uuidParts = args[0].split('.');
-  console.log(uuidParts);
-  if (uuidParts[2]==='Token') actor = canvas.tokens.get(uuidParts[3]).actor;
-  else  actor = game.actors.get(uuidParts[1]);
-  actor = canvas.tokens.placeables.find(t=>t.actor?.uuid===args[0]).actor;
-}
-let rollType = args[1];
-let abilType = args[2];
-console.log(args);
+let {actorUuid, rollType, abilType, position, closeOnMouseLeave} = args[0] || {};
+let closeTimeout = 1000;
 
+console.log(actorUuid, rollType, abilType, position, closeOnMouseLeave)
 let t = '';
+
 if (!token) token = _token;
 if (!token && !actor) actor = game.user.character;
 else actor = token.actor;
 if (!actor) return ui.notifications.error("No Actor");;
-token = null
-
+token = null;
+if (!actorUuid || !rollType || !abilType) return;
+if (actorUuid) {
+  if (actorUuid.includes('Token')) {
+    token = await fromUuid(actorUuid);
+    actor = token.actor;
+  }
+  else actor = await fromUuid(actorUuid)
+}
 t = actor.uuid.replaceAll('.','_');
 console.log('t: ', t);
     
@@ -36,28 +36,30 @@ if (rollType === 'abilities' && abilType === 'test')
 if (rollType === 'skills')
   roll = `Skill`;
   
-let top = 3;
-//let left = window.innerWidth-610;
-if (game.user.isGM) top = 80;
+let bonusType = '';
+if (rollType === 'abilities' && abilType === 'save')
+  bonusType = `save`;
+if (rollType === 'abilities' && abilType === 'test')
+  bonusType = `check`;
+if (rollType === 'skills')
+  bonusType = `skill`;
+  
+let addedBonus = new Roll(actor.getRollData().bonuses.abilities[bonusType]).formula;
+  
 let left = 110;
-let width = 330;
+let width = '100%';
 let w_id = `${t}-${roll}-dialog`;
-let position = Object.values(ui.windows).find(w=> w.id===w_id)?.position || 
-  {  width: width ,  top: top, left: left };
-position["id"] = w_id;
-if (args[3]) position = {...position, ...args[3]};
-
-let closeOnMouseLeave = args[4];
-console.log('closeOnMouseLeave', closeOnMouseLeave)
-
-console.log(roll)
+let positionDefault =  
+  {  width: width ,  left: left , id: w_id};
+position = {...positionDefault, ...position};
+/*
 let wTargets = [];
 
 for (const [key, value] of Object.entries(actor.data.permission)) {
   if (key !== 'default' && value === 3)
     wTargets.push(game.users.get(key).name)
 }
-let whisperTargets = wTargets.join(', ')
+let whisperTargets = wTargets.join(', ')*/
 console.log('?', actor.data.data[rollType]);
 let content = `
 <style>
@@ -73,12 +75,12 @@ let content = `
   font-size: 1.5em; border-bottom: 1px solid #782e22; margin-right:.1em;
   }
 </style>
-<div style="display:grid; grid-template-columns:1fr 1fr;">`;
+<div style="display:grid; grid-template-columns:100px auto;">`;
 for (const [key, value] of Object.entries(actor.data.data[rollType])){
   let text = CONFIG.DND5E[rollType][key] ;
   content += `<div align="left" style="margin-bottom:.75em;">${text}</div>
-    <div align="left"> 
-    [[/r 1d20 + ${value[bonus]} # ${text} ${abilType}]]
+    <div align="right"> 
+    [[/r 1d20 + ${value[bonus]}${(addedBonus)?' + ' + addedBonus: ''} # ${text} ${abilType}]]
     <a id="inline-adv"  class="my-inline-roll" >ADV</a>
     <a id="inline-d20"  class="my-inline-roll" style="display:none"><i class="fas fa-dice-d20"></i></a>
     <a id="inline-dis"  class="my-inline-roll" >DIS</a>
@@ -93,14 +95,22 @@ let rollmodes = `<center>
 <a id="${w_id}-rollmodeselectsr" name="selfroll"   class="rms">&ensp;/sr&ensp;</span>
 </center>`;
 content = TextEditor.enrichHTML(content) ;
-let d = new Dialog({
+Dialog.persist({
     title : `${actor.data.name} ${rollType.capitalize()} ${abilType?abilType.capitalize():''}`, 
     content : content,
     render : (content) => {
-      if (closeOnMouseLeave)
-        $(`#${w_id}`).mouseleave(async function(e){
-          Object.values(ui.windows).filter(w=> w.id===w_id)[0].close();
+      if (closeOnMouseLeave) {
+        $(`#${w_id}`).mouseenter(function(e){
+          $(`#${w_id}`).removeClass('hide');
         });
+        
+        $(`#${w_id}`).mouseleave(async function(e){
+          $(`#${w_id}`).addClass('hide');
+          await new Promise((r) => setTimeout(r, closeTimeout));
+          if ($(`#${w_id}`).hasClass('hide'))
+            Object.values(ui.windows).filter(w=> w.id===w_id)[0].close();
+        });  
+      }
       
       $(`[id$=${w_id}-straight-section-tab]`).css('textShadow' , "0 0 8px red");
       $(`#${w_id}-rollmodeselect-roll`).css('textShadow' , "0 0 8px red");
@@ -152,6 +162,7 @@ let d = new Dialog({
         $(this).prev().click();
         targetElement.attr('data-flavor', targetElement.attr('data-flavor').replace(' with disadvantage',''));
       });
+      /*
       $(`#${w_id}`).find(`section.window-content`).click(async function(e){
         console.log(this);
         let placeables = canvas.tokens.placeables.filter(tp => tp.actor?.uuid === t.replaceAll('_','.'))
@@ -162,10 +173,10 @@ let d = new Dialog({
         
         for ( let w of Object.values(ui.windows).filter(w=> w.id !== `menu-${t}` && w.id.includes(`${t}`)))
           ui.windows[w.appId].bringToTop();
-      });
+      });*/
     },
     buttons : {},
     close:   html => { 
       return;
     }
-},position).render(true);
+},position);//.render(true);
