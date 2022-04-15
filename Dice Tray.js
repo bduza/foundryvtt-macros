@@ -1,3 +1,20 @@
+if (game.user.isGM && !game.macros.getName("updateChatMessage(id, update)"))
+await Macro.create({
+    "name": "updateChatMessage(id, update)",
+    "type": "script",
+    "scope": "global",
+    "command": "console.log(await game.messages.get(args[0]).update(args[1]), args[1]);",
+    "sort": 0,
+    "permission": {
+        "default": 2
+    },
+    "flags": {
+        "advanced-macros": {
+            "runAsGM": true
+        }
+    }
+});
+
 function getMessages() {
   if (game.user.isGM) return game.messages.contents.reverse().filter(m=>m._roll);
   return game.messages.contents.reverse().filter(m=>m._roll && m.data.user === game.user.id && !m.data.blind);
