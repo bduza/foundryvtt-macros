@@ -124,7 +124,7 @@ let content = `
     grid-template-columns: auto;
     row-gap: .25em;
   }
-  .advantage {line-height: 1.65em}
+  .advantage {line-height: .5em; }
   .saved-rolls .inline-roll {text-align: center; border: 1px solid var(--color-border-light-primary);}
   .saved-rolls .inline-roll:hover {box-shadow: 0 0 5px var(--color-shadow-primary);}
   #Dice-Tray-Dialog * { background: unset !important; color: white; }
