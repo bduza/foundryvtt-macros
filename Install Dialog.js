@@ -132,9 +132,9 @@ let d = new Dialog({
     
        $('.installer-button').click(async function(){
         let folderName = '5e Dialog Macros';
-        let macroFolder = game.folders.find(f => f.data.name === folderName && f.data.type === 'Macro');
-        if (!macroFolder) macroFolder = await Folder.create({name : folderName , type : 'Macro'});
-        let folderId = game.folders.find(f => f.data.name === folderName && f.data.type === 'Macro').id;
+        //let macroFolder = game.folders.find(f => f.data.name === folderName && f.data.type === 'Macro');
+        //if (!macroFolder) macroFolder = await Folder.create({name : folderName , type : 'Macro'});
+        //let folderId = game.folders.find(f => f.data.name === folderName && f.data.type === 'Macro').id;
         let github = "https://raw.githubusercontent.com/xaukael/foundryvtt-macros/main/";
         let macro = macros.find(m=>m.name === $(this).attr('name'))
         let args = [macro.name];
@@ -156,7 +156,7 @@ let d = new Dialog({
               "img": macro.img,
               "scope": "global",
               "command": gitData,
-              "folder": folderId,
+              //"folder": folderId,
               "sort": 0,
               "permission": {
                   "default": macro.permission
@@ -178,7 +178,7 @@ let d = new Dialog({
               "img": macro.img,
               "scope": "global",
               "command": gitData,
-              "folder": folderId,
+              //"folder": folderId,
               "sort": 0,
               "permission": {
                   "default": macro.permission
