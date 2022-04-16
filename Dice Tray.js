@@ -207,7 +207,7 @@ $(`#Dice-Tray-Dialog > header > h4`).append(`<a class="last-message">Die Tray</a
 $('#Dice-Tray-Dialog').remove();
 $(`body`).append(`<div id="Dice-Tray-Dialog" style="${position}"><header class="window-title"><h4></h4></header>${content}</div>`);
 $(`#Dice-Tray-Dialog`).draggable();
-$(`#Dice-Tray-Dialog`).css('padding', '.5em');
+$(`#Dice-Tray-Dialog`).css('padding', '.3em');
 $(`#Dice-Tray-Dialog > header > h4`).append(`<a class="last-message">Die Tray</a>${actor?.name?' - ' + actor?.name:''}`);
 $(`#Dice-Tray-Dialog > header > h4`).append(`<a title="Close" class="close" style="float: right" ><i class="fas fa-times"></i>Close</a>`)
 //---------------------------------------------------------    */
@@ -395,7 +395,7 @@ $('#Dice-Tray-Dialog').find(`button.term`).mouseup(async function() {
 });
 
 $('#Dice-Tray-Dialog').find(`.roll-0`).click(async function() {
-  new Roll('0').toMessage({speaker: ChatMessage.getSpeaker({actor})});
+  new Roll('0').toMessage({speaker: ChatMessage.getSpeaker({actor}), sound:null});
 });
 
 $('#Dice-Tray-Dialog').find(`.roll-flavor`).keyup(async function(e) {
@@ -438,7 +438,7 @@ $('#Dice-Tray-Dialog').find(`.advantage`).click(async function() {
   for (let i = 0; i<terms.length; i++) {
     let newTerm = terms[i];
     if (!remove.includes(newTerm)) {
-      if (newTerm instanceof DiceTerm) 
+      if (newTerm instanceof DiceTerm && newTerm.faces == 20) 
         newTerm.modifiers = [modifier];
       newRoll.terms.push(newTerm);
     }
