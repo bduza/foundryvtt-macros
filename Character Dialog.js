@@ -653,8 +653,9 @@ Dialog.persist({
                 }
                   
                   
-                console.log(`#item-rolls-dialog-${_uuid}-${item.id} .inline-roll`)
-                app.find(`#item-rolls-dialog-${_uuid}-${item.id} .inline-roll.roll`).contextmenu(async function(e) {
+                
+                app.find(` .inline-roll.roll`).contextmenu(async function(e) {
+                  console.log(`#item-rolls-dialog-${_uuid}-${item.id} .inline-roll`)
                   let targetElement = $(this);
                   let oldFormula = targetElement.attr('data-formula');
                   let flavor = targetElement.attr('data-flavor');
