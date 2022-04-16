@@ -67,7 +67,7 @@ for (let type of types){
     </span>
   </a>`);
   if (type==='Spell') list.push(`
-  <a onclick="game.macros.find(m=>m.data.flags.world?.name==='Spell Preparation').execute('${t}');">
+  <a class="spell-prep">
     <span style="margin: 0 3px" >Prepare</span>
   </a>`);
 }
@@ -144,6 +144,8 @@ Dialog.persist({
     }
     
     $('.type-link').click(function (e) {
+      let w = Object.values(ui.windows).find(w=> w.id===`items-dialog-${t}-${$(this).attr('name')}`)
+      if (w) return w.close();
       let closeOnMouseLeave = $(`#${t}-closeOnMouseLeave`).is(":checked");
       
       let position = {left: $(this).offset().left, top:$(this).offset().top+20};
@@ -157,7 +159,15 @@ Dialog.persist({
         });
     });
     
+    $('.spell-prep').click(function (e) {
+      let w = Object.values(ui.windows).find(w=> w.id===`spell-preparation`)
+      if (w) return w.close();
+      game.macros.find(m=>m.data.flags.world?.name==='Spell Preparation').execute('${t}');
+    });
+    
     $(`#${t}-ce`).click(function (e) {
+      let w = Object.values(ui.windows).find(w=> w.id===`${t}-effects`)
+      if (w) return w.close();
       let closeOnMouseLeave = $(`#${t}-closeOnMouseLeave`).is(":checked");
       let position = {left: $(this).offset().left, top:$(this).offset().top+20};
        game.macros.find(m=>m.data.flags.world?.name==='Actor Effects List').execute({
@@ -180,6 +190,8 @@ Dialog.persist({
     });
     
     $(`#rest-dialog-${t}`).click(function (e) {
+      let w = Object.values(ui.windows).find(w=> w.id===`${t}-rest-dialog`)
+      if (w) return w.close();
       let closeOnMouseLeave = $(`#${t}-closeOnMouseLeave`).is(":checked");
       let position = {left: $(this).offset().left, top:$(this).offset().top+20};
       game.macros.find(m=>m.data.flags.world?.name==='Rest Dialog').execute({
@@ -189,9 +201,22 @@ Dialog.persist({
     });
     
     $(`.menu-roll-dialog-button-${t}`).each(function() {
-        $(this).click(async function(e){
-          let closeOnMouseLeave = $(`#${t}-closeOnMouseLeave`).is(":checked");
+      
+      $(this).click(async function(e){
           let vars = this.name.split('-');
+          console.log(vars);
+          let roll = '';
+          if (vars[1] === 'abilities' && vars[2] === 'save')
+            roll = `Ability${vars[2].capitalize()}`;
+          if (vars[1] === 'abilities' && vars[2] === 'test')
+            roll = `Ability${vars[2].capitalize()}`;
+          if (vars[1] === 'skills')
+            roll = `Skill`;
+          console.log(`${t}-${roll}-dialog`)
+          let w = Object.values(ui.windows).find(w=> w.id===`${t}-${roll}-dialog`)
+          if (w) return w.close();
+          let closeOnMouseLeave = $(`#${t}-closeOnMouseLeave`).is(":checked");
+          
           let position = {left: $(this).offset().left, top:$(this).offset().top+20};
           game.macros.find(m=>m.data.flags.world?.name==='Roll Dialog').execute({
             actorUuid: vars[0].replaceAll('_','.'),

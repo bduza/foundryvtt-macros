@@ -1,7 +1,7 @@
 if (typeof Dialog.persist !== "function") game.macros.find(m=>m.data.flags.world?.name==='Dialog.persist').execute();
 
 let {actorUuid, type, position, closeOnMouseLeave} = args[0] || {};
-console.log(args[0], actorUuid, type, position, closeOnMouseLeave)
+console.log(args[0])
 let sortByActionType = false;
 //let closeOnMouseLeave = args[3];
 let closeTimeout = 1000;
@@ -172,12 +172,12 @@ content+=`
 <div style="font-size:1.1em;"><a onclick="game.macros.find(m=>m.data.flags.world?.name==='Actor Effects List').execute('${_uuid}');"><i class="fas fa-bolt"></i></a></div>
 </div>`;
 
-let doNotFilter = ["feat", "tool", "loot", "equipment"];
+let doFilter = ["feat", "spell"];
 
 let actorItems;
 if (type) {
-  if (doNotFilter.includes(type)) actorItems = actor.itemTypes[type]
-  else  actorItems = actor.itemTypes[type].filter(i => itemFilter(i));;
+  if (doFilter.includes(type)) actorItems = actor.itemTypes[type].filter(i => itemFilter(i));
+  else  actorItems = actor.itemTypes[type];
 }
 else actorItems = actor.items.filter(i => itemFilter(i));
 
@@ -268,6 +268,7 @@ for (const item of actorItems) {
     items[itemType][activation][level][item.data.name].push(text);
   
 }
+console.log(items);
 let sections = '';//'<div style="width: 298px; height: 658px; overflow: scroll;">';
 for (const key of Object.keys(items).sort().reverse()) {
   let h = key.capitalize();
