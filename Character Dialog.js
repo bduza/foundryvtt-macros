@@ -328,7 +328,7 @@ if (actor.data.type === 'character' && !type) {
   content += `<h2>Currency</h2><div style="display: grid; grid-template-columns:repeat(${Object.keys(actor.data.data.currency).length}, 1fr);">`
   for (let [key, value] of Object.entries(actor.data.data.currency))
     content += `<div>
-      ${key}: <a id="${actor.id}-${key}" name="${actor.id}" class="editable-span" text="${value}">${value}</a>
+      ${key}: <a id="${actor.id}-${key}" name="${actor.id}" class="editable-span" data-key="data.currency.${key}" text="${value}">${value}</a>
     </div>`
   content += `</div>`;
 }
@@ -384,11 +384,12 @@ Dialog.persist({
         let text = $(this).attr("text");
         let id = $(this).attr("id");
         $(this).toggle();
-        console.log(id, text);
-        $(this).before(`<input id="${id}-input" type="number" value="${text}" style="width:${$(this).width()+10}px; height:${$(this).height()}px"></input>`);
+        //console.log(id, text, $(this));
+        $(this).before(`<input id="${id}-input" type="text" value="${text}" style="width:30px; height:${$(this).height()}px  ;font-size:${$(this).css('font-size')};"></input>`);
         $(`input#${id}-input`).select();
         $(`#${id}-input`).keyup(async function(e){
           if (e.which !== 13) return;
+          let input = $(this).val();
           let value = parseInt($(this).val());
           if (value == undefined || value == null ) {
             $(this).next().toggle();
@@ -396,14 +397,16 @@ Dialog.persist({
             ui.notifications.error('invalid currency ammount');
             return;
           }
-          let actorid = $(this).next().attr("id").split('-')[0];
-          let key = $(this).next().attr("id").split('-')[1];
-          await game.actors.get(actorid).update({[`data.currency.${key}`]:value});
-          $(this).next().attr("text", value);
-          $(this).next().html(value);
+          
+          let actorid = $(this).next().attr("name");
+          let key = $(this).next().attr("data-key");
+          //console.log(input, value, input.at(0), a)
+          if (input.at(0) === '+' || input.at(0) === '-') await actor.update({[`${key}`]: getProperty(actor.data, key) + value});
+          else await actor.update({[`${key}`]: value});
+          $(this).next().attr("text", getProperty(actor.data, key));
+          $(this).next().html(getProperty(actor.data, key));
           $(this).next().toggle();
           $(this).remove();
-          
         });
       });
       
@@ -635,10 +638,6 @@ Dialog.persist({
                 });
                 let header = `${item.data.name}`;
                 
-                //if (closeOnMouseLeave)
-                //  $(`#item-rolls-dialog-${_uuid}-${item.id}`).mouseleave(async function(e){
-                //    Object.values(ui.windows).filter(w=> w.id===`item-rolls-dialog-${_uuid}-${item.id}`)[0].close();
-                //  });
                 if (closeOnMouseLeave) {
                   $(`#item-rolls-dialog-${_uuid}-${item.id}`).mouseenter(function(e){
                     $(`#item-rolls-dialog-${_uuid}-${item.id}`).removeClass('hide');

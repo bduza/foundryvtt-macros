@@ -14,7 +14,13 @@ await Macro.create({
         }
     }
 });
-
+if (!jQuery.ui) {
+  $('head').append($('<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js" id="jquery-ui"></script>'));
+  let waitRender = Math.floor(1000 / 10);
+  while (!jQuery.ui && waitRender-- > 0) {
+    await new Promise((r) => setTimeout(r, 50));
+  }
+}
 function getMessages() {
   if (game.user.isGM) return game.messages.contents.reverse().filter(m=>m._roll);
   return game.messages.contents.reverse().filter(m=>m._roll && m.data.user === game.user.id && !m.data.blind);
@@ -75,13 +81,6 @@ function nextChatMessage() {
 actor = token?.actor || character || null;
 let width = 60;
 //if (!actor) return ui.notifications.error('no actor');
-if (!jQuery.ui) {
-  $('head').append($('<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js" id="jquery-ui"></script>'));
-  let waitRender = Math.floor(1000 / 10);
-  while (!jQuery.ui && waitRender-- > 0) {
-    await new Promise((r) => setTimeout(r, 50));
-  }
-}
 
 let content = `
   <style>
@@ -92,6 +91,10 @@ let content = `
     width: ${width*7}px;
     background: url(../ui/denim075.png) repeat;
     box-shadow: 0 0 20px var(--color-shadow-dark);
+  }
+  #Dice-Tray-Dialog button > small {
+    position: absolute; margin-left: -5px; line-height: 10px;
+    /*top: 55%; left: 50%; transform: translate(-50%, -50%);*/ 
   }
   #Dice-Tray-Dialog > header > h4 > a > i{margin: 0 3px 0 0}
   #input-div input, #input-div button, #dice-div button{
@@ -170,12 +173,12 @@ let content = `
       <button class="advantage">ADV</button>
       <button class="dis advantage">DIS</button>
     </div>
-    <button class="term" data-text="1d20"><img src="icons/dice/d20black.svg"></button>
-    <button class="term" data-text="1d12"><img src="icons/dice/d12black.svg"></button>
-    <button class="term" data-text="1d10"><img src="icons/dice/d10black.svg"></button>
-    <button class="term" data-text="1d8" ><img src="icons/dice/d8black.svg"> </button>
-    <button class="term" data-text="1d6" ><img src="icons/dice/d6black.svg"> </button>
-    <button class="term" data-text="1d4" ><img src="icons/dice/d4black.svg"> </button>
+    <button class="term" data-text="1d20"><small>20</small><img src="icons/dice/d20black.svg"></button>
+    <button class="term" data-text="1d12"><small>12</small><img src="icons/dice/d12black.svg"></button>
+    <button class="term" data-text="1d10"><small>10</small><img src="icons/dice/d10black.svg"></button>
+    <button class="term" data-text="1d8" ><small>8</small><img src="icons/dice/d8black.svg"> </button>
+    <button class="term" data-text="1d6" ><small>6</small><img src="icons/dice/d6black.svg"> </button>
+    <button class="term" data-text="1d4" ><small>4</small><img src="icons/dice/d4black.svg"> </button>
   </div>`;
 
 content += [1,2,3,4,5,6,7,8,9,10].reduce((acc, n)=> 
@@ -216,7 +219,8 @@ lastChatMessage()
 $(`#Dice-Tray-Dialog > header > h4`).append(`<a title="Roll 0" style="float: right" class="roll-0"><i class="fab fa-creative-commons-zero"></i>Roll</a>`);
 if ($(`#input-div`).hasClass('hidden')) $(`#Dice-Tray-Dialog > header > h4`).append(`<a title="Change Mode" style="float: right" class="change-mode-button"><i class="fas fa-plus"></i>Roll </a>`);
 else $(`#Dice-Tray-Dialog > header > h4`).append(`<a title="Change Mode" style="float: right" class="change-mode-button"><i class="fas fa-dice-d20"></i>Build</a>`);  
-$(`#Dice-Tray-Dialog > header > h4 > a`).css('margin',' 0 8px 0 0 ');
+$(`#Dice-Tray-Dialog > header > h4 > a`).css('margin',' 0 0 0 8px');
+$(`#Dice-Tray-Dialog > header > h4 > a.last-message`).css('margin',' 0 0 0 0');
 $(`#Dice-Tray-Dialog > header > h4 > .close`).click(()=>{$('#Dice-Tray-Dialog').remove();});
 $(`#Dice-Tray-Dialog > header > h4 > .last-message`).click(()=>{
   lastChatMessage(true);
