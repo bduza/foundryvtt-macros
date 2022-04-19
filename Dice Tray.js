@@ -546,9 +546,9 @@ Array.prototype.cleanRollTerms = function() {
 
 //if (!Hooks._hooks.renderChatMessage || Hooks._hooks.renderChatMessage?.findIndex(f=>f.toString().includes('rollTermsBackup'))==-1)
 
-while (Hooks._hooks.renderChatMessage?.findIndex(f=>f.toString().includes('rollTermsBackup'))>-1)
-  Hooks._hooks.renderChatMessage.splice( Hooks._hooks.renderChatMessage.findIndex(f=>f.toString().includes('rollTermsBackup')), 1)
-
+for (let f of Hooks._hooks.renderChatMessage.filter(f=>f.toString().includes('rollTermsBackup'))) 
+  Hooks.off('renderChatMessage', f);
+  
 Hooks.on('renderChatMessage', (message, html)=>{
   if (!message.roll) return;
   if (!message.roll?.terms) return;
