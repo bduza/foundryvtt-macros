@@ -1,5 +1,5 @@
 let content = '<table>'
-for (let actor of game.actors.filter(a=>a.hasPlayerOwner)) { 
+for (let actor of game.actors.filter(a=>a.hasPlayerOwner && a.type==='character')) { 
   let pct = actor.data.data.attributes.encumbrance.pct;
   let status='';
   let encumbered = await game.dfreds.effectInterface.hasEffectApplied('Encumbered', actor.uuid);
