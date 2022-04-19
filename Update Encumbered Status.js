@@ -1,5 +1,5 @@
 let content = '<table>'
-for (let actor of game.actors.filter(a=>a.hasPlayerOwner  && a.data.folder === null && a.type !== 'vehicle')) { 
+for (let actor of game.actors.filter(a=>a.hasPlayerOwner)) { 
   let pct = actor.data.data.attributes.encumbrance.pct;
   let status='';
   let encumbered = await game.dfreds.effectInterface.hasEffectApplied('Encumbered', actor.uuid);

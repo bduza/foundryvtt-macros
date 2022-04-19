@@ -424,12 +424,12 @@ Dialog.persist({
   
   },
   close:   html => {
-    while (Hooks._hooks.renderChatMessage?.findIndex(f=>f.toString().includes('renderchatmessagesdialog'))>-1)
-      Hooks._hooks.renderChatMessage.splice( Hooks._hooks.renderChatMessage.findIndex(f=>f.toString().includes('renderchatmessagesdialog')), 1)
-    while (Hooks._hooks.deleteChatMessage?.findIndex(f=>f.toString().includes('renderchatmessagesdialog'))>-1)
-      Hooks._hooks.deleteChatMessage.splice( Hooks._hooks.deleteChatMessage.findIndex(f=>f.toString().includes('renderchatmessagesdialog')), 1)  
-      
-  return}
+    for (let f of Hooks._hooks.deleteChatMessage.filter(f=>f.toString().includes('//renderchatmessagesdialog'))) 
+      Hooks.off('deleteChatMessage', f);
+    for (let f of Hooks._hooks.renderChatMessage.filter(f=>f.toString().includes('//renderchatmessagesdialog'))) 
+      Hooks.off('renderChatMessage', f);
+    return;
+  }
 },position
 );
 //d.render(true);
