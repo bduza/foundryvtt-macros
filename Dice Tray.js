@@ -1,3 +1,7 @@
+let width = 60;
+let position = $(`#Dice-Tray-Dialog`).attr(`style`) || `top:${window.innerHeight - parseInt($('#ui-right').css('bottom'))-212}px;left:${window.innerWidth- parseInt($('#ui-right').css('right'))-$('#ui-right').width()-(width*7)}px;position:absolute;`;
+//window.innerWidth - width*7 -315
+
 if (game.user.isGM && !game.macros.getName("updateChatMessage(id, update)"))
 await Macro.create({
     "name": "updateChatMessage(id, update)",
@@ -79,13 +83,13 @@ function nextChatMessage() {
 }
 
 actor = token?.actor || character || null;
-let width = 60;
+
 //if (!actor) return ui.notifications.error('no actor');
 
 let content = `
   <style>
   #Dice-Tray-Dialog {
-    z-index: 1000;
+    z-index: ${++_maxZ};
     border: 1px solid var(--color-border-dark);
     border-radius: 5px; 
     width: ${width*7}px;
@@ -188,12 +192,11 @@ content += [1,2,3,4,5,6,7,8,9,10].reduce((acc, n)=>
 if (actor && game.system.id==='dnd5e')
   content += Object.entries(actor.data.data.abilities).reduce((acc, [key, value])=> 
     acc+=`<center style="font-size:1em"><button class="term" data-text="${value.mod}[${key}]" title="${value.mod}[${key}]">${key.toUpperCase()}</button></center>`,
-    `<div id="abilities-div" style="display:grid; grid-template-columns: repeat(7, auto); column-gap:.25em;  margin: .25em 0;">`) +
+    `<div id="abilities-div" style="display:grid; grid-template-columns: repeat(7, auto); column-gap:.25em;  margin-top: .25em;">`) +
     `<center style="font-size:1em"><button class="term" data-text="${actor.data.data.prof.term}[prof]" title="${actor.data.data.prof.term}[prof]">PROF</button></center></div>`;
     
 content += `<div class="saved-rolls"></div>`;
 
-let position = $(`#Dice-Tray-Dialog`).attr(`style`) || `top:10px;left:${window.innerWidth - width*7 -315}px;position:absolute;`;
 
 
 //--------------------------------------------------------- 
@@ -215,7 +218,11 @@ $(`#Dice-Tray-Dialog > header > h4`).append(`<a class="last-message">Die Tray</a
 $(`#Dice-Tray-Dialog > header > h4`).append(`<a title="Close" class="close" style="float: right" ><i class="fas fa-times"></i>Close</a>`)
 //---------------------------------------------------------    */
 lastChatMessage()
-
+$(`#Dice-Tray-Dialog`).click(function(){
+  //console.log($(this).css('z-index') , _maxZ, $(this).css('z-index') == _maxZ)
+  if ($(this).css('z-index') == _maxZ) return
+  $(this).css('z-index', ++_maxZ)
+});
 $(`#Dice-Tray-Dialog > header > h4`).append(`<a title="Roll 0" style="float: right" class="roll-0"><i class="fab fa-creative-commons-zero"></i>Roll</a>`);
 if ($(`#input-div`).hasClass('hidden')) $(`#Dice-Tray-Dialog > header > h4`).append(`<a title="Change Mode" style="float: right" class="change-mode-button"><i class="fas fa-plus"></i>Roll </a>`);
 else $(`#Dice-Tray-Dialog > header > h4`).append(`<a title="Change Mode" style="float: right" class="change-mode-button"><i class="fas fa-dice-d20"></i>Build</a>`);  
@@ -564,7 +571,7 @@ Hooks.on('renderChatMessage', (message, html)=>{
   let $diceTooltip = $(`<div class="dice-tooltip">`)
   let $tooltipPart = $(`<section class="tooltip-part">`)
   let $dice = $('<div class="dice">')
-  let $ol = $('<ol class="dice-rolls" style="display:flex; justify-content: center;">')
+  let $ol = $('<ol class="dice-rolls" style="display:flex; justify-content: center; flex-wrap: wrap;">')
   html.find("li.roll.die").each(function(){
     $ol.append($(this).clone());
   });
