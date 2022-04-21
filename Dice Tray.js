@@ -1,5 +1,8 @@
 let width = 60;
-let position = $(`#Dice-Tray-Dialog`).attr(`style`) || `top:${window.innerHeight - parseInt($('#ui-right').css('bottom'))-212}px;left:${window.innerWidth- parseInt($('#ui-right').css('right'))-$('#ui-right').width()-(width*7)}px;position:absolute;`;
+let initialPosition = `top:${window.innerHeight - parseInt($('#ui-right').css('bottom'))-212}px;left:${window.innerWidth- parseInt($('#ui-right').css('right'))-$('#ui-right').width()-(width*7)}px;position:absolute;`;
+let position = $(`#Dice-Tray-Dialog`).attr(`style`) || initialPosition;
+if (parseInt($('#Dice-Tray-Dialog').css('left')) > window.innerWidth || parseInt($('#Dice-Tray-Dialog').css('top')) > window.innerHeight)
+  position = initialPosition;
 //window.innerWidth - width*7 -315
 
 if (game.user.isGM && !game.macros.getName("updateChatMessage(id, update)"))
