@@ -4,8 +4,7 @@ $('#taskbar').remove();
 $(`#taskbar-start-menu`).remove();
 $(`#taskbar-settings-menu`).remove();
 $('#ui-bottom').prepend($('#players'))
-$('#ui-top').after($('#ui-left'))
-$('body').prepend($('#logo'));
+$('#ui-top').append($('#navigation'));
 let moveSidebarTabs = 1;
 let autohideMenu = 1;
 //if (!moveSidebarTabs) $('#sidebar-tabs').css('display', 'flex');
@@ -53,24 +52,39 @@ Hooks.on(`addWindowToTaskbar`, async function addWindowToTaskbar(app)  {
     $(`.taskbar-app[data-id="${app.id}"]`).removeClass('hidden');
     return $(`#${app.id}`).show();;
   }
+  app._element.find(`.window-header .minimize`).remove();
+  app._element.find(`.window-header .pin`).remove();
+  
   let isPinned = game.user.data.flags.world?.pinnedTaskbarDocuments.includes(app.document?.uuid);
   let uuidAttr = '';
   let pinned = '';
   let pin = ``;
   let thumbnail = ``;
   if (app.document?.uuid) {
+    app._element.find(`.header-button.close`).before($(`<a class="pin" style="color: #aaa" title="Pin"><i class="fas fa-thumbtack"></i>Pin</a>`).click(function(e){
+      e.ctrlKey=true;
+      $(`#taskbar-app-${app.appId}`).trigger(e);
+      if ($(`#taskbar-app-${app.appId}`).hasClass('pinned')) 
+        $(this).css('color', '#fff');
+      else
+        $(this).css('color', '#aaa');
+    }));
     uuidAttr = `data-uuid="${app.document?.uuid}"`;
     if (isPinned) {
+      app._element.find(`.header-button.pin`).css('color', '#fff');
       pinned = `pinned`;
       pin = `<i class="fas fa-thumbtack"></i>`;
     }
     thumbnail = app.document.thumbnail?`<img src="${app.document.thumbnail}" style="vertical-align:top; margin-right: 3px; height:16px; width:16px; border: unset">`:'';
   }
-    
+  
   $('#taskbar > div.taskbar-items').append(`<a class="taskbar-app ${pinned}" id="taskbar-app-${app.appId}" data-id="${app.id}" name="${app.appId}" ${uuidAttr}><div class="app-title-div" title="${app.appId} | ${app.id}">${pin}${thumbnail}${app.title}</div></a>`);
   
   setWindowOnClick(app.appId);
-  
+  app._element.find(`.header-button.close`).before($(`<a class="minimize" title="Minimize"><i class="fas fa-window-minimize"></i>Minimize</a>`).click(function(e){
+    $(`#taskbar-app-${app.appId}`).click();
+  }));
+  app._element.find(`a`).each(function(){console.log($(this).html($(this).html().replace($(this).text(),'')))});
   $(`#taskbar-app-${app.appId}`).click(async function(e){
     let id = $(this).attr('data-id');
     let appId = $(this).attr('name');
@@ -156,17 +170,20 @@ let taskbar = $(`
   --ft-start-menu-item-size: 30px;
   --playerbot: 30px;
 }
+
+#ui-top {
+  /*min-height: 55px;*/
+}
 #ui-top, #players {
   margin-left: 5px !important;
 }
-#ui-top {
-  min-height: 55px
-}
 #ui-left {
-  height: 100%;
+  width: 150px;
+  /*margin-top: 65px;*/
 }
 #ui-bottom {
   display: flex;
+  margin-left: -150px;
   margin-bottom: 23px;
 }
 #ui-right {
@@ -179,16 +196,23 @@ let taskbar = $(`
     right: -304px;
 }
 #controls {
-  margin-top: 15px;
+  margin-bottom: 30px;
 }
 #logo {
-  position: absolute;
+  /*position: absolute;*/
 }
-#navigation {
-  margin-left: 120px;
+
+#players {
+  /*min-width: 150px;*/
 }
 #hotbar {
   margin:auto 0 12px 5px;
+}
+#nav-toggle {
+  /*display: none;*/
+}
+#navigation {
+  /*margin: auto  0 5px 20px;*/
 }
 #taskbar {
   color: var(--ft-text-color);
@@ -302,7 +326,7 @@ ${(game.modules.get("minimal-ui")?.active)?minimalCSS:''}
 </style>
 <div class="taskbar-items">
 <a id="taskbar-menu-toggle" title="Macro List" class="" style="margin-left:.25em"><div style="height: 30px; width: 40px; left: -20px; margin-right:-20px; position: relative;"><i style="margin-left: 20px; " class="fas fa-list"></i></div></a>
-<a id="taskbar-logo-toggle" title="Logo Toggle" class="taskbar-button ui-toggle" name="logo" style="margin:-1px .25em"><div>
+<a id="taskbar-logo-toggle" title="Logo Toggle" class="taskbar-button ui-toggle" name="logo" style="margin:-0.5px .25em"><div>
 <img src="icons/anvil.png" style="height: 20px; filter: invert(100%); vertical-align: top; margin-top: -2px; border: unset;"></div></a>
 <a id="taskbar-navigation-toggle" title="Scene Navigation" class="taskbar-button ui-toggle" name="navigation"><div><i class="fas fa-compass"></i></div></a>
 <a id="taskbar-players-toggle" title="Player List" class="taskbar-button ui-toggle" name="players"><div><i class="fas fa-users"></i></div></a>
@@ -632,7 +656,7 @@ $("#taskbar-menu-toggle").click(async function(e) {
     </a>`));
   let content = `<div id="taskbar-start-menu" style="z-index:${_maxZ+1};">
     <style> #players {display:none;}</style>
-    <div id="start-menu-search-results" style="color: black; margin-bottom: 30px;"></div>
+    <div id="start-menu-search-results" style="color: black; margin-bottom: 30px; max-height: calc(100vh - 75px); overflow: auto;"></div>
     <div id="start-menu-macros" style="max-height: calc(100vh - 75px); overflow: auto; ${game.user.isGM?'margin-bottom: 25px;':''}">${macros.join('')}</div>`;
   if (game.user.isGM) content += `<div style="position: absolute; bottom: 3px;  margin: 0px; width: calc(100% - 11px);"><input id="start-menu-search-input" type="text" style="width: 100%; color: white;"></input></div>`;
   content += `</div>`;
