@@ -19,8 +19,8 @@ let ce = game.modules.get("dfreds-convenient-effects").active;
 
 let title = "Roll Messages";
 let windowId = "roll-messages-dialog"
-let position = { height: 800, width : 420 , id: windowId};
-let header = `<h4><a onclick="game.macros.find(m=>m.data.flags.world?.name==='Chat Messages Dialog').execute()"  style="margin: 0 0 0 0;">${title}</a></h4>`
+let position = { height: 810, width : 420 , id: windowId};
+let header = `<h4><a onclick="game.macros.find(m=>m.data.flags.world?.name==='Chat Messages Dialog').execute()"  style="margin: 0 0 0 0;"><i class="fas fa-comments"></i>&ensp;${title}</a></h4>`
 if (!Hooks._hooks.renderChatMessage || Hooks._hooks.renderChatMessage?.findIndex(f=>f.toString().includes('renderchatmessagesdialog'))==-1)
   Hooks.on(`renderChatMessage`, (message, html, data) => { 
     //renderchatmessagesdialog
@@ -55,6 +55,7 @@ let damageTaken = {};
 //let header = 'Chat Messages';
 //for (let i = game.messages.contents.length - 1; 0 <= i; i--) {
 for (let m of game.messages.contents.filter(m=> ((m.data.roll || m.data.flavor) && m.data.speaker.alias) || (m.data.speaker.alias === undefined && m.data.flavor?.includes('Round'))).reverse()) {
+  if (m.data.speaker.alias === undefined && m.data.flavor?.includes('Round')) break;
   //let m = game.messages.contents[i];
   let total = 0;
   let message = ``;
@@ -268,7 +269,8 @@ content += '</div>';
 //let selectedAlias = $(`#alias-select`).val();
 //if (game.combats.active?.combatant) selectedAlias = $(`#alias-select`).val(game.combats.active.combatant.name);
 //console.log($(`#alias-select`).val(), selectedAlias.val());
-let aliasSelect = `<div style="position: absolute; top: 4px; left: 100px; "><select id="alias-select" style="height: 20px; margin-bottom:.5em;  width: 100%;"><option value="" ${$('#alias-select').val()===""?'selected':''}></option>`;
+//
+let aliasSelect = `<div style=""><select id="alias-select" style="position: absolute; top: 4px; left: 130px; height: 20px; margin-bottom:.5em;"><option value="" ${$('#alias-select').val()===""?'selected':''}></option>`;
 for (const alias of Object.keys(users).sort()) {
   aliasSelect +=  `<option value="${alias}" ${$('#alias-select').val()===alias?'selected':''}>${alias}</option>`;
 }
@@ -280,7 +282,7 @@ Dialog.persist({
   content:  content,
   buttons: {},
   render: (html) => {
-    $("#messages-dialog-content").css('height', `${$("#roll-messages-dialog").height()-55}px`)
+    //$("#messages-dialog-content").css('height', `${$("#roll-messages-dialog").height()-55}px`)
     //$('#messages-dialog-content').scrollTop($('#messages-dialog-content').height());
     if ($('#alias-select').val()) {
         $(`div.cm`).css('display', 'none');

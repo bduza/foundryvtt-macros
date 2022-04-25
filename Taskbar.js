@@ -84,7 +84,14 @@ Hooks.on(`addWindowToTaskbar`, async function addWindowToTaskbar(app)  {
   app._element.find(`.header-button.close`).before($(`<a class="minimize" title="Minimize"><i class="fas fa-window-minimize"></i>Minimize</a>`).click(function(e){
     $(`#taskbar-app-${app.appId}`).click();
   }));
-  app._element.find(`a`).each(function(){console.log($(this).html($(this).html().replace($(this).text(),'')))});
+  
+  if (game.user.data.flags.world?.rmHeaderButtonText)
+    app._element.find(`.window-header a`).each(function(){
+      $(this).attr('title', $(this).text());
+      $(this).html($(this).html().replace($(this).text(),''))
+      
+    });
+  
   $(`#taskbar-app-${app.appId}`).click(async function(e){
     let id = $(this).attr('data-id');
     let appId = $(this).attr('name');
@@ -161,15 +168,6 @@ let minimalCSS = `
 let taskbar = $(`
 <div class="taskbar ${autohideTaskbar?'autohide':''}" id="taskbar">
 <style id="taskbar-style">
-:root {
-  --ft-scale: 1;
-  --ft-sidebar: 315px;
-  --ft-height: 50px;
-  --ft-background-color: rgba(95, 158, 160, 0.644);
-  --ft-text-color: #fff;
-  --ft-start-menu-item-size: 30px;
-  --playerbot: 30px;
-}
 
 #ui-top {
   /*min-height: 55px;*/
@@ -215,7 +213,7 @@ let taskbar = $(`
   /*margin: auto  0 5px 20px;*/
 }
 #taskbar {
-  color: var(--ft-text-color);
+  color: #fff;
   position: absolute;
   transform-origin: bottom left;
   transform: scale(var(--ft-scale));
@@ -513,7 +511,7 @@ $("#taskbar-settings-toggle").click(async function(e) {
   color: #FFF;
   box-shadow: 0 0 20px var(--color-shadow-dark);
   height: auto;
-  width: 180px;
+  width: 220px;
   }
   #taskbar-settings-menu input {
   vertical-align: top;
@@ -544,7 +542,10 @@ $("#taskbar-settings-toggle").click(async function(e) {
     <label for="autohideSidebar">Auto-Hide Sidebar</label><br>
     
     <input id="moveSidebarTabs" type="checkbox" ${game.user.data.flags.world?.moveSidebarTabs?'checked':''}>
-    <label for="moveSidebarTabs">Move Sidebar Tabs</label>
+    <label for="moveSidebarTabs">Move Sidebar Tabs</label><br>
+    
+    <input id="rmHeaderButtonText" type="checkbox" ${game.user.data.flags.world?.rmHeaderButtonText?'checked':''}>
+    <label for="rmHeaderButtonText">Remove Header Button Text</label>
     
     <center><p><button id="taskbar-settings-refresh" style="height: 20px; line-height: 16px;">Refresh</button></p><center>
   </div>`;

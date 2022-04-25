@@ -56,10 +56,9 @@ let d = new Dialog({
         label: `Start Combat`,
         callback: async (html) => {
             let _id = html.find('#select-sound')[0].value;
-            
-            console.log(_id);
             game.playlists.getName("Combat").sounds.get(_id).update({ playing : true });
             game.combats.viewed.startCombat();
+            game.macros.getName('Set Token Display').execute();
         }
     }
   },

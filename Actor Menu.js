@@ -2,7 +2,6 @@ if (typeof Dialog.persist !== "function") game.macros.find(m=>m.data.flags.world
 
 if (!Hooks._hooks.controlToken || Hooks._hooks.controlToken?.findIndex(f=>f.toString().includes('Actor Menu'))==-1)
 Hooks.on("controlToken", (token, selected)=>{
-  console.log(token, selected)
   if (!selected || !$('.actor-menu').length) return;
   game.macros.find(m=>m.data.flags.world?.name==='Actor Menu').execute({actorUuid: token.actor.uuid});
 });
@@ -162,7 +161,7 @@ Dialog.persist({
     $('.spell-prep').click(function (e) {
       let w = Object.values(ui.windows).find(w=> w.id===`spell-preparation`)
       if (w) return w.close();
-      game.macros.find(m=>m.data.flags.world?.name==='Spell Preparation').execute('${t}');
+      game.macros.find(m=>m.data.flags.world?.name==='Spell Preparation').execute(t);
     });
     
     $(`#${t}-ce`).click(function (e) {

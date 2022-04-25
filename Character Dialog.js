@@ -471,6 +471,7 @@ Dialog.persist({
           let foundEffects = game.dfreds?.effects?.all.filter(e => item.data.name?.toUpperCase()===e.name.toUpperCase());
           if (foundEffects?.length > 0) 
             text += `<br><a id="${item.id}-effect-button" class="my-inline-roll" name="${foundEffects[0].name}" style="margin-right: .3em"><i class="fas fa-bolt" data-mode="${item.data.data.range.units==='self'?'self':'targets'}"></i> Apply ${foundEffects[0].name} to ${item.data.data.range.units==='self'?'Self':'Targets'}</a>`; 
+          if (item.labels.components?.includes('C')) text += `<br><a class="my-inline-roll concentration">Concentration</a>`;
         //-----------ROLLS---------------//
         //let actorName = ``;
         //if (token.data.disposition > 2) actorName = `${actor.name} `;
@@ -650,10 +651,8 @@ Dialog.persist({
                       Object.values(ui.windows).filter(w=> w.id===`item-rolls-dialog-${_uuid}-${item.id}`)[0].close();
                   });  
                 }
-                  
-                  
                 
-                app.find(` .inline-roll.roll`).contextmenu(async function(e) {
+                app.find(`.inline-roll.roll`).contextmenu(async function(e) {
                   console.log(`#item-rolls-dialog-${_uuid}-${item.id} .inline-roll`)
                   let targetElement = $(this);
                   let oldFormula = targetElement.attr('data-formula');
@@ -678,6 +677,21 @@ Dialog.persist({
                 });
                   
                 app.find(`#item-rolls-dialog-${_uuid}-${item.id} > header > h4`).html(header);
+                
+                app.find('a.concentration').contextmenu(async function(e) {$(this).click()});
+                app.find('a.concentration').click(async function(e){
+                  if (!!e.originalEvent) {
+                    game.cub.addCondition('Concentrating', [actor]);
+                    actor.setFlag("combat-utility-belt", "concentrationSpell",{
+                      id: item.id,
+                      name: item.name,
+                      status: "active"
+                    });
+                  } else {
+                    game.cub.removeCondition('Concentrating', [actor]);
+                    actor.unsetFlag("combat-utility-belt", "concentrationSpell");
+                  }
+                });
                 
                 app.find(`a[id^=${item.id}-header-roll]`).click(async function(e){
                   actor.items.get(`${item.id}`).roll()

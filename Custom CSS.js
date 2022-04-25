@@ -2,7 +2,7 @@ if ($('#custom-css').length) return $('#custom-css').remove();
 else
 $('body').append(`<div id="custom-css" style="position: absolute; left: -1000;"><style>
 .editor-content {
-  font-size: 120%;
+  /*font-size: 120%;*/
 }
 img {
 	border: none;
@@ -11,6 +11,30 @@ img {
   background: #111;
   color: white;
   border: 1px solid #555;
+}
+a.entity-link, a.content-link, a.inline-roll, .my-inline-roll{
+  background: rgba(30, 30, 30, 0.8) ;
+  color: white;
+  padding: 1px 4px;
+  border: 1px solid #4b4a44;
+  border-radius: 2px;
+  white-space: nowrap;
+  word-break: break-all;
+}
+.chat-message .inline-roll{
+  background: rgba(30, 30, 30, 0.0) ;
+  color: white;
+  border: 1px solid #aaa;
+}
+.chat-message .inline-roll.blindroll{
+  background: rgba(30, 30, 30, 0.0) ;
+  color: white;
+  border: 1px solid red;
+}
+.chat-message .inline-roll.gmroll{
+  background: rgba(30, 30, 30, 0.0) ;
+  color: white;
+  border: 1px solid blue;
 }
 .chat-message.whisper {
   background: #111;
@@ -67,11 +91,13 @@ border: 1px solid black !important;
   /*text-align: center;*/
   /*font-size: 1.1em !important;*/
 }
-.chat-control-icon {
-	display: none;	
+.chat-control-icon:hover {
+	/*display: none;	*/
+	text-shadow: 0 0 8px var(--color-shadow-primary);
+	cursor: pointer;
 }
 #chat-controls .roll-type-select  {
-	margin: 3.5px 1px 0px -2px;
+	margin: 3.5px 1px 0px 5px;
 	height: 20px;
 	background: #111;
   color: white ;
