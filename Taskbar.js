@@ -596,6 +596,7 @@ $("#taskbar-settings-toggle").click(async function(e) {
       });
     } catch (error) { console.log(error) }
     if (game.user.isGM) {
+      if (match) return ui.notifications.notify('No Update Needed');
       await macro.update({command:gitData});
       ui.notifications.notify('Taskbar Updated from GitHub');
     }
