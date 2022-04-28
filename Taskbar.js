@@ -586,7 +586,7 @@ $("#taskbar-settings-toggle").click(async function(e) {
     let macro = game.macros.getName('Taskbar')
     let match = true;
     let updated = false;
-    let command = macro.command;
+    let command = macro.data.command;
     let gitData;
     try {
       await jQuery.get(`https://raw.githubusercontent.com/xaukael/foundryvtt-macros/main/${encodeURI(macro.name)}.js`,     function(data) {
