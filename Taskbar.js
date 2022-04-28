@@ -500,7 +500,7 @@ if (game.user.data.flags.world?.moveSidebarTabs) {
   $("#taskbar-sidebar-tabs").remove()
   $('#sidebar-tabs').css('display', 'flex')
 }
-$("#calendar-time-taskbar").after(`<a class="taskbar-button" id="taskbar-settings-toggle"><div style="height: 30px; margin-left: 5px;"><i class="fas fa-cog"></i></div></a>`);
+$("#calendar-time-taskbar").after(`<a class="taskbar-button-" id="taskbar-settings-toggle"><div style="height: 30px; margin-left: 5px;"><i class="fas fa-cog"></i></div></a>`);
 $("#taskbar-settings-toggle").contextmenu(async function(e) {
   if (!$("#taskbar").hasClass("autohide")) 
    $("#taskbar").addClass("autohide").addClass('hide').addClass('hidden');
