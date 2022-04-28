@@ -500,7 +500,7 @@ if (game.user.data.flags.world?.moveSidebarTabs) {
   $("#taskbar-sidebar-tabs").remove()
   $('#sidebar-tabs').css('display', 'flex')
 }
-$("#calendar-time-taskbar").after(`<a class="tasakbar-button" id="taskbar-settings-toggle"><div style="height: 30px; margin-left: 5px;"><i class="fas fa-cog"></i></div></a>`);
+$("#calendar-time-taskbar").after(`<a class="taskbar-button" id="taskbar-settings-toggle"><div style="height: 30px; margin-left: 5px;"><i class="fas fa-cog"></i></div></a>`);
 $("#taskbar-settings-toggle").contextmenu(async function(e) {
   if (!$("#taskbar").hasClass("autohide")) 
    $("#taskbar").addClass("autohide").addClass('hide').addClass('hidden');
@@ -561,7 +561,8 @@ $("#taskbar-settings-toggle").click(async function(e) {
     <input id="rmHeaderButtonText" type="checkbox" ${game.user.data.flags.world?.rmHeaderButtonText?'checked':''}>
     <label for="rmHeaderButtonText">Remove Header Button Text</label>
     
-    <center><p><button id="taskbar-settings-refresh" style="height: 20px; line-height: 16px;">Refresh</button></p><center>
+    <center><p><button id="taskbar-settings-refresh" style="height: 20px; line-height: 16px;">Reload</button></p><center>
+    <center><p><button id="taskbar-settings-update" style="height: 20px; line-height: 16px;">Update</button></p><center>
   </div>`;
   /*
   <input id="autohideLogo" type="checkbox" ${game.user.data.flags.world?.autohideLogo?'checked':''}>
@@ -580,6 +581,25 @@ $("#taskbar-settings-toggle").click(async function(e) {
   $('#taskbar-settings-refresh').click(async function(e){
     $('#taskbar-settings-menu').remove();
     Hooks.call('appbarRefresh');
+  });
+  $('#taskbar-settings-update').click(async function(e){
+    let macro = game.macros.getName('Taskbar')
+    let match = true;
+    let updated = false;
+    let command = macro.command;
+    let gitData;
+    try {
+      await jQuery.get(`https://raw.githubusercontent.com/xaukael/foundryvtt-macros/main/${encodeURI(macro.name)}.js`,     function(data) {
+        if (!data) return;
+        match = data===command;
+        gitData = data;
+      });
+    } catch (error) { console.log(error) }
+    if (game.user.isGM) {
+      await macro.update({command:gitData});
+      ui.notifications.notify('Taskbar Updated from GitHub');
+    }
+    else ui.notifications.warn('Only GM can update this macro.');
   });
   $("#taskbar-settings-menu").contextmenu(function(){
     $(this).remove();
