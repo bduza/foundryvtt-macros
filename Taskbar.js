@@ -543,6 +543,7 @@ $("#taskbar-settings-toggle").click(async function(e) {
   text-shadow: 0 0 8px var(--color-shadow-primary);
   }
   </style>
+  <a style="float:right" onclick="$(this).parent().remove()"><i class="fas fa-times"></i></a>
   <center style="border-bottom: 1px solid white; margin-bottom: .5em;">Taskbar Settings</center>
     
     <input id="autohideTaskbar" type="checkbox" ${game.user.data.flags.world?.autohideTaskbar?'checked':''}>
