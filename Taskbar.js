@@ -85,6 +85,7 @@ Hooks.on(`addWindowToTaskbar`, async function addWindowToTaskbar(app)  {
   
    if (game.user.data.flags.world?.rmHeaderButtonText && app._element)
     app._element.find(`.window-header a`).each(function(){
+      if ($(this).parent().is('h4')) return true;
       $(this).attr('title', $(this).text());
       $(this).html($(this).html().replace($(this).text(),''))
       
@@ -562,7 +563,7 @@ $("#taskbar-settings-toggle").click(async function(e) {
     <label for="rmHeaderButtonText">Remove Header Button Text</label>
     
     <center><p><button id="taskbar-settings-refresh" style="height: 20px; line-height: 16px;">Reload</button></p><center>
-    <center><p><button id="taskbar-settings-update" style="height: 20px; line-height: 16px;">Update</button></p><center>
+    <center><p><button id="taskbar-settings-update" style="height: 20px; line-height: 16px;">Update Macro</button></p><center>
   </div>`;
   /*
   <input id="autohideLogo" type="checkbox" ${game.user.data.flags.world?.autohideLogo?'checked':''}>
