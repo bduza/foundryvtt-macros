@@ -580,7 +580,8 @@ $("#taskbar-settings-toggle").click(async function(e) {
   $("body").append(settings);
   $('#taskbar-settings-refresh').click(async function(e){
     $('#taskbar-settings-menu').remove();
-    Hooks.call('appbarRefresh');
+    //Hooks.call('appbarRefresh');
+    game.macros.getName('Taskbar').execute();
   });
   $('#taskbar-settings-update').click(async function(e){
     let macro = game.macros.getName('Taskbar')
