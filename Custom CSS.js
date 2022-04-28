@@ -1,6 +1,13 @@
 if ($('#custom-css').length) return $('#custom-css').remove();
 else
 $('body').append(`<div id="custom-css" style="position: absolute; left: -1000;"><style>
+
+li.control-tool.toggle.active {
+  background: var(--color-shadow-highlight) !important;
+  box-shadow: 0 0 10px var(--color-shadow-highlight) !important;
+  border: 1px solid var(--color-shadow-highlight) !important;
+}
+
 .editor-content {
   /*font-size: 120%;*/
 }
@@ -188,16 +195,17 @@ section > * > input {
 	background:  rgba(255, 255, 255 ,1) !important ;
 	//background: unset ;
 }
-/*
+
 #hotbar #macro-list {
     border: 1px solid #FFFFFF00;
-	    flex: 0 0 523px;
+	  flex: 0;
+	  margin-right: 3px;
 }
 .flexrow .macro-list {
     border: 1px solid #FFFFFF00;
 }
 .hotbar-page .macro-list {
-	flex: 0 0 523px;
+	flex: 0;/* 0 523px;*/
 }
 #hotbar .macro.inactive {
     box-shadow: 0 0 0px #444 inset;
@@ -223,7 +231,9 @@ section > * > input {
     cursor: pointer;
 	
 }
-*/
+#hotbar-directory-controls, #hotbar-page-controls, li.macro.inactive {
+  box-shadow: 0 0 10px #000 !important;
+}
 #macro-list{
 	grid-column-gap:2px;	
 }
