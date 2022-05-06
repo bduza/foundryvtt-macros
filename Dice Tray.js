@@ -559,31 +559,9 @@ Array.prototype.cleanRollTerms = function() {
 for (let f of Hooks._hooks.renderChatMessage.filter(f=>f.toString().includes('rollTermsBackup'))) 
   Hooks.off('renderChatMessage', f);
   
+if (game.user.isGM) 
 Hooks.on('renderChatMessage', (message, html)=>{
   if (!message.roll) return;
-  if (!message.roll?.terms) return;
-  if (message.data.user === game.user.id && $("#Dice-Tray-Dialog").length) {
-    $(`.dice-formula`).removeAttr('style');
-    html.find(`.dice-formula`).attr('style',"border: 1px solid red !important;");
-    if ($('#Dice-Tray-Dialog').find('.message-id').val() !== message?.id)
-      $(`#Dice-Tray-Dialog > header > h4 > .last-message`).click();
-    $("#Dice-Tray-Dialog .roll-formula").val(message?.roll.formula);
-    $("#Dice-Tray-Dialog .roll-flavor").val(message?.data.flavor);
-  }
-  html.find(`div.dice-tooltip`).css('display','block')
-  let $diceTooltip = $(`<div class="dice-tooltip">`)
-  let $tooltipPart = $(`<section class="tooltip-part">`)
-  let $dice = $('<div class="dice">')
-  let $ol = $('<ol class="dice-rolls" style="display:flex; justify-content: center; flex-wrap: wrap;">')
-  html.find("li.roll.die").each(function(){
-    $ol.append($(this).clone());
-  });
-  html.find(".dice-tooltip").remove()
-  $dice.append($ol);
-  $tooltipPart.append($dice);
-  $diceTooltip.append($tooltipPart)
-  html.find("div.dice-formula").after($diceTooltip);
-  if (!game.user.isGM) return;
   html.find('div.dice-formula').html(message.roll.terms.reduce((acc, t, i)=>acc+=`<a class="term" data-index="${i}">${t.formula}</a>`,``));
   html.find(`a.term`).click(async function(e) {
     e.preventDefault()
