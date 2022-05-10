@@ -211,8 +211,8 @@ for (const item of actorItems) {
   if (item.type === 'spell'){
     title +=  `${item.labels.level}\n`;
     title +=  `${item.labels.school}\n`;
-    if (item.labels.components.length)  title += item.labels.components.join(', ');
-    if (item.labels.components.includes('M')) title += `\n${item.labels.materials}`;
+    if (item.labels.components.all.length)  title += item.labels.components.all.map(c=>c.abbr).join(', ');
+    if (item.labels.components.all.map(c=>c.abbr).includes('M')) title += `\n${item.labels.materials}`;
     if (item.labels.range) title += '\nRange: ' + item.labels.range;
     if (item.labels.target) title += '\nTarget: ' + item.labels.target;
   }
@@ -456,8 +456,8 @@ Dialog.persist({
         //-----------LABELS AND ROLLS---------------//
           if (item.labels.level) text +=  `${item.labels.level} `;
           if (item.labels.school) text +=  `${item.labels.school} `;
-          if (item.labels.components?.length)  text += item.labels.components.join(', ');
-          if (item.labels.components?.includes('M')) text += `<br>Materials: ${item.labels.materials}`;
+          if (item.labels.components.all?.length)  text += item.labels.components.all.map(c=>c.abbr).join(', ');
+          if (item.labels.components.all.map(c=>c.abbr)?.includes('M')) text += `<br>Materials: ${item.labels.materials}`;
           if (item.labels.activation && item.labels.activation !== 'None') text += '<br>Activation: ' + item.labels.activation;
           if (item.labels.range && item.labels.range !== '5 Feet') text += '<br>Range: ' + item.labels.range;
           if (item.labels.target) text += (game.dnd5e.canvas.AbilityTemplate.fromItem(item))?`<br><a id="${item.id}-inline-targeting" name="${item.id}" class="my-inline-roll"><i class="fas fa-bullseye"></i> Template:  ${item.labels.target}</a>`:`<br>Targets:  ${item.labels.target}`;
@@ -471,7 +471,7 @@ Dialog.persist({
           let foundEffects = game.dfreds?.effects?.all.filter(e => item.data.name?.toUpperCase()===e.name.toUpperCase());
           if (foundEffects?.length > 0) 
             text += `<br><a id="${item.id}-effect-button" class="my-inline-roll" name="${foundEffects[0].name}" style="margin-right: .3em"><i class="fas fa-bolt" data-mode="${item.data.data.range.units==='self'?'self':'targets'}"></i> Apply ${foundEffects[0].name} to ${item.data.data.range.units==='self'?'Self':'Targets'}</a>`; 
-          if (item.labels.components?.includes('C')) text += `<br><a class="my-inline-roll concentration">Concentration</a>`;
+          if (item.labels.components?.includes('C')) text += `<br><a class="my-inline-roll concentration"><i class="fas fa-brain"></i>&nbsp;${game.cub.hasCondition('Concentrating', [actor])?`Stop Concentrating${actor.data.flags["combat-utility-belt"]["concentrationSpell"]?' On ' + actor.data.flags["combat-utility-belt"]["concentrationSpell"]?.name:``}`:'Concentrate'}</a>`;
         //-----------ROLLS---------------//
         //let actorName = ``;
         //if (token.data.disposition > 2) actorName = `${actor.name} `;
@@ -680,16 +680,18 @@ Dialog.persist({
                 
                 app.find('a.concentration').contextmenu(async function(e) {$(this).click()});
                 app.find('a.concentration').click(async function(e){
-                  if (!!e.originalEvent) {
+                  if (!game.cub.hasCondition('Concentrating', [actor])) {
                     game.cub.addCondition('Concentrating', [actor]);
-                    actor.setFlag("combat-utility-belt", "concentrationSpell",{
+                    await actor.setFlag("combat-utility-belt", "concentrationSpell",{
                       id: item.id,
                       name: item.name,
                       status: "active"
                     });
+                    $(this).html(`<i class="fas fa-brain"></i>&nbspStop Concentrating${actor.data.flags["combat-utility-belt"]["concentrationSpell"]?' On ' + actor.data.flags["combat-utility-belt"]["concentrationSpell"]?.name:'Concentrate'}`);
                   } else {
                     game.cub.removeCondition('Concentrating', [actor]);
-                    actor.unsetFlag("combat-utility-belt", "concentrationSpell");
+                    await actor.unsetFlag("combat-utility-belt", "concentrationSpell");
+                    $(this).html(`<i class="fas fa-brain"></i>&nbsp;Concentrate`)
                   }
                 });
                 
