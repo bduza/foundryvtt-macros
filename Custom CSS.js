@@ -2,6 +2,27 @@ if ($('#custom-css').length) return $('#custom-css').remove();
 else
 $('body').append(`<div id="custom-css" style="position: absolute; left: -1000;"><style>
 
+#pause.paused {bottom: 15px;}
+#pause.paused > h3 { text-shadow: 0 0 10px #ff0000; animation: pulse 2s infinite;}
+#pause.paused > img {height: 50px; margin-top: 40px;}
+
+@keyframes pulse {
+	0% {
+		/*transform: scale(0.95);*/
+		text-shadow: 0 0 0px #ff0000
+	}
+
+	50% {
+		/*transform: scale(1);*/
+		text-shadow: 0 0 15px #ff0000
+	}
+
+	100% {
+		/*transform: scale(0.95);*/
+		text-shadow: 0 0 0px #ff0000
+	}
+}
+
 li.control-tool.toggle.active {
   background: var(--color-shadow-highlight) !important;
   box-shadow: 0 0 10px var(--color-shadow-highlight) !important;
@@ -19,7 +40,7 @@ img {
   color: white;
   border: 1px solid #555;
 }
-a.entity-link, a.content-link, a.inline-roll, .my-inline-roll{
+a.entity-link, a.content-link, a.inline-roll, a.inline-chat, .my-inline-roll{
   background: rgba(30, 30, 30, 0.8) ;
   color: white;
   padding: 1px 4px;
@@ -131,16 +152,16 @@ textarea#chat-message  {
 	color: rgba(30, 30, 30, 0.8) ;
 	background: #DDD;
 }
-.dialog > .window-content * {
+.dialog > .window-content * , .journal-sheet > .window-content * {
     color: rgba(255, 255, 255, 1) ;
 }
-.dialog > section  {
+.dialog > section, .journal-sheet > section  {
     background: unset ;
 	background: rgba(30,30,30,0.5)  !important;
 	background-blend-mode: multiply ;
     ;
 }
-.dialog > section > div.dialog-content > *  {
+.dialog > section > div.dialog-content > *, .journal-sheet > section > div.dialog-content > *  {
     color: rgba(255, 255, 255, .9) ;
 	background:  rgba(30, 30, 30 ,1); /*!important ;*/
 	//background: unset ;
@@ -150,7 +171,7 @@ textarea#chat-message  {
 	background:  rgba(00, 00, 00 ,1); /*!important ;*/
 	//background: unset ;
 }
-.dialog-button {
+.dialog-button , .journal-sheet button{
     color: rgba(255, 255, 255, .9) ;
 }
 .dialog > section > div.dialog-content  {
@@ -171,11 +192,11 @@ textarea#chat-message  {
     color: rgba(255, 255, 255, .9) ;
 	background: rgba(30, 30, 30 ,0) ;
 }
-.dialog > section > * > button  {
+.dialog > section > * > button, .journal-sheet > section > * > button   {
     color: rgba(255, 255, 255, .9) ;
 	background: --dialog-background ;
 }
-.dialog > footer > button {
+.dialog > footer > button, .journal-sheet > footer > button {
     color: rgba(255, 255, 255, .9) ;
 }
 .dialog .inline-roll {
