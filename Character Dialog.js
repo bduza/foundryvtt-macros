@@ -211,8 +211,8 @@ for (const item of actorItems) {
   if (item.type === 'spell'){
     title +=  `${item.labels.level}\n`;
     title +=  `${item.labels.school}\n`;
-    if (item.labels.components.all.length)  title += item.labels.components.all.map(c=>c.abbr).join(', ');
-    if (item.labels.components.all.map(c=>c.abbr).includes('M')) title += `\n${item.labels.materials}`;
+    if (item.labels.components?.all.length)  title += item.labels.components?.all.map(c=>c.abbr).join(', ');
+    if (item.labels.components?.all.map(c=>c.abbr).includes('M')) title += `\n${item.labels.materials}`;
     if (item.labels.range) title += '\nRange: ' + item.labels.range;
     if (item.labels.target) title += '\nTarget: ' + item.labels.target;
   }
@@ -456,8 +456,8 @@ Dialog.persist({
         //-----------LABELS AND ROLLS---------------//
           if (item.labels.level) text +=  `${item.labels.level} `;
           if (item.labels.school) text +=  `${item.labels.school} `;
-          if (item.labels.components.all?.length)  text += item.labels.components.all.map(c=>c.abbr).join(', ');
-          if (item.labels.components.all.map(c=>c.abbr)?.includes('M')) text += `<br>Materials: ${item.labels.materials}`;
+          if (item.labels.components?.all?.length)  text += item.labels.components?.all.map(c=>c.abbr).join(', ');
+          if (item.labels.components?.all.map(c=>c.abbr)?.includes('M')) text += `<br>Materials: ${item.labels.materials}`;
           if (item.labels.activation && item.labels.activation !== 'None') text += '<br>Activation: ' + item.labels.activation;
           if (item.labels.range && item.labels.range !== '5 Feet') text += '<br>Range: ' + item.labels.range;
           if (item.labels.target) text += (game.dnd5e.canvas.AbilityTemplate.fromItem(item))?`<br><a id="${item.id}-inline-targeting" name="${item.id}" class="my-inline-roll"><i class="fas fa-bullseye"></i> Template:  ${item.labels.target}</a>`:`<br>Targets:  ${item.labels.target}`;
@@ -618,7 +618,7 @@ Dialog.persist({
               buttons : {},
               render: (app) => {
                 app.find('a').each(async function(){
-                  $(this).css('color', 'white');
+                  //$(this).css('color', 'white');
                   let foundEffects = game.dfreds.effects.all.filter(e => $(this)[0].outerText.trim().toUpperCase() === (e.name.toUpperCase()));
                   if (foundEffects.length > 0) {
                     let $link = $(`<a class=""><i class="fas fa-bolt" title="Left Click for Targets\nRight Click for Self" style="margin-left:.25em"></i></a>`);
