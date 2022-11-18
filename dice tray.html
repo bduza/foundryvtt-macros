@@ -1,0 +1,134 @@
+<html>
+<head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js" id="jquery-ui"></script>
+</head>
+<body onload="onload()">
+
+
+<script>
+function onload() {
+  let width = 60;
+  let initialPosition = `top:${window.innerHeight - parseInt($('#ui-right').css('bottom'))-250}px;left:${window.innerWidth- parseInt($('#ui-right').css('right'))-$('#ui-right').width()-(width*7)}px;position:absolute;`;
+  let position = $(`#Dice-Tray-Dialog`).attr(`style`) || initialPosition;
+  if (parseInt($('#Dice-Tray-Dialog').css('left')) > window.innerWidth || parseInt($('#Dice-Tray-Dialog').css('top')) > window.innerHeight)
+    position = initialPosition;
+
+  let content = `
+  
+  <div id="input-div" class="hidden" style="display:grid; grid-template-columns: auto /*auto auto max-content max-content*/; column-gap: 0em; margin: .2em 0 .25em 0; row-gap: .25em">
+  <style>
+  
+  #Dice-Tray-Dialog {
+    color:black;
+    z-index: 0;
+    border: 1px solid var(--color-border-dark);
+    border-radius: 5px; 
+    width: ${width*7}px;
+    background: url(../ui/denim075.png) repeat;
+    box-shadow: 0 0 20px var(--color-shadow-dark);
+  }
+  #Dice-Tray-Dialog button > small {
+    position: absolute; margin-left: -5px; line-height: 10px;
+    /*top: 55%; left: 50%; transform: translate(-50%, -50%);*/ 
+  }
+  #Dice-Tray-Dialog > header > h4 > a > i{margin: 0 3px 0 0}
+  #input-div input, #input-div button, #dice-div button{
+    text-align: center;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+  #input-div.hidden .edit-buttons button {
+  /*display:none !important;*/
+    text-align: center;
+    pointer-events:none;
+    
+  }
+  #input-div.hidden .edit-buttons {
+    display:none !important;
+  }
+  #input-div div.message-buttons {
+    display:none !important;
+  }
+  #input-div.hidden div.message-buttons{
+    display:grid !important;
+  }
+  #input-div.hidden > div.edit-buttons {
+    display:none;
+  }
+  #input-div.hidden .roll-formula {
+    border: 1px solid red !important;
+    pointer-events:none;
+    width: 100% !important;
+  }
+  .term img {
+    width: ${width}px;
+    margin: 20% auto -17% auto;
+    filter:  invert(100%);
+    transition-property: filter;
+    transition-duration: .1s; 
+  }
+  .term img:hover {filter: drop-shadow(0px 0px 4px #0ff) invert(100%);}
+  .term:hover {text-shadow: 0 0 8px var(--color-shadow-primary);}
+  .saved-rolls { 
+    line-height: 1.75em; 
+    width: auto; 
+    margin: .5em 0 0 0 ;
+    word-wrap: break-word; 
+    display: grid; 
+    grid-template-columns: auto;
+    row-gap: .25em;
+  }
+  .advantage {line-height: .5em; }
+  .saved-rolls .inline-roll {text-align: center; border: 1px solid var(--color-border-light-primary);}
+  .saved-rolls .inline-roll:hover {box-shadow: 0 0 5px var(--color-shadow-primary);}
+  #Dice-Tray-Dialog * { background: unset !important; color: black; }
+  #Dice-Tray-Dialog img { border: none}
+  .roll-formula, .roll-flavor {border: 1px solid var(--color-border-light-primary) !important; margin-right: -2px;}
+  .roll-button:hover, .save-button:hover {text-shadow: 0 0 8px var(--color-shadow-primary);}
+  </style>
+  <input class="message-id" style="display:none"></input>
+    <input class="roll-flavor" type="text" placeholder="flavor"></input>
+    <input class="roll-formula" type="text" placeholder="formula"></input>
+    <div class="edit-buttons" style="display:grid; grid-template-columns: auto auto">
+      <button class="roll-button" style="line-height: 15px;">Roll</button>
+      <button class="save-button" style="line-height: 15px;">Save</button>
+    </div>
+    <div class="message-buttons" style="display:grid; grid-template-columns: auto auto auto">
+      <button class="prev-button" style="line-height: 15px;">Prev</button>
+      <button class="next-button" style="line-height: 15px;">Next</button>
+      <button class="last-button" style="line-height: 15px;">Last</button>
+    </div>
+  </div>
+  
+  <div id="dice-div" style="display:grid; grid-template-columns: repeat(7, 55px); column-gap:.25em; justify-content:center;">
+    <div style="display:grid; grid-template-columns: auto;row-gap:.25em;  height: 40px">
+      <button class="advantage">ADV</button>
+      <button class="dis advantage">DIS</button>
+    </div>
+    <button class="term" data-text="1d20">  d20</button>
+    <button class="term" data-text="1d12">  d12</button>
+    <button class="term" data-text="1d10">  d10</button>
+    <button class="term" data-text="1d8" >  d8 </button>
+    <button class="term" data-text="1d6" >  d6 </button>
+    <button class="term" data-text="1d4" >  d4 </button>
+  </div>`;
+
+content += [1,2,3,4,5,6,7,8,9,10].reduce((acc, n)=> 
+    acc+=`<center style="font-size:1em"><button class="term number" data-text="${n}" title="${n}">${n}</button></center>`,
+    `<div id="nums-div" style="display:grid; grid-template-columns: repeat(10, auto); column-gap:.25em;  margin: .25em 0;">`)+`</div>`;
+
+content += `<div class="saved-rolls"></div>`;
+
+$('#Dice-Tray-Dialog').remove();
+$(`body`).append(`<div id="Dice-Tray-Dialog" style="${position}"><header class="window-title"><h4></h4></header>${content}</div>`);
+$(`#Dice-Tray-Dialog`).draggable();
+$(`#Dice-Tray-Dialog`).css('padding', '.3em');
+$(`#Dice-Tray-Dialog > header > h4`).append(`<a class="last-message">Die Tray</a>`);
+$(`#Dice-Tray-Dialog > header > h4`).append(`<a title="Close" class="close" style="float: right" ><i class="fas fa-times"></i>Close</a>`)
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,121 @@
+<html>
+<head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js" id="jquery-ui"></script>
+
+<style>
+center > div > label:before {
+content: '';
+  width: 32px;
+  height: 32px;
+  position: absolute;
+  z-index: 100;
+}
+center > div > :checked+label::before  {
+content: '';
+  width: 32px;
+  height: 32px;
+  border: 2px solid #ff6400;
+}
+/*box-shadow: 0 0 10px #ff6400 inset;*/
+.faux-hotbar-macro:hover {
+    
+    border: 1px solid #ff6400;
+}
+.faux-macro-img {
+    margin: 1px 0px 0px 1px;
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    object-position: 50% 50%;
+    border: unset;
+    opacity: 1.0;
+}
+#macros-set-dialog > section > div.dialog-buttons > button
+{
+    color: #fff;
+    border: 1px solid #000;
+}
+.faux-hotbar-macro {
+    border: 1px solid #000;
+    height: 48px; width: 48px; box-sizing: border-box; border-radius: 5px;
+    
+    position: relative;
+    flex: 0 0 50px;
+    height: 48px;
+    border: 1px solid #000;
+    border-radius: 3px;
+    
+    cursor: pointer;
+}
+.faux-hotbar-macro > .tooltip {
+  display: block;
+  min-width: 148px;
+  height: 26px;
+  padding: 2px 4px;
+  position: absolute;
+  top: -32px;
+  left: -50px;
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid var(--color-border-dark-primary);
+  border-radius: 3px;
+  color: var(--color-text-light-highlight);
+  line-height: 22px;
+  text-align: center;
+  white-space: nowrap;
+  word-break: break-all;
+}
+.faux-hotbar-macro > small.num {
+position: absolute; 
+bottom: 28px; 
+left: 1px; 
+padding: 0px 3px 0px 3px; 
+text-align: right; 
+background-color: #222222; 
+color: #fff ;
+}
+div#macro-grid {
+width:max-content; 
+display: grid; 
+grid-template-columns: repeat(10, 48px); 
+margin-bottom: .5em;
+row-gap:1px; 
+column-gap:1px;
+}
+</style>
+</head>
+<body onload="onload()" >
+<canvas id="graph" width="1000" height="700" >     </canvas>
+
+<script>
+function onload() {
+let content=`<div style="" id="macro-grid">`;
+
+let b = 50;
+while (b > 0) {
+    for (let i = 1; i <= 10; i++) {
+        content +=  `<div style="" class="faux-hotbar-macro" id="hotbar-macro-${b-10+i}" data-id="${b-10+i}" >
+                        <!--<img draggable="true" class="faux-macro-img" width="46" height="46" src="./ui/denim075.png">-->
+                        <small class="num" >${i>9?0:i}</small>
+                        </small>
+                    </div>
+                    `;
+    }
+    b-=10;
+}
+content += '</div>';
+   $('body').append($(content))
+   
+
+let hotbar = {6:"some id" , 13: "some other id"}
+for (let [key, value] of Object.entries(hotbar)) {
+  console.log($(`div[data-id="${key}"]`).append(value))
+}
+console.log($('#macro-grid').css('width'))
+
+}
+</script>
+
+</body>
+</html>
