@@ -135,7 +135,7 @@ let d = new Dialog({
         //let macroFolder = game.folders.find(f => f.data.name === folderName && f.data.type === 'Macro');
         //if (!macroFolder) macroFolder = await Folder.create({name : folderName , type : 'Macro'});
         //let folderId = game.folders.find(f => f.data.name === folderName && f.data.type === 'Macro').id;
-        let github = "https://raw.githubusercontent.com/xaukael/foundryvtt-macros/main/";
+        let github = "https://raw.githubusercontent.com/bduza/foundryvtt-macros/main/";
         let macro = macros.find(m=>m.name === $(this).attr('name'))
         let args = [macro.name];
         let gitData = '';
