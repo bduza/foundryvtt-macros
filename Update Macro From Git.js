@@ -6,7 +6,7 @@ let command = macro.data.command;
 let match = true;
 let gitData = command;
 try {
-await jQuery.get(`https://raw.githubusercontent.com/xaukael/foundryvtt-macros/main/${encodeURI(macro.name)}.js`, function(data) {
+await jQuery.get(`https://raw.githubusercontent.com/bduza/foundryvtt-macros/main/${encodeURI(macro.name)}.js`, function(data) {
   if (data) {
     match = data=== command;
     gitData = data;
