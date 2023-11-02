@@ -1,7 +1,7 @@
 if(!game.macros.getName('Get Macro From Git')) {
 let gitData = "";
 try{
-await jQuery.get(`https://raw.githubusercontent.com/xaukael/foundryvtt-macros/main/${encodeURI('Get Macro From Git')}.js`, async function(data) {
+await jQuery.get(`https://raw.githubusercontent.com/bduza/foundryvtt-macros/main/${encodeURI('Get Macro From Git')}.js`, async function(data) {
   gitData = data;
 });
 }catch(error){return ui.notifications.error('Macro not found: '+error.responseText)}
