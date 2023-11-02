@@ -2,7 +2,7 @@ if(!args[0]) return ui.notifications.error('No macro name passed in args');
 if(game.macros.find(m=>m.data.flags.world?.name===args[0])) return ui.notifications.error(`A macro named ${args[0]} already exists`);
 let gitData = "";
 try{
-await jQuery.get(`https://raw.githubusercontent.com/xaukael/foundryvtt-macros/main/${encodeURI(args[0])}.js`, async function(data) {
+await jQuery.get(`https://raw.githubusercontent.com/bduza/foundryvtt-macros/main/${encodeURI(args[0])}.js`, async function(data) {
   gitData = data;
 });
 }catch(error){return ui.notifications.error('Macro not found: '+error.responseText)}
